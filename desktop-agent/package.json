@@ -10,6 +10,7 @@
     "icons": "node build-resources/generate-installer-header.cjs",
     "predist": "node build-resources/clean-dist.cjs",
     "dist": "electron-builder --win nsis",
+    "postdist": "node build-resources/finalize-installer.cjs",
     "test": "jest --colors",
     "test:watch": "jest --watch"
   },
