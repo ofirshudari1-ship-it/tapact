@@ -134,4 +134,21 @@ describe('shouldPrimeClipboardOnResume', () => {
     expect(shouldPrimeClipboardOnResume({ wasEnabled: true, willBeEnabled: false })).toBe(false);
     expect(shouldPrimeClipboardOnResume({ wasEnabled: false, willBeEnabled: false })).toBe(false);
   });
+
+  // Regression guard for the "opening the app pops the last-copy popup" bug:
+  // a cold app launch is the exact same "was not running -> about to run"
+  // shape as resuming from pause (nothing has been polling the clipboard yet,
+  // so `lastClipboardText` is still at its unset default) - main.js's
+  // app.whenReady() now calls this with wasEnabled: false unconditionally and
+  // willBeEnabled taken from the just-loaded settings (after the startPaused
+  // override, if any, has already been applied), instead of jumping straight
+  // to startClipboardWatcher() with no baseline at all like it used to.
+  test('cold start (wasEnabled: false) primes whenever monitoring will be on', () => {
+    // Normal launch, monitoring on by default.
+    expect(shouldPrimeClipboardOnResume({ wasEnabled: false, willBeEnabled: true })).toBe(true);
+    // Shared-PC "start paused" launch: startupSettings.enabled was already
+    // forced to false before this check runs, so no priming happens - there
+    // is nothing to protect yet since the watcher won't poll at all.
+    expect(shouldPrimeClipboardOnResume({ wasEnabled: false, willBeEnabled: false })).toBe(false);
+  });
 });

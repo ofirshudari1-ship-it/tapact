@@ -357,6 +357,16 @@ function openPopupWindow() {
   if (popupWindow && !popupWindow.isDestroyed()) {
     popupWindow.close();
   }
+  // Only one popup is ever meant to be on screen at a time - the phone popup
+  // and the generic action popup share a single autoCloseTimer/autoRunTimer
+  // (see resetAutoCloseTimer/closePopup), so leaving the OTHER type's window
+  // open here would let opening this one silently reset/extend the other's
+  // countdown, and closePopup() would then dismiss both together instead of
+  // each closing on its own schedule. Closing it here keeps that shared timer
+  // correct instead of trying to give each window its own.
+  if (actionPopupWindow && !actionPopupWindow.isDestroyed()) {
+    actionPopupWindow.close();
+  }
 
   const cursor = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(cursor);
@@ -411,6 +421,11 @@ function openPopupWindow() {
 function openActionPopupWindow() {
   if (actionPopupWindow && !actionPopupWindow.isDestroyed()) {
     actionPopupWindow.close();
+  }
+  // See the matching comment in openPopupWindow() - the two popup types share
+  // one autoCloseTimer/autoRunTimer, so both must never be open at once.
+  if (popupWindow && !popupWindow.isDestroyed()) {
+    popupWindow.close();
   }
 
   const cursor = screen.getCursorScreenPoint();
@@ -1629,7 +1644,7 @@ if (!gotSingleInstanceLock) {
   // window's 'close' handler runs so it doesn't intercept a real quit.
   app.on('before-quit', () => { isQuitting = true; });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     createTray();
     // Shared/work-PC option: force monitoring off at this specific launch
     // regardless of whatever `enabled` was left at last time, without
@@ -1641,6 +1656,20 @@ if (!gotSingleInstanceLock) {
     const startupSettings = store.getSettings();
     if (startupSettings.startPaused && startupSettings.enabled) {
       store.saveSettings({ enabled: false });
+    }
+    // `lastClipboardText` starts out as '' (see its declaration above) - a
+    // cold launch is exactly the "was not running -> about to run" case
+    // shouldPrimeClipboardOnResume already models for the pause/resume
+    // toggle. Without this, the very first poll tick after launch compared
+    // whatever text happened to already be sitting in the OS clipboard
+    // (copied in some other app, any time before TapAct even started)
+    // against that empty '', always saw it as "new", and popped the action/
+    // phone popup (and logged it to history) for content nobody just
+    // copied - reported as "the last-copy popup appears just from opening
+    // the app". Priming the baseline first, exactly like resuming from
+    // pause does, fixes that at the source instead of masking it downstream.
+    if (shouldPrimeClipboardOnResume({ wasEnabled: false, willBeEnabled: store.getSettings().enabled })) {
+      await primeClipboardBaseline();
     }
     startClipboardWatcher();
     applyAutoLaunch();
