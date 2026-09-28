@@ -163,6 +163,27 @@ html, body {
   font-size: 12px;
 }
 
+/* Supporting illustration on the welcome step. The source art has its own
+   plain light background, so — same as splash/settings' framed logo treatment
+   — it sits on a light card in dark theme rather than directly on --surface,
+   which keeps it crisp instead of looking like a mismatched cutout. In light
+   theme --surface is already near-white, so a subtle border is enough. */
+.welcome-hero {
+  background: #f3f4fa;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 16px var(--brand-glow);
+}
+[data-theme="light"] .welcome-hero { background: var(--surface2); }
+.welcome-hero-img {
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  border-radius: 8px;
+}
+
 .feature-list {
   list-style: none;
   padding: 0;
