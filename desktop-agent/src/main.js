@@ -219,59 +219,83 @@ async function checkClipboard() {
   }
   lastClipboardText = text;
 
-  if (settings.historyEnabled !== false && !(await clipboardExcludedFromHistory())) {
-    const { category, actions } = categorizeForHistory(text);
-    const tags = store.computeTags(text);
-    store.addClipboardHistoryItem({ text, category, actions, tags });
-    broadcastHistoryItemsChanged();
-    // Only rebuild the tray's "recent actions" submenu when this copy
-    // actually had one - keeps every other clipboard tick (the common
-    // case: plain text with no detected action) from paying for a menu
-    // rebuild it wouldn't change.
-    if (actions && actions.length && tray && !tray.isDestroyed()) {
-      tray.setContextMenu(buildTrayMenu());
+  // Everything below used to run unguarded: any exception here (a bad
+  // tag rule, a store write failure, anything) left clipboardCheckInFlight
+  // stuck at `true` forever, since it was only ever reset to `false` on
+  // the *success* path - every later poll tick then hit the `if
+  // (clipboardCheckInFlight) return` guard above and returned immediately
+  // without even reading the clipboard again. That's a silent, permanent,
+  // whole-app detection outage from a single bad copy, recoverable only by
+  // restarting TapAct - and invisible, because nothing was ever logged for
+  // it. try/finally guarantees the flag always clears; the catch logs the
+  // failure so a future recurrence is diagnosable from tapact.log instead
+  // of just "it stopped working" with no trace.
+  try {
+    if (settings.historyEnabled !== false && !(await clipboardExcludedFromHistory())) {
+      const { category, actions } = categorizeForHistory(text);
+      const tags = store.computeTags(text);
+      store.addClipboardHistoryItem({ text, category, actions, tags });
+      broadcastHistoryItemsChanged();
+      // Only rebuild the tray's "recent actions" submenu when this copy
+      // actually had one - keeps every other clipboard tick (the common
+      // case: plain text with no detected action) from paying for a menu
+      // rebuild it wouldn't change.
+      if (actions && actions.length && tray && !tray.isDestroyed()) {
+        tray.setContextMenu(buildTrayMenu());
+      }
     }
+  } catch (err) {
+    log(LOG_LEVELS.ERROR, 'checkClipboard: history/categorization step failed', { message: err && err.message });
+  } finally {
+    clipboardCheckInFlight = false;
   }
 
-  clipboardCheckInFlight = false;
+  // Same reasoning as above, but this half never touched the in-flight
+  // flag (already cleared by the finally block) - an exception here only
+  // ever dropped one popup, not the whole watcher. Still wrapped, and still
+  // logged, so a real detector bug shows up in tapact.log instead of
+  // silently doing nothing.
+  try {
+    const dedupeMs = (settings.dedupeSeconds || 60) * 1000;
 
-  const dedupeMs = (settings.dedupeSeconds || 60) * 1000;
+    // Generic detectors (tracking/address/url) run before phone on purpose:
+    // findPhone's "bare 9-digit run" heuristic (see lib/phone.js) treats any
+    // 9 consecutive digits as a landline missing its leading 0, which is
+    // exactly the digit portion of an Israel Post S10 tracking number
+    // (2 letters + 9 digits + 2 letters, e.g. RR123456789IL) - so checking
+    // phone first used to steal every such tracking number into the WhatsApp
+    // popup instead of the tracking one. Structured patterns (UPS/DHL/S10
+    // prefixes, address regex, bare-URL) are inherently less prone to false
+    // positives than that heuristic, so they get first refusal.
+    if (text.length > MAX_ACTION_DETECT_LENGTH) return; // large copy - see MAX_ACTION_DETECT_LENGTH
 
-  // Generic detectors (tracking/address/url) run before phone on purpose:
-  // findPhone's "bare 9-digit run" heuristic (see lib/phone.js) treats any
-  // 9 consecutive digits as a landline missing its leading 0, which is
-  // exactly the digit portion of an Israel Post S10 tracking number
-  // (2 letters + 9 digits + 2 letters, e.g. RR123456789IL) - so checking
-  // phone first used to steal every such tracking number into the WhatsApp
-  // popup instead of the tracking one. Structured patterns (UPS/DHL/S10
-  // prefixes, address regex, bare-URL) are inherently less prone to false
-  // positives than that heuristic, so they get first refusal.
-  if (text.length > MAX_ACTION_DETECT_LENGTH) return; // large copy - see MAX_ACTION_DETECT_LENGTH
-
-  const detectors = settings.detectors || {};
-  const action = findGenericAction(text, detectors, store.getCustomActionRules(), settings.language);
-  if (action) {
-    const dedupeKey = `${action.type}:${action.raw}`;
-    const lastSeen = lastGenericNotifiedAt.get(dedupeKey) || 0;
-    if (Date.now() - lastSeen < dedupeMs) return;
-    lastGenericNotifiedAt.set(dedupeKey, Date.now());
-    if (isQuietHoursNow(settings)) return; // still logged to history above, just no popup
-    currentGenericAction = applyActionPreference(action, settings);
-    playDetectSound(settings);
-    openActionPopupWindow();
-    return;
-  }
-
-  if (detectors.phone !== false) {
-    const found = findPhone(text);
-    if (found) {
-      const lastSeen = lastNotifiedAt.get(found.normalized) || 0;
+    const detectors = settings.detectors || {};
+    const action = findGenericAction(text, detectors, store.getCustomActionRules(), settings.language);
+    if (action) {
+      const dedupeKey = `${action.type}:${action.raw}`;
+      const lastSeen = lastGenericNotifiedAt.get(dedupeKey) || 0;
       if (Date.now() - lastSeen < dedupeMs) return;
-      lastNotifiedAt.set(found.normalized, Date.now());
-      if (isQuietHoursNow(settings)) return;
+      lastGenericNotifiedAt.set(dedupeKey, Date.now());
+      if (isQuietHoursNow(settings)) return; // still logged to history above, just no popup
+      currentGenericAction = applyActionPreference(action, settings);
       playDetectSound(settings);
-      handlePhoneDetected(found, settings);
+      openActionPopupWindow();
+      return;
     }
+
+    if (detectors.phone !== false) {
+      const found = findPhone(text);
+      if (found) {
+        const lastSeen = lastNotifiedAt.get(found.normalized) || 0;
+        if (Date.now() - lastSeen < dedupeMs) return;
+        lastNotifiedAt.set(found.normalized, Date.now());
+        if (isQuietHoursNow(settings)) return;
+        playDetectSound(settings);
+        handlePhoneDetected(found, settings);
+      }
+    }
+  } catch (err) {
+    log(LOG_LEVELS.ERROR, 'checkClipboard: detection step failed', { message: err && err.message });
   }
 }
 
