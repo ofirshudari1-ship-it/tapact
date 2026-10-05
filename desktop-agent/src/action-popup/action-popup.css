@@ -135,7 +135,7 @@ html, body {
   transition: transform 0.08s ease, filter 0.15s ease;
 }
 .btn.primary {
-  background: var(--accent);
+  background: #5558e0;
   color: #fff;
   font-weight: 600;
   font-size: 12.5px;

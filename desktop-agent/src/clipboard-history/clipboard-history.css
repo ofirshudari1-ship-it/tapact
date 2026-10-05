@@ -109,7 +109,7 @@ body.embedded .app {
   font-size: 11px;
   cursor: pointer;
 }
-.chip.active { background: var(--brand-start); color: #08281a; border-color: var(--brand-start); font-weight: 700; }
+.chip.active { background: #5558e0; color: #fff; border-color: #5558e0; font-weight: 700; }
 .chip:hover { border-color: var(--brand-start); color: var(--fg); }
 .chip:focus-visible { outline: 2px solid var(--brand-start); outline-offset: 1px; }
 

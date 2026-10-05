@@ -210,7 +210,7 @@ const STRINGS = {
     'popup.role.placeholder': 'מנהל מכירות',
     'leads.template.tokens': 'טוקנים:',
     'leads.template.placeholder': 'ליד חדש\nשם: {{name}}\nטלפון: {{phone}}\nתפקיד: {{role}}\nמקור: {{source}}',
-    'leads.custom.sources.placeholder': 'TikTok, YouTube, כנס',
+    'leads.custom.sources.placeholder': 'כנס, TikTok, YouTube',
     // Welcome screen
     'welcome.step0.title': 'ברוכים הבאים ל-TapAct',
     'welcome.step0.body': 'TapAct רץ ברקע, בין הסמלים שליד השעון. כשמעתיקים מספר טלפון, כתובת, קישור או מספר משלוח, נפתחת חלונית קטנה עם הפעולה המתאימה, בלחיצה אחת.',

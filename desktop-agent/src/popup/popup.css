@@ -365,3 +365,10 @@ textarea { flex: none; min-height: 56px; max-height: 150px; overflow-y: auto; }
 #nameInput, #roleInput, #messageArea { unicode-bidi: plaintext; text-align: start; }
 /* rtl-exception: LTR value on the RTL layout start (right). */
 [dir="rtl"] #manualPhone { text-align: right; }
+
+/* Light theme: darker channel text so it keeps 4.5:1 on the pale tints. */
+[data-theme="light"] .ch-wa { color: #047857; }
+[data-theme="light"] .ch-wh { color: #4338ca; }
+[data-theme="light"] .ch-sl { color: #b45309; }
+[data-theme="light"] .ch-em { color: #1d4ed8; }
+[data-theme="light"] .ch-cp { color: #475569; }
