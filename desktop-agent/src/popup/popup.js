@@ -85,10 +85,22 @@ function refreshDupWarning() {
 
 // ─── WhatsApp message preview ─────────────────────────────────────────────────
 
+// Shrink-wrap: size the textarea to its text and the window to the content,
+// so the popup has no empty band under the send button.
+function fitWindow() {
+  const ta = els.messageArea;
+  if (ta) { ta.style.height = 'auto'; ta.style.height = Math.min(Math.max(ta.scrollHeight + 2, 56), 150) + 'px'; }
+  const header = document.querySelector('.app-header');
+  const body = document.querySelector('.body');
+  if (!header || !body) return;
+  window.tapact.fitHeight(header.offsetHeight + body.scrollHeight + 2);
+}
+
 function refreshMessage() {
   const template = state.templates.find((t) => t.id === state.selectedTemplateId) || state.templates[0];
   if (!template) return;
   els.messageArea.value = fillWhatsappTemplate(template.text, els.nameInput.value);
+  fitWindow();
 }
 
 // ─── Channels visibility ──────────────────────────────────────────────────────
@@ -296,7 +308,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     refreshMessage();
   });
   els.nameInput.addEventListener('input', () => { refreshMessage(); notifyActivity(); });
-  els.messageArea.addEventListener('input', notifyActivity);
+  els.messageArea.addEventListener('input', () => { notifyActivity(); fitWindow(); });
+  document.getElementById('moreOptions').addEventListener('toggle', fitWindow);
   els.roleInput.addEventListener('input', notifyActivity);
 
   els.checkManualBtn.addEventListener('click', checkManualPhone);
@@ -326,6 +339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Default view is just number + message + send; the name field lives in
   // the collapsed "more options", so only focus it when it's visible.
   if (!data.phone) els.manualPhone.focus();
+  fitWindow();
 });
 
 async function checkManualPhone() {

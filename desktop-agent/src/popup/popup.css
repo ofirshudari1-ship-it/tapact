@@ -350,3 +350,12 @@ select { cursor: pointer; }
 .more-options > summary { cursor: pointer; font-size: 12px; color: var(--muted, #8a93a6); user-select: none; }
 .more-options[open] > summary { margin-bottom: 8px; }
 .more-options .field-group { margin-bottom: 8px; }
+
+/* ─── Compact layout (v3.8.5): no dead space ─── */
+.app-header { padding: 6px 10px; }
+.body { padding: 8px 10px 10px; gap: 6px; flex: 0 1 auto; }
+.phone-row { padding: 5px 10px; gap: 8px; }
+.field-group.grow { flex: none; }
+.wa-section { gap: 4px; }
+textarea { flex: none; min-height: 56px; max-height: 150px; overflow-y: auto; }
+.btn.channel-btn { padding: 7px 8px; }

@@ -96,7 +96,7 @@ const LEAD_HISTORY_LIMIT = 50;
 const DEFAULT_SETTINGS = {
   enabled: true,
   pollMs: 800,
-  dedupeSeconds: 60, // suppresses re-popping the SAME clipboard text too often
+  dedupeSeconds: 10, // suppresses re-popping the SAME clipboard text too often
   autoCloseSeconds: 10,
   sendDedupeMinutes: 30, // "you already messaged this lead" warning window
   autoLaunch: false,
@@ -107,7 +107,7 @@ const DEFAULT_SETTINGS = {
     phone: true,
     tracking: true,
     address: true,
-    datetime: true,
+    datetime: false, // off by default: reps copy dates constantly in a CRM and each one popped a window
     url: true,
     email: true
   },
@@ -176,7 +176,7 @@ const DEFAULT_SETTINGS = {
   // Startup & window behavior
   startMinimized: false,  // launch straight to tray, skip popup window
   closeToTray: true,      // X button hides instead of quitting
-  showTrayNotification: true,  // balloon notification on phone detection
+  showTrayNotification: false,  // Windows balloon on phone detection - redundant with the popup, so off by default
   // Shown once, the first time a window is ever hidden (not closed) to the
   // tray — a short balloon explaining that TapAct is still running and
   // how to actually quit it. Flips true after it's shown once; never shown
@@ -253,6 +253,9 @@ function getSettings() {
   };
   // Migrate: earlier defaults were 20s, then 5s; clamp down to the current
   // 4s default for anyone who still has either old value saved.
+  // 60s was far too long: copy number, copy a name, copy the number again
+  // within a minute and the second copy silently did nothing.
+  if (merged.dedupeSeconds === 60) merged.dedupeSeconds = 10;
   if (merged.autoCloseSeconds === 20 || merged.autoCloseSeconds === 5 || merged.autoCloseSeconds === 4) merged.autoCloseSeconds = 10;
   return merged;
 }

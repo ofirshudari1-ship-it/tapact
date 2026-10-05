@@ -347,21 +347,21 @@ async function triggerManualPopup() {
   const action = findGenericAction(text, detectorsCfg, store.getCustomActionRules(), settings.language); // see checkClipboard for why this runs first
   if (action) {
     currentGenericAction = applyActionPreference(action, settings);
-    openActionPopupWindow();
+    openActionPopupWindow(true);
     return;
   }
 
   const phone = detectorsCfg.phone !== false ? findPhone(text) : null;
   if (phone) {
-    handlePhoneDetected(phone, store.getSettings());
+    handlePhoneDetected(phone, store.getSettings(), true);
     return;
   }
 
   currentPopupPhone = null;
-  openPopupWindow();
+  openPopupWindow(true);
 }
 
-function handlePhoneDetected(phone, settings) {
+function handlePhoneDetected(phone, settings, takeFocus = false) {
   const action = (settings.actionPreferences || {}).phone || 'popup';
   if (action === 'none') return;
   if (action === 'call') {
@@ -374,10 +374,12 @@ function handlePhoneDetected(phone, settings) {
   }
   // default: 'popup'
   currentPopupPhone = phone;
-  openPopupWindow();
+  openPopupWindow(takeFocus);
 }
 
-function openPopupWindow() {
+// takeFocus: only for popups the user asked for (shortcut/tray). Automatic ones
+// appear without stealing keyboard focus, so a rep mid-sentence isn't interrupted.
+function openPopupWindow(takeFocus = false) {
   if (popupWindow && !popupWindow.isDestroyed()) {
     popupWindow.close();
   }
@@ -394,8 +396,8 @@ function openPopupWindow() {
 
   const cursor = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(cursor);
-  const width = 360;
-  const height = 430;
+  const width = 320;
+  const height = 230; // initial guess; the popup reports its real content height via popup:fit
   // Anchored above the cursor (where the copy/selection just happened),
   // never on top of it - see computeAnchoredPopupPosition.
   const { x, y } = computeAnchoredPopupPosition({ point: cursor, width, height, workArea: display.workArea });
@@ -408,8 +410,8 @@ function openPopupWindow() {
     frame: false,
     alwaysOnTop: true,
     resizable: true,
-    minWidth: 320,
-    minHeight: 400,
+    minWidth: 280,
+    minHeight: 120,
     skipTaskbar: true,
     show: false,
     webPreferences: {
@@ -422,11 +424,11 @@ function openPopupWindow() {
 
   popupWindow.loadFile(path.join(__dirname, 'popup', 'popup.html'));
   popupWindow.once('ready-to-show', () => {
-    popupWindow.show();
+    if (takeFocus) popupWindow.show(); else popupWindow.showInactive();
     resetAutoCloseTimer();
     // Tray balloon notification on phone detection
     const s = store.getSettings();
-    if (s.showTrayNotification !== false && tray && !tray.isDestroyed()) {
+    if (s.showTrayNotification === true && tray && !tray.isDestroyed()) {
       tray.displayBalloon({
         iconType: 'info',
         title: tr('tray.phoneDetected.title'),
@@ -442,7 +444,7 @@ function openPopupWindow() {
   });
 }
 
-function openActionPopupWindow() {
+function openActionPopupWindow(takeFocus = false) {
   if (actionPopupWindow && !actionPopupWindow.isDestroyed()) {
     actionPopupWindow.close();
   }
@@ -486,7 +488,7 @@ function openActionPopupWindow() {
 
   actionPopupWindow.loadFile(path.join(__dirname, 'action-popup', 'action-popup.html'));
   actionPopupWindow.once('ready-to-show', () => {
-    actionPopupWindow.show();
+    if (takeFocus) actionPopupWindow.show(); else actionPopupWindow.showInactive();
     resetAutoCloseTimer();
     resetAutoRunTimer();
   });
@@ -1027,6 +1029,19 @@ ipcMain.on('popup:dismiss', () => closePopup());
 ipcMain.on('popup:open-settings', () => openSettingsWindow());
 ipcMain.on('popup:open-lead-settings', () => openSettingsWindow());
 ipcMain.on('popup:activity', () => resetAutoCloseTimer());
+// The popup measures its own content and asks the window to shrink-wrap it, so
+// there is never an empty band at the bottom. If the window sits above the
+// cursor, keep its bottom edge fixed so it stays next to what was copied.
+ipcMain.on('popup:fit', (_event, contentHeight) => {
+  if (!popupWindow || popupWindow.isDestroyed() || !Number.isFinite(contentHeight)) return;
+  const b = popupWindow.getBounds();
+  const cursor = screen.getCursorScreenPoint();
+  const wa = screen.getDisplayNearestPoint(cursor).workArea;
+  const h = Math.max(120, Math.min(Math.round(contentHeight), wa.height - 16));
+  let y = b.y + b.height <= cursor.y + 2 ? b.y + b.height - h : b.y;
+  y = Math.max(wa.y, Math.min(y, wa.y + wa.height - h));
+  popupWindow.setBounds({ x: b.x, y, width: b.width, height: h });
+});
 // Mouse over the popup = the rep is reading/about to click, so the countdown
 // must not run; it restarts only once the cursor leaves.
 ipcMain.on('popup:hover', (_event, hovering) => {
@@ -1688,6 +1703,13 @@ if (!gotSingleInstanceLock) {
     // user turns monitoring back on themselves - that's the point of
     // "start paused" for a machine other people also use.
     const startupSettings = store.getSettings();
+    // One-time: the Windows balloon on detection duplicated the popup, and the
+    // date popup fired on every date a rep copied. Existing installs saved `true`
+    // for both from the old defaults, so flip them off once; turning either back
+    // on in Settings afterwards sticks (the marker prevents a re-flip).
+    if (!startupSettings.trayBalloonOffApplied) {
+      store.saveSettings({ showTrayNotification: false, detectors: { datetime: false }, trayBalloonOffApplied: true });
+    }
     if (startupSettings.startPaused && startupSettings.enabled) {
       store.saveSettings({ enabled: false });
     }

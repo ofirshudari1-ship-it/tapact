@@ -9,21 +9,29 @@ function extractCandidates(text) {
 // Returns E.164 digits without '+' (e.g. "972501234567" for mobile,
 // "97231234567" for a landline), or null. Mobile: 05X-XXXXXXX (10 digits
 // with the leading 0). Landline: 0X-XXXXXXX (9 digits with the leading 0).
+// The national part (after 972) must look like a real Israeli number: mobile
+// 5X (9 digits), landline 2/3/4/8/9 (8 digits), VoIP 72-79 (9 digits).
+// Without this check any 9-digit run (ID number, order number, invoice)
+// popped a WhatsApp popup the rep never wanted.
+const ISRAELI_NATIONAL = /^(?:5\d{8}|[23489]\d{7}|7[2-9]\d{7})$/;
+
 function normalizeIsraeliPhone(raw) {
   let digits = raw.replace(/\D/g, '');
   if (digits.startsWith('00972')) digits = digits.slice(2);
+  let national;
   if (digits.startsWith('972')) {
-    // keep as-is
+    national = digits.slice(3);
   } else if (digits.startsWith('0')) {
-    digits = '972' + digits.slice(1);
-  } else if (digits.length === 9 || digits.length === 8) {
-    digits = '972' + digits;
+    national = digits.slice(1);
+  } else if (digits.length === 9 && digits.startsWith('5')) {
+    // Bare mobile with the leading 0 dropped (e.g. by Excel). Bare 8-digit
+    // landlines are no longer guessed - too many ordinary numbers look like one.
+    national = digits;
   } else {
     return null;
   }
-  if (!digits.startsWith('972')) return null;
-  if (digits.length !== 11 && digits.length !== 12) return null;
-  return digits;
+  if (!ISRAELI_NATIONAL.test(national)) return null;
+  return '972' + national;
 }
 
 function formatDisplay(normalized) {

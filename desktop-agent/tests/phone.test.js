@@ -150,3 +150,12 @@ describe('buildWhatsAppUrl', () => {
     expect(url).toContain(encodeURIComponent('שלום!'));
   });
 });
+
+describe('findPhone - ordinary numbers must not look like phones', () => {
+  test.each(['123456789', 'ת.ז. 305123456', '12345678', '65432109', '0123456789', '1,250,000', 'מספר הזמנה 4829173'])(
+    'ignores %s', (text) => { expect(findPhone(text)).toBeNull(); }
+  );
+  test.each(['052-9998877', '0529998877', '+972-52-999-8877', '03-5551234', '077-1234567', '529998877', 'נייד: 052-9998877'])(
+    'still detects %s', (text) => { expect(findPhone(text)).not.toBeNull(); }
+  );
+});
