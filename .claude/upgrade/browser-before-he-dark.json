@@ -1,0 +1,1700 @@
+[
+ {
+  "window": "first-run-language",
+  "lang": "he",
+  "theme": "dark",
+  "locale": "he",
+  "storedLanguage": "en"
+ },
+ {
+  "window": "welcome-firstrun-step0",
+  "lang": "he",
+  "theme": "dark",
+  "file": "welcome-firstrun-step0__he__dark.png",
+  "doc": {
+   "lang": "en",
+   "dir": "ltr",
+   "theme": null,
+   "title": "Welcome to TapAct",
+   "w": 483,
+   "h": 563
+  },
+  "leaks": [
+   {
+    "t": "Next →",
+    "tag": "button",
+    "id": "nextBtn",
+    "cls": "btn primary",
+    "dir": "ltr",
+    "user": false,
+    "why": "other-lang-table"
+   },
+   {
+    "t": "Theme",
+    "tag": "button",
+    "id": "themeToggleBtn",
+    "attr": "title",
+    "dir": "ltr",
+    "why": "other-lang-table"
+   }
+  ],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [
+   {
+    "id": "color-contrast",
+    "impact": "serious",
+    "n": 1,
+    "targets": [
+     "div:nth-child(5)"
+    ]
+   },
+   {
+    "id": "landmark-one-main",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "region",
+    "impact": "moderate",
+    "n": 4,
+    "targets": [
+     ".brand-logo",
+     ".welcome-header > div:nth-child(2)",
+     ".anim-right",
+     "div:nth-child(5)"
+    ]
+   }
+  ],
+  "console": [
+   "error: Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-2Z094YplPsiCR1qL7xjfox4N636yoYSdLBoEAlVmJKU=')"
+  ]
+ },
+ {
+  "window": "welcome-firstrun-step1",
+  "lang": "he",
+  "theme": "dark",
+  "file": "welcome-firstrun-step1__he__dark.png",
+  "doc": {
+   "lang": "en",
+   "dir": "ltr",
+   "theme": null,
+   "title": "Welcome to TapAct",
+   "w": 483,
+   "h": 563
+  },
+  "leaks": [
+   {
+    "t": "Next →",
+    "tag": "button",
+    "id": "nextBtn",
+    "cls": "btn primary",
+    "dir": "ltr",
+    "user": false,
+    "why": "other-lang-table"
+   },
+   {
+    "t": "Theme",
+    "tag": "button",
+    "id": "themeToggleBtn",
+    "attr": "title",
+    "dir": "ltr",
+    "why": "other-lang-table"
+   }
+  ],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": null,
+  "console": [
+   "error: Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-2Z094YplPsiCR1qL7xjfox4N636yoYSdLBoEAlVmJKU=')"
+  ]
+ },
+ {
+  "window": "welcome-firstrun-step2",
+  "lang": "he",
+  "theme": "dark",
+  "file": "welcome-firstrun-step2__he__dark.png",
+  "doc": {
+   "lang": "en",
+   "dir": "ltr",
+   "theme": null,
+   "title": "Welcome to TapAct",
+   "w": 483,
+   "h": 563
+  },
+  "leaks": [
+   {
+    "t": "Next →",
+    "tag": "button",
+    "id": "nextBtn",
+    "cls": "btn primary",
+    "dir": "ltr",
+    "user": false,
+    "why": "other-lang-table"
+   },
+   {
+    "t": "Theme",
+    "tag": "button",
+    "id": "themeToggleBtn",
+    "attr": "title",
+    "dir": "ltr",
+    "why": "other-lang-table"
+   }
+  ],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": null,
+  "console": [
+   "error: Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-2Z094YplPsiCR1qL7xjfox4N636yoYSdLBoEAlVmJKU=')"
+  ]
+ },
+ {
+  "window": "welcome-firstrun-step3",
+  "lang": "he",
+  "theme": "dark",
+  "file": "welcome-firstrun-step3__he__dark.png",
+  "doc": {
+   "lang": "en",
+   "dir": "ltr",
+   "theme": null,
+   "title": "Welcome to TapAct",
+   "w": 483,
+   "h": 563
+  },
+  "leaks": [
+   {
+    "t": "✓ Done",
+    "tag": "button",
+    "id": "nextBtn",
+    "cls": "btn primary",
+    "dir": "ltr",
+    "user": false,
+    "why": "other-lang-table"
+   },
+   {
+    "t": "Theme",
+    "tag": "button",
+    "id": "themeToggleBtn",
+    "attr": "title",
+    "dir": "ltr",
+    "why": "other-lang-table"
+   }
+  ],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": null,
+  "console": [
+   "error: Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-2Z094YplPsiCR1qL7xjfox4N636yoYSdLBoEAlVmJKU=')"
+  ]
+ },
+ {
+  "window": "welcome-reopened-step0",
+  "lang": "he",
+  "theme": "dark",
+  "file": "welcome-reopened-step0__he__dark.png",
+  "doc": {
+   "lang": "en",
+   "dir": "ltr",
+   "theme": null,
+   "title": "Welcome to TapAct",
+   "w": 483,
+   "h": 563
+  },
+  "leaks": [
+   {
+    "t": "Next →",
+    "tag": "button",
+    "id": "nextBtn",
+    "cls": "btn primary",
+    "dir": "ltr",
+    "user": false,
+    "why": "other-lang-table"
+   },
+   {
+    "t": "Theme",
+    "tag": "button",
+    "id": "themeToggleBtn",
+    "attr": "title",
+    "dir": "ltr",
+    "why": "other-lang-table"
+   }
+  ],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [
+   {
+    "id": "color-contrast",
+    "impact": "serious",
+    "n": 1,
+    "targets": [
+     "div:nth-child(5)"
+    ]
+   },
+   {
+    "id": "landmark-one-main",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "region",
+    "impact": "moderate",
+    "n": 4,
+    "targets": [
+     ".brand-logo",
+     ".welcome-header > div:nth-child(2)",
+     ".anim-right",
+     "div:nth-child(5)"
+    ]
+   }
+  ],
+  "console": []
+ },
+ {
+  "window": "settings-templates__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-templates__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-new-lead",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "ליד חדש",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, מדבר/ת ממוקד השירות 🙂\nראיתי שהשארת פרטים אצלנו ור",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-follow-up",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "פולואפ / מעקב",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, זה שוב אני 🙂\nרציתי לבדוק מה קורה מהשיחה הקודמת של",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-reminder",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "תזכורת (תור/מסמכים)",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, תזכורת קטנה מהמוקד שלנו 🙂\nחסרים לנו כמה מסמכים/פר",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-existing-customer",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "לקוח קיים - עדכון סטטוס",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, מעדכן/ת אותך לגבי הסטטוס של הבקשה שלך אצלנו. יש הת",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-general",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "כללי (ריק)",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם},",
+    "ph": ""
+   },
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "defaultSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "new-lead",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-detectors__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-detectors__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "prefPhoneSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": ""
+   },
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "prefEmailSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": ""
+   },
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "prefTrackingSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": ""
+   },
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "prefAddressSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-custom-rules__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-custom-rules__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "מספר הזמנה פנימי",
+    "ph": "שם הכלל (למשל: מספר הזמנה פנימי)"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "ORD-(\\d+)",
+    "ph": "ביטוי רגולרי, למשל: ORD-(\\d{6})"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "https://crm.example.com/orders/{value}",
+    "ph": "https://crm.example.com/orders/{value}"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "פתח הזמנה",
+    "ph": "טקסט לכפתור (אופציונלי)"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "Ticket (תמיכה)",
+    "ph": "שם הכלל (למשל: מספר הזמנה פנימי)"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "TKT-(\\d+)",
+    "ph": "ביטוי רגולרי, למשל: ORD-(\\d{6})"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "https://help.example.com/t/{value}",
+    "ph": "https://crm.example.com/orders/{value}"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "טקסט לכפתור (אופציונלי)"
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-settings__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-settings__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "trayClickSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "history",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "pollInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "800",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "dedupeInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "10",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "autoCloseInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "10",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "sendDedupeInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "30",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "time",
+    "id": "quietHoursStartInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "22:30",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "time",
+    "id": "quietHoursEndInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "07:15",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "autoRunDelayInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "4",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-shortcuts__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-shortcuts__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "shortcutManualInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "CommandOrControl+Alt+P",
+    "ph": "לחץ והקש קיצור"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "shortcutHistoryInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "Super+V",
+    "ph": "לחץ והקש קיצור"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "shortcutFallbackInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "CommandOrControl+Alt+V",
+    "ph": "לחץ והקש קיצור"
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-tags__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-tags__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "פרויקט",
+    "ph": "שם התגית"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "פרויקט, project",
+    "ph": "מילות מפתח, מופרדות בפסיק (למשל: פרויקט, project)"
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-leads__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-leads__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWhatsappNumber",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "050-1234567",
+    "ph": "9725012345678"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWebhookUrl",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "https://hooks.example.com/abc?x=1",
+    "ph": "https://..."
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWebhookHeaderName",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "",
+    "ph": "Authorization"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWebhookHeaderValue",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "",
+    "ph": "Bearer token..."
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadEmailAddress",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "leads@example.com",
+    "ph": "you@example.com"
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "leadMessageTemplate",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "ליד חדש\nשם: {{name}}\nטלפון: {{phone}}\nתפקיד: {{role}}\nמקור: {{source}}"
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "leadDupWindow",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "6",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadCustomSources",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "TikTok, YouTube, כנס"
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-clipboard-history__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-clipboard-history__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "clipSearchInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "חיפוש בהיסטוריה, כולל תגיות..."
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "clipHistoryStorageInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "1000",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "clipHistoryPreviewInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "50",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-history__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-history__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-about__1040x780",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-about__1040x780__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 1040,
+   "h": 780
+  },
+  "leaks": [],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [],
+  "console": []
+ },
+ {
+  "window": "settings-templates__860x620",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-templates__860x620__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 860,
+   "h": 620
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-new-lead",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "ליד חדש",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, מדבר/ת ממוקד השירות 🙂\nראיתי שהשארת פרטים אצלנו ור",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-follow-up",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "פולואפ / מעקב",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, זה שוב אני 🙂\nרציתי לבדוק מה קורה מהשיחה הקודמת של",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-reminder",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "תזכורת (תור/מסמכים)",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, תזכורת קטנה מהמוקד שלנו 🙂\nחסרים לנו כמה מסמכים/פר",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-existing-customer",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "לקוח קיים - עדכון סטטוס",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם}, מעדכן/ת אותך לגבי הסטטוס של הבקשה שלך אצלנו. יש הת",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "tplLabel-general",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "כללי (ריק)",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי {שם},",
+    "ph": ""
+   },
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "defaultSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "new-lead",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": null,
+  "console": []
+ },
+ {
+  "window": "settings-settings__860x620",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-settings__860x620__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 860,
+   "h": 620
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "trayClickSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "history",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "pollInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "800",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "dedupeInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "10",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "autoCloseInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "10",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "sendDedupeInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "30",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "time",
+    "id": "quietHoursStartInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "22:30",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "time",
+    "id": "quietHoursEndInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "07:15",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "autoRunDelayInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "4",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": null,
+  "console": []
+ },
+ {
+  "window": "settings-leads__860x620",
+  "lang": "he",
+  "theme": "dark",
+  "file": "settings-leads__860x620__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct - הגדרות",
+   "w": 860,
+   "h": 620
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWhatsappNumber",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "050-1234567",
+    "ph": "9725012345678"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWebhookUrl",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "https://hooks.example.com/abc?x=1",
+    "ph": "https://..."
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWebhookHeaderName",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "",
+    "ph": "Authorization"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadWebhookHeaderValue",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "",
+    "ph": "Bearer token..."
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadEmailAddress",
+    "name": "",
+    "dirAttr": "ltr",
+    "dir": "ltr",
+    "align": "start",
+    "value": "leads@example.com",
+    "ph": "you@example.com"
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "leadMessageTemplate",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "ליד חדש\nשם: {{name}}\nטלפון: {{phone}}\nתפקיד: {{role}}\nמקור: {{source}}"
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "id": "leadDupWindow",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "center",
+    "value": "6",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "leadCustomSources",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "TikTok, YouTube, כנס"
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": null,
+  "console": []
+ },
+ {
+  "window": "clipboard-history",
+  "lang": "he",
+  "theme": "dark",
+  "file": "clipboard-history__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": null,
+   "title": "TapAct",
+   "w": 384,
+   "h": 564
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "searchInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "חיפוש בהיסטוריה, כולל תגיות..."
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [
+   {
+    "id": "color-contrast",
+    "impact": "serious",
+    "n": 1,
+    "targets": [
+     ".active"
+    ]
+   },
+   {
+    "id": "landmark-one-main",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "nested-interactive",
+    "impact": "serious",
+    "n": 3,
+    "targets": [
+     "div[aria-label=\"רחוב הרצל 12, תל אביב (קומה 3)\"]",
+     ".item[role=\"button\"]:nth-child(2)",
+     "div[aria-label=\"שלום John 050-1234567 ₪1,234\"]"
+    ]
+   },
+   {
+    "id": "page-has-heading-one",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "region",
+    "impact": "moderate",
+    "n": 2,
+    "targets": [
+     ".toolbar",
+     "#countLabel"
+    ]
+   }
+  ],
+  "console": []
+ },
+ {
+  "window": "popup-phone",
+  "lang": "he",
+  "theme": "dark",
+  "file": "popup-phone__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": "dark",
+   "title": "TapAct",
+   "w": 328,
+   "h": 396
+  },
+  "leaks": [],
+  "fields": [
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "templateSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "new-lead",
+    "ph": ""
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "nameInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "ישראל ישראלי"
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "id": "roleInput",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "",
+    "ph": "מנהל מכירות"
+   },
+   {
+    "tag": "select",
+    "type": "select-one",
+    "id": "sourceSelect",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "LinkedIn",
+    "ph": ""
+   },
+   {
+    "tag": "textarea",
+    "type": "textarea",
+    "id": "messageArea",
+    "name": "",
+    "dirAttr": null,
+    "dir": "rtl",
+    "align": "start",
+    "value": "היי, מדבר/ת ממוקד השירות 🙂\nראיתי שהשארת פרטים אצלנו ורציתי ",
+    "ph": ""
+   }
+  ],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [
+   {
+    "id": "landmark-one-main",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "page-has-heading-one",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "region",
+    "impact": "moderate",
+    "n": 4,
+    "targets": [
+     "#phoneFoundBlock",
+     "#dupWarningBlock > span:nth-child(1)",
+     "#dupWarningText",
+     "#whatsappSection"
+    ]
+   }
+  ],
+  "console": []
+ },
+ {
+  "window": "action-url",
+  "lang": "he",
+  "theme": "dark",
+  "file": "action-url__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": null,
+   "title": "TapAct",
+   "w": 284,
+   "h": 130
+  },
+  "leaks": [],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [
+   {
+    "id": "color-contrast",
+    "impact": "serious",
+    "n": 1,
+    "targets": [
+     ".btn"
+    ]
+   },
+   {
+    "id": "landmark-one-main",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "page-has-heading-one",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "region",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "section"
+    ]
+   }
+  ],
+  "console": []
+ },
+ {
+  "window": "action-address",
+  "lang": "he",
+  "theme": "dark",
+  "file": "action-address__he__dark.png",
+  "doc": {
+   "lang": "he",
+   "dir": "rtl",
+   "theme": null,
+   "title": "TapAct",
+   "w": 284,
+   "h": 168
+  },
+  "leaks": [],
+  "fields": [],
+  "overflow": {
+   "docX": 0,
+   "docY": 0,
+   "clipped": []
+  },
+  "axe": [
+   {
+    "id": "color-contrast",
+    "impact": "serious",
+    "n": 1,
+    "targets": [
+     ".primary"
+    ]
+   },
+   {
+    "id": "landmark-one-main",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "page-has-heading-one",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "html"
+    ]
+   },
+   {
+    "id": "region",
+    "impact": "moderate",
+    "n": 1,
+    "targets": [
+     "section"
+    ]
+   }
+  ],
+  "console": []
+ }
+]

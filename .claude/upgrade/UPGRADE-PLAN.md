@@ -1,109 +1,67 @@
-# TapAct Settings Window — Upgrade Plan
+# UPGRADE PLAN - TapAct RTL / Settings / Welcome round
 
-Scope: `desktop-agent/src/settings/{settings.html,settings.js,settings.css,preload.js}`
-plus one narrowly-justified exception: the Settings `BrowserWindow` dimensions in
-`desktop-agent/src/main.js` (not business logic — it's the window chrome for the
-same screen this upgrade targets, and it is the literal cause of the user's "too
-small" complaint; no other line in main.js was touched).
+> based on UPGRADE-REPORT 2026-10-05. autonomy: full. branch: `upgrade/2026-10-05-rtl-settings`.
+> each sprint = 1+ commits, `npm test` green before each commit, re-run `live-harness/pass.cjs after` at the end.
+> no business-logic changes except two bug fixes that make a setting do what its UI says (first-run language, dedupe 0), both with unit tests.
+> all new/changed Hebrew: hebrew-copywriting rules (plain, active, regular hyphen only, `←` for arrows, no emoji in new strings, no invented claims). en keys kept in parity.
 
-User complaint (verbatim, Hebrew): "מסך ההגדרות קטן מידי ולא מותאם לא נוח
-לשימוש לא מובן מה לעשות ואיך לעשות" — window too small, not responsive, not
-comfortable to use, unclear what/how to do things.
+### S1 - First-run language + welcome window (blockers)
+**Scope:** resolve the first-run language after `app.ready` (installer marker > OS locale), only for installs that have not finished/skipped the welcome and never chose a language; move the welcome inline script into `welcome.js`; pass lang/theme/shortcuts to the welcome via query string so dir/lang/theme are set before first paint; rewrite the welcome steps (what it does / copy a phone -> popup -> WhatsApp / history shortcut / where settings live); real logo; dir-aware arrows + slide animation; scrollable step area.
+**Contract:**
+- [ ] live `first-run-language`: `--lang=he-IL` -> stored `he`; `--lang=en-US` -> stored `en`
+- [ ] welcome (first run + reopened) in all 4 configs: `doc.lang`=config lang, `doc.dir`=rtl/ltr, `doc.theme`=config theme, `leaks`=0, console errors 0
+- [ ] new unit tests for the language resolver (marker, locale he, locale en, existing install untouched)
+- [ ] `npm test` green
 
-## Root cause (S0 finding)
+### S2 - RTL / bidi in every window
+**Scope:** `unicode-bidi: plaintext` for user-authored text (templates, tags, rule labels, lead template/sources, search fields, popup name/role/message, history item text); `dir="ltr"` for LTR values (shortcuts, regex, URL template) aligned to the layout start; shortcut display via a shared `formatAccelerator()` (Ctrl/Win) also used by the tray menu; Hebrew `→` -> `←`; fix physical CSS (`detect.py` high).
+**Contract:**
+- [ ] `detect.py`: 0 `rtl.physical-css`; the 2 `rtl.physical-class` hits documented in `detect-ignore.json` with reason (English prose "right-click")
+- [ ] shortcut inputs: `dir=ltr`, value starts with `Ctrl+`/`Win+`, `scrollWidth <= clientWidth` (browser-after.json fields)
+- [ ] template textarea/label computed `unicode-bidi: plaintext` in he and en (browser-after.json) + screenshot `settings-templates__1040x780__en__light.png` shows Hebrew punctuation on the correct side
+- [ ] history URL item renders left-to-right (screenshot `clipboard-history__he__*.png`)
+- [ ] 0 occurrences of `→` in `STRINGS.he` values (test)
 
-`main.js` created the Settings `BrowserWindow` at **720×760, min 640×600**.
-With a fixed 220px sidebar, that left ~460px of usable content width for a
-layout that includes 3-column preference grids and (as of the previous round)
-an inlined clipboard-history list with a search bar, filter chips, and a
-scrollable item list. Every panel was fighting for space in a window sized
-for a much simpler settings screen than the one that now exists.
+### S3 - Settings: truthful, clear, comfortable
+**Scope:** rewrite every hint listed under [High] in the REPORT to match the code; dynamic shortcut tokens in hints; `dedupeSeconds: 0` really means "no cooldown" (helper + test); language buttons without flag emoji; detector select not truncated; remove long dashes from Hebrew strings touched; i18n parity test.
+**Contract:**
+- [ ] every row of the "setting -> code" table below re-verified and its hint matches
+- [ ] `tests/i18n.test.js`: he/en key parity, no empty values, no `—` in he values
+- [ ] dedupe helper test: 0 -> 0ms, undefined -> default 10s, 30 -> 30000
+- [ ] no `<select>` in Settings with `scrollWidth > clientWidth` (live)
 
-## Sprints
+### S4 - A11y + theme polish in the small windows
+**Contract:**
+- [ ] axe serious/critical = 0 on welcome, popup, action-popup, history in all 4 configs (moderate landmark rules allowed <= 2 per window)
+- [ ] `color-scheme` set per theme in Settings (scrollbars follow theme)
+- [ ] `[needs-human]` light theme for history + action-popup (new visual design, not a fix) - documented, not done unless time allows
 
-### S1 — Window sizing + responsive layout (contract: window ≥ 1000px wide by
-default, sidebar scales instead of fixed-width, content column doesn't
-stretch unreadably wide, switching tabs doesn't leave stale scroll position)
-- `main.js`: Settings window 720×760 (min 640×600) → **1040×780 (min 860×620)**.
-- `settings.css`: sidebar column `clamp(200px, 20vw, 260px)` instead of fixed
-  `220px`; `.tab-panel` capped to `max-width: 760px` (900px for the
-  clipboard-history tab, which is a scannable list, not a form) so content
-  doesn't stretch edge-to-edge at the new width; clipboard-history panel
-  height raised from `min(58vh,620px)` to `min(60vh,680px)`.
-- `settings.js`: reset `.content` scroll position on every tab switch (all
-  tabs share one scroll container; without this a new tab could open
-  mid-scroll from the previous tab's position — part of what read as
-  "confusing").
-- Status: **done**, verified via offscreen-render screenshots (before/after),
-  124/124 tests pass.
+### S5 - Release
+- [ ] version 3.9.0 (scope: new welcome + language fix), CHANGELOG/PROJECT updated
+- [ ] `npm run dist`, ff master, push branch+master+tag, `gh release create` with exe + blockmap + latest.yml; sha512 in published latest.yml == local exe sha512
 
-### S2 — Display density option (contract: a density toggle exists in
-Settings ▸ מראה ושפה, switching it visibly tightens spacing on list-heavy
-tabs without shrinking tap targets, persists across window reopen)
-- Inspired by the actionclip.app research (competitor's density/theme
-  options) — TapAct's own tabs are list-heavy (templates, tags, custom
-  rules, clipboard/lead history), so a density option pays for itself here
-  even without the rest of that competitor's feature set.
-- `settings.html`: new `#densitySeg` segmented control next to the existing
-  language/theme ones. Hebrew copy ("צפיפות תצוגה" / "נוח" / "קומפקטי")
-  produced via the `hebrew-copywriting` skill, not hand-written.
-- `settings.js`: `applyAppDensity()` + localStorage read/write (a per-machine
-  display preference, kept out of the `settings:save-settings` IPC path/
-  store.js schema on purpose — no main-process change needed).
-- `settings.css`: `[data-density="compact"]` tightens panel/list/card padding
-  on list-heavy tabs.
-- Status: **done**, verified via screenshot (compact density, tags tab).
-
-### S3 — Per-action grouping, drag-reorder, pin-to-top (deferred, `[needs-human]`)
-The actionclip.app-inspired per-action enable/disable + drag-to-reorder +
-"pin frequent actions" + clearer category grouping was explicitly requested
-as UX inspiration. **Not implemented in this round** — it would mean new
-data model concepts (ordering/pinning state per detector or per custom
-rule) that reach past pure UI/layout into what the Settings ▸ סוגי זיהוי /
-כללים מותאמים אישית tabs actually persist, which is outside "don't touch
-business logic" for a single sprint at this size. Flagged as the top
-recommended next step below, scoped as its own future sprint with its own
-contract once someone confirms the data-model change is wanted.
-
-### S4 — Build, version bump, release
-- Bump `desktop-agent/package.json` version (real UX rebuild, not a patch).
-- `npm test` (124/124) before build.
-- `npm run dist` (NSIS installer) — **not executed on this machine** per the
-  hard rule against running the built .exe; build itself (electron-builder)
-  does not launch the app, only packages it, so `npm run dist` is safe to
-  run, but see `[needs-human]` in the report for what's outstanding here.
-
-## Verification method
-
-Real Electron `BrowserWindow` with `offscreen: true`, loading the actual
-`settings.html`/`settings.js`/`preload.js` against the actual
-`src/lib/store.js` (electron-store backed, isolated temp `userData` dir) with
-seeded sample data (templates, clipboard history, tag rules). Captured with
-`webContents.capturePage()` → PNG. A second run point the same script at the
-pre-upgrade files extracted via `git show master:...` to render an honest
-"before" at the old 720×760 size, using the same store/data. No installer
-`.exe` was built-and-run for this; screenshots are the evidence.
-
-Screenshots: `.claude/upgrade/screenshots/before/` and `/after/`.
-
----
-
-## Round 3 — S5 Accessibility (WCAG 2.2 AA) — executed as v3.2.1
-
-All contracts were measured live by `.claude/upgrade/a11y-harness/drive.cjs` (10 tabs × he-dark / he-light / en-dark). Real CDP key events drove every step; results are in `a11y-{before,after}-*.json`.
-
-| # | Contract | Status |
+## Setting -> code truth table (to verify in S3)
+| setting | what the code does | file:line |
 |---|---|---|
-| S5.1 | axe-core violations (wcag2a/aa, 21aa, 22aa, best-practice) = 0 on every tab, every config | PASS (118/138/118 → 0) |
-| S5.2 | 0 interactive nodes with an empty accessible name in Chromium's AX tree | PASS (21 → 0) |
-| S5.3 | Every Tab stop shows a computed focus indicator (outline/box-shadow; switches measured on `.slider`) | PASS (2 → 0 gaps) |
-| S5.4 | Custom-rule ▲/▼ usable repeatedly by keyboard; focus follows the moved rule | PASS |
-| S5.5 | Favorite star and list deletes keep focus inside the tab (never `<body>`) | PASS |
-| S5.6 | Keyboard shortcuts recordable without a mouse | PASS |
-| S5.7 | Text ≥ 4.5:1, icons/control boundaries ≥ 3:1, both themes, every gradient stop | PASS (only documented false-positives remain) |
-| S5.8 | `npm test` 124/124 | PASS |
+| startMinimized | only skips the first-run welcome; app always starts in tray | main.js:1733 |
+| closeToTray | X hides the window; quitting via tray > Exit | main.js:833, window-behavior.js:20 |
+| showTrayNotification | balloon on phone popup + gates one-time tray-hide tip | main.js:431, window-behavior.js:30 |
+| soundOnDetect | beep on automatic detection (after quiet-hours check) | main.js:282,292,324 |
+| startPaused | each launch sets enabled=false | main.js:1713 |
+| trayClickAction | left-click: history/settings/none; right-click always menu | window-behavior.js:46 |
+| pollMs | watcher interval, restarts on save | main.js:179, 1339 |
+| dedupeSeconds | no repeat popup for the same detected phone/value within N s; 0 currently -> 60 (bug) | main.js:259 |
+| autoCloseSeconds | closes popup after N s idle, hover pauses, 0 = never | main.js:633 |
+| sendDedupeMinutes | popup warns if this number was sent to within N min, 0 = off | popup.js:59 |
+| quietHours | no automatic popup in range; still logged; manual shortcut works | main.js:279,290,305 |
+| autoRunAction/delay | runs the first action after N s on action popups (not phone); closing the popup cancels | main.js:649,504 |
+| detectors.* | gate automatic popups only; history categorizes regardless | main.js:162 |
 
-Proposed follow-ups (not done):
-- **S5.9:** arrow-key roving tabindex (or a skip link) on the sidebar nav.
-- **S5.10:** a polite live region announcing a rule's new position after ▲/▼. This is new Hebrew copy, so it goes through `hebrew-copywriting`.
-- **S5.11:** one real NVDA/Narrator session on the installed build `[needs-human]`.
+## Out of scope (explicit)
+- AI layer, lead delivery logic, auto-updater, installer scripts.
+- Splitting `main.js`/`settings.js` (> 800 lines) - separate sprint, not this round.
+- `{name}` alias for the `{שם}` template token (would change message output) - `[needs-human]`.
+- English default templates for English installs (content decision) - `[needs-human]`.
+
+## Final target
+Professional on dims 1/3/5/6/8 (>= 8) for the windows in scope, 0 blocker/high in detect, 0 console errors, axe serious = 0.
