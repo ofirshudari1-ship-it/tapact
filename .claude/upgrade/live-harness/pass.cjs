@@ -124,9 +124,13 @@ async function runConfig(cfg) {
 
     // ---- Phone popup (automatic detection path)
     await ctx.mainEval(`global.__clip = ${JSON.stringify(TEST)}; return true;`);
-    const pop = await ctx.pageFor('popup/popup.html');
+    let pop = await ctx.pageFor('popup/popup.html');
     watchConsole(pop); await sleep(1500);
-    await record(pop, 'popup-phone', cfg);
+    try { await record(pop, 'popup-phone', cfg); }
+    catch (e) { // the window can be re-created while fitting its height; take the live one
+      pop = await ctx.pageFor('popup/popup.html'); watchConsole(pop); await sleep(800);
+      await record(pop, 'popup-phone', cfg);
+    }
     await closeWindows(ctx, 'popup/popup.html');
 
     // ---- Action popups (url, address)

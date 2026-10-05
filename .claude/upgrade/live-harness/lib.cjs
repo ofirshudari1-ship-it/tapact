@@ -184,9 +184,14 @@ function leakCheck(lang, texts) {
   const other = lang === 'he' ? 'en' : 'he';
   const cur = new Set(Object.values(STRINGS[lang]).map((s) => s.trim()));
   const oth = new Set(Object.values(STRINGS[other]).map((s) => s.trim()));
+  // Intentionally bilingual / endonyms: the language switcher must be findable
+  // by someone who cannot read the current language, and a language is named
+  // in its own script ("עברית" in the English UI, "English" in the Hebrew UI).
+  const ALLOW = [/^Change language \/ שנה שפה$/, /^שנה שפה \/ Change language$/, /^(🌐|🇮🇱)?\s*(עברית|עב)$/, /^(🌐|🇺🇸)?\s*English$/];
   const leaks = [];
   for (const x of texts) {
     if (x.user) continue;
+    if (ALLOW.some((re) => re.test(x.t))) continue;
     if (oth.has(x.t) && !cur.has(x.t)) leaks.push({ ...x, why: 'other-lang-table' });
     else if (lang === 'en' && /[\u0590-\u05FF]/.test(x.t)) leaks.push({ ...x, why: 'hebrew-in-en' });
   }

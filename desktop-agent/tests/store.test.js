@@ -373,6 +373,55 @@ describe('first-run language marker', () => {
   });
 });
 
+// ─── First-run language after app 'ready' (applyFirstRunLanguage) ────────────
+
+describe('applyFirstRunLanguage', () => {
+  function freshWithLocaleAtLoad(localeAtLoad, marker) {
+    const electron = require('electron');
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tapact-frl-'));
+    electron.app.getPath.mockReturnValue(tmpDir);
+    electron.app.getLocale.mockReturnValue(localeAtLoad);
+    if (marker) fs.writeFileSync(path.join(tmpDir, 'first-run-language.txt'), marker);
+    return freshStore();
+  }
+
+  test('fresh install, no marker: follows the real OS locale (he)', () => {
+    const store = freshWithLocaleAtLoad('', null); // pre-ready locale is not usable
+    expect(store.getSettings().language).toBe('en');
+    expect(store.applyFirstRunLanguage('he')).toBe('he');
+    expect(store.getSettings().language).toBe('he');
+    expect(store.getSettings().languageResolved).toBe(true);
+  });
+
+  test('fresh install, no marker: follows the real OS locale (en-US)', () => {
+    const store = freshWithLocaleAtLoad('', null);
+    expect(store.applyFirstRunLanguage('en-US')).toBe('en');
+    expect(store.getSettings().language).toBe('en');
+  });
+
+  test('installer marker wins over the OS locale', () => {
+    const store = freshWithLocaleAtLoad('', 'en');
+    expect(store.applyFirstRunLanguage('he-IL')).toBe('en');
+    expect(store.getSettings().language).toBe('en');
+  });
+
+  test('existing install (welcome already seen) is never changed', () => {
+    const store = freshWithLocaleAtLoad('', null);
+    store.saveSettings({ welcomeSeen: true, language: 'en' });
+    expect(store.applyFirstRunLanguage('he-IL')).toBe('en');
+    expect(store.getSettings().language).toBe('en');
+    expect(store.getSettings().languageResolved).toBe(true);
+  });
+
+  test('runs once: a later call with another locale changes nothing', () => {
+    const store = freshWithLocaleAtLoad('', null);
+    store.applyFirstRunLanguage('he-IL');
+    store.saveSettings({ language: 'en' }); // user switched in Settings
+    expect(store.applyFirstRunLanguage('he-IL')).toBe('en');
+    expect(store.getSettings().language).toBe('en');
+  });
+});
+
 // ─── WhatsApp send history ────────────────────────────────────────────────────
 
 describe('send history (WhatsApp)', () => {

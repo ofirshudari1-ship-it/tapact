@@ -3,151 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none';">
-<title>Welcome to TapAct</title>
+<title>TapAct</title>
 <link rel="stylesheet" href="welcome.css">
+<!-- Runs before the body is parsed: sets lang/dir/theme from the query string
+     main.js passes (see welcomeLoadOptions), so the very first paint is
+     already in the right direction and theme. Inline scripts are blocked by
+     this page's CSP, which is why this is a file. -->
+<script src="welcome-boot.js"></script>
 <script src="../lib/i18n-renderer.js"></script>
+<script src="../lib/accelerator-format.js"></script>
 </head>
 <body>
   <div class="app">
 
-    <!-- Gradient header -->
-    <div class="welcome-header">
-      <span class="brand-logo">📋</span>
+    <header class="welcome-header">
+      <img class="brand-logo" src="../../assets/logo.png" alt="">
       <div>
-        <div class="brand-name">TapAct</div>
-        <div class="brand-sub" data-i18n="header.subtitle">סוכן לוח ההעתקה החכם שלך</div>
+        <div class="brand-name" translate="no">TapAct</div>
+        <div class="brand-sub" data-i18n="header.subtitle"></div>
       </div>
       <div class="header-tools">
-        <button id="langToggleBtn" class="hdr-pill" title="שנה שפה / Change language">🌐 EN</button>
-        <button id="themeToggleBtn" class="hdr-pill" data-i18n-title="welcome.theme.title" title="Theme">🌙</button>
+        <button type="button" id="langToggleBtn" class="hdr-pill" title="Change language / שנה שפה" aria-label="Change language / שנה שפה">🌐</button>
+        <button type="button" id="themeToggleBtn" class="hdr-pill" data-i18n-title="welcome.theme.title" data-i18n-aria="welcome.theme.title">🌙</button>
       </div>
-    </div>
+    </header>
 
-    <!-- Progress bar -->
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
+    <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
 
-    <!-- Steps -->
-    <div class="steps">
+    <main class="steps" id="steps" aria-live="polite">
 
-      <section class="step active" data-step="0">
-        <div class="icon">📋⚡</div>
-        <h1 data-i18n="welcome.step0.title">ברוכים הבאים ל-TapAct</h1>
-        <p class="lede" data-i18n="welcome.step0.body">
-          תוכנת רקע קטנה שרצה במגש המערכת. ברגע שאתה מעתיק משהו שהיא מזהה,
-          קופצת חלונית ליד הסמן עם כפתור לפעולה הנכונה — בלי לעבור בין אפליקציות.
-        </p>
+      <section class="step active" data-step="0" aria-labelledby="stepTitle0">
+        <h1 id="stepTitle0" data-i18n="welcome.step0.title"></h1>
+        <p class="lede" data-i18n="welcome.step0.body"></p>
         <div class="welcome-hero">
           <img src="../../assets/welcome-illustration.png" alt="" class="welcome-hero-img">
         </div>
       </section>
 
-      <section class="step" data-step="1">
-        <div class="icon">📞📦🗺️🔗✉️</div>
-        <h1 data-i18n="welcome.step1.title">מה מזוהה אוטומטית</h1>
+      <section class="step" data-step="1" aria-labelledby="stepTitle1">
+        <div class="icon" aria-hidden="true">📞</div>
+        <h1 id="stepTitle1" data-i18n="welcome.step1.title"></h1>
+        <ol class="how-list">
+          <li data-i18n="welcome.step1.item1"></li>
+          <li data-i18n="welcome.step1.item2"></li>
+          <li data-i18n="welcome.step1.item3"></li>
+        </ol>
+        <p class="lede muted" data-i18n="welcome.step1.footer"></p>
+      </section>
+
+      <section class="step" data-step="2" aria-labelledby="stepTitle2">
+        <div class="icon" aria-hidden="true">🔍</div>
+        <h1 id="stepTitle2" data-i18n="welcome.step2.title"></h1>
         <ul class="feature-list">
-          <li><span class="feat-icon">📞</span><span><b data-i18n="welcome.feat.phone">טלפון</b> <span data-i18n="welcome.feat.phone.desc">← פתיחת WhatsApp עם הודעה מוכנה</span></span></li>
-          <li><span class="feat-icon">📦</span><span><b data-i18n="welcome.feat.tracking">מספר מעקב משלוח</b> <span data-i18n="welcome.feat.tracking.desc">← מעקב אצל חברת השילוח</span></span></li>
-          <li><span class="feat-icon">🗺️</span><span><b data-i18n="welcome.feat.address">כתובת</b> <span data-i18n="welcome.feat.address.desc">← ניווט ב-Google Maps / Waze</span></span></li>
-          <li><span class="feat-icon">🔗</span><span><b data-i18n="welcome.feat.link">קישור</b> <span data-i18n="welcome.feat.link.desc">← פתיחה בדפדפן</span></span></li>
-          <li><span class="feat-icon">✉️</span><span><b data-i18n="welcome.feat.email">אימייל</b> <span data-i18n="welcome.feat.email.desc">← פתיחת מייל חדש אליו</span></span></li>
+          <li><span class="feat-icon" aria-hidden="true">🗺️</span><span><b data-i18n="welcome.feat.address"></b><span class="feat-arrow" aria-hidden="true"></span><span data-i18n="welcome.feat.address.desc"></span></span></li>
+          <li><span class="feat-icon" aria-hidden="true">📦</span><span><b data-i18n="welcome.feat.tracking"></b><span class="feat-arrow" aria-hidden="true"></span><span data-i18n="welcome.feat.tracking.desc"></span></span></li>
+          <li><span class="feat-icon" aria-hidden="true">🔗</span><span><b data-i18n="welcome.feat.link"></b><span class="feat-arrow" aria-hidden="true"></span><span data-i18n="welcome.feat.link.desc"></span></span></li>
+          <li><span class="feat-icon" aria-hidden="true">✉️</span><span><b data-i18n="welcome.feat.email"></b><span class="feat-arrow" aria-hidden="true"></span><span data-i18n="welcome.feat.email.desc"></span></span></li>
         </ul>
-        <p class="lede muted" data-i18n="welcome.step1.footer">כל גלאי ניתן לכיבוי בנפרד בהגדרות.</p>
+        <p class="lede muted" data-i18n="welcome.step2.footer"></p>
       </section>
 
-      <section class="step" data-step="2">
-        <div class="icon">🕘</div>
-        <h1 data-i18n="welcome.step2.title">היסטוריית לוח מלאה</h1>
-        <p class="lede" data-i18n="welcome.step2.body">
-          <b>כל</b> העתקה נשמרת — כמו ה-Win+V המובנה, רק עם חיפוש, סינון לפי קטגוריה ותגיות, והדבקה חוזרת בלחיצה.
-        </p>
-        <p class="lede">
-          <span data-i18n="welcome.step2.shortcut.prefix">פותחים עם</span>
-          <code>Ctrl+Alt+V</code>
-          <span data-i18n="welcome.step2.shortcut.suffix">או עם Win+V לאחר כיבוי היסטוריית הלוח המובנית.</span>
-        </p>
+      <section class="step" data-step="3" aria-labelledby="stepTitle3">
+        <div class="icon" aria-hidden="true">🕘</div>
+        <h1 id="stepTitle3" data-i18n="welcome.step3.title"></h1>
+        <p class="lede" data-i18n="welcome.step3.body"></p>
+        <p class="lede key-line" data-i18n-shortcut="welcome.step3.open" data-shortcut="history"></p>
+        <p class="lede muted" id="winvHint" data-i18n="welcome.step3.winv"></p>
+        <p class="lede muted" data-i18n="welcome.step3.privacy"></p>
       </section>
 
-      <section class="step" data-step="3">
-        <div class="icon">⚙️</div>
-        <h1 data-i18n="welcome.step3.title">הכל ניתן להתאמה</h1>
-        <p class="lede" data-i18n="welcome.step3.body">
-          לחיצה ימנית על האייקון במגש פותחת את ההגדרות — שם אפשר לשנות קיצורי מקלדת,
-          להגדיר תגיות אוטומטיות, לערוך תבניות הודעה ולשלוט על כל היסטוריה בנפרד.
-        </p>
-        <p class="lede muted" data-i18n="welcome.step3.footer">הכל רץ מקומית בלבד — שום נתון לא יוצא מהמחשב.</p>
+      <section class="step" data-step="4" aria-labelledby="stepTitle4">
+        <div class="icon" aria-hidden="true">⚙️</div>
+        <h1 id="stepTitle4" data-i18n="welcome.step4.title"></h1>
+        <p class="lede" data-i18n="welcome.step4.body"></p>
+        <p class="lede key-line" data-i18n-shortcut="welcome.step4.manual" data-shortcut="manual"></p>
+        <p class="lede muted" data-i18n="welcome.step4.footer"></p>
+        <button type="button" id="openSettingsBtn" class="btn secondary inline-btn" data-i18n="welcome.btn.openSettings"></button>
       </section>
 
-    </div>
+    </main>
 
-    <!-- Footer -->
-    <div class="footer">
+    <footer class="footer">
       <div class="dots" id="dots"></div>
       <div class="nav-buttons">
-        <button id="skipBtn" class="btn ghost" data-i18n="welcome.btn.skip">דלג</button>
-        <button id="backBtn" class="btn secondary" disabled data-i18n="welcome.btn.back">← הקודם</button>
-        <button id="nextBtn" class="btn primary" data-i18n="welcome.btn.next">הבא →</button>
+        <button type="button" id="skipBtn" class="btn ghost" data-i18n="welcome.btn.skip"></button>
+        <button type="button" id="backBtn" class="btn secondary back" disabled data-i18n="welcome.btn.back"></button>
+        <button type="button" id="nextBtn" class="btn primary next" data-i18n="welcome.btn.next"></button>
       </div>
-    </div>
-    <div style="text-align:center;font-size:11px;color:#666;padding:6px 0 10px;">© 2024–2026 TapAct</div>
+      <div class="copyright" translate="no" dir="ltr">© 2024-2026 TapAct</div>
+    </footer>
   </div>
 
   <script src="welcome.js"></script>
-  <script>
-    // Apply language and theme from main process settings
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        if (window.tapactWelcome && window.tapactWelcome.getSettings) {
-          const s = await window.tapactWelcome.getSettings();
-          if (s) {
-            const lang = s.language || 'en';
-            const theme = s.theme || 'dark';
-            if (typeof window.i18n !== 'undefined') {
-              window.i18n.applyI18n(lang);
-              document.title = window.i18n.t(lang, 'welcome.doc.title');
-            }
-            document.documentElement.setAttribute('data-theme', theme);
-            updateLangBtn(lang);
-            updateThemeBtn(theme);
-          }
-        }
-      } catch(e) {}
-
-      // Language toggle
-      const langBtn = document.getElementById('langToggleBtn');
-      const themeBtn = document.getElementById('themeToggleBtn');
-
-      langBtn && langBtn.addEventListener('click', () => {
-        const cur = document.documentElement.lang || 'en';
-        const next = cur === 'he' ? 'en' : 'he';
-        if (typeof window.i18n !== 'undefined') {
-          window.i18n.applyI18n(next);
-          document.title = window.i18n.t(next, 'welcome.doc.title');
-        }
-        updateLangBtn(next);
-        if (window.tapactWelcome && window.tapactWelcome.saveSetting) {
-          window.tapactWelcome.saveSetting('language', next);
-        }
-      });
-
-      themeBtn && themeBtn.addEventListener('click', () => {
-        const cur = document.documentElement.getAttribute('data-theme') || 'dark';
-        const next = cur === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        updateThemeBtn(next);
-        if (window.tapactWelcome && window.tapactWelcome.saveSetting) {
-          window.tapactWelcome.saveSetting('theme', next);
-        }
-      });
-    });
-
-    function updateLangBtn(lang) {
-      const btn = document.getElementById('langToggleBtn');
-      if (btn) btn.textContent = lang === 'he' ? '🌐 EN' : '🌐 עב';
-    }
-    function updateThemeBtn(theme) {
-      const btn = document.getElementById('themeToggleBtn');
-      if (btn) btn.textContent = theme === 'dark' ? '🌙' : '☀️';
-    }
-  </script>
 </body>
 </html>

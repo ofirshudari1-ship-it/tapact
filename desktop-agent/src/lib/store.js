@@ -33,10 +33,15 @@ function consumeFirstRunLanguageMarker() {
 // Electron's `app.getLocale()` - the OS/Windows display language - is the
 // last-resort fallback. Wrapped in try/catch because `app` can be undefined
 // very early in some test/CLI contexts.
+// The installer's choice, if its marker was found at module load. Kept so
+// applyFirstRunLanguage() below can tell "the installer decided" apart from
+// "this was only a guess made before the OS locale was available".
+let installerLanguage = null;
+
 function resolveDefaultLanguage() {
   try {
     const fromInstaller = consumeFirstRunLanguageMarker();
-    if (fromInstaller) return fromInstaller;
+    if (fromInstaller) { installerLanguage = fromInstaller; return fromInstaller; }
     const locale = (app && typeof app.getLocale === 'function' && app.getLocale()) || '';
     return locale.toLowerCase().startsWith('he') ? 'he' : 'en';
   } catch (e) {
@@ -467,6 +472,30 @@ function getRecentActionableHistory(limit = 5) {
     .slice(0, limit);
 }
 
+// The DEFAULT_SETTINGS.language above is computed when this module is first
+// required - in main.js that is before app 'ready', and app.getLocale() is
+// not reliable before 'ready' (live: a Hebrew Windows returned nothing
+// useful there, so every fresh Hebrew install started in English, and
+// electron-store had already persisted that guess). main.js calls this once
+// after 'ready' with the real OS locale:
+// - existing install (welcome already finished/skipped): never touched,
+//   whatever language it has is the user's;
+// - fresh install with an installer marker: the installer's choice stays;
+// - fresh install without a marker: language follows the OS locale.
+// `languageResolved` makes it a one-time step.
+function applyFirstRunLanguage(locale) {
+  const current = getSettings();
+  if (current.languageResolved === true) return current.language;
+  if (current.welcomeSeen === true) {
+    saveSettings({ languageResolved: true });
+    return current.language;
+  }
+  const fromLocale = String(locale || '').toLowerCase().startsWith('he') ? 'he' : 'en';
+  const language = installerLanguage || fromLocale;
+  saveSettings({ language, languageResolved: true });
+  return language;
+}
+
 function isWelcomeSeen() {
   return getSettings().welcomeSeen === true;
 }
@@ -559,6 +588,7 @@ module.exports = {
   getRecentActionableHistory,
   isWelcomeSeen,
   markWelcomeSeen,
+  applyFirstRunLanguage,
   getLeadSettings,
   saveLeadSettings,
   getLeadHistory,

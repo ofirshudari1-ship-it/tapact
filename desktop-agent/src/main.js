@@ -56,6 +56,7 @@ const { sanitizeSettingsPatch } = require('./lib/settings-guard');
 const { buildRedactedSettingsSnapshot, buildSystemInfoText } = require('./lib/diagnostics');
 const { createZip } = require('./lib/zip-writer');
 const i18n = require('./lib/i18n-renderer');
+const { formatAccelerator } = require('./lib/accelerator-format');
 
 // The tray menu, tray tooltip/balloons and native dialogs below are all
 // main-process UI with no renderer/DOM in the loop, so they never went
@@ -731,8 +732,8 @@ function showFirstRunWelcomeWithSplash() {
   const splashShownAt = createSplash();
 
   const win = new BrowserWindow({
-    width: 480,
-    height: 560,
+    width: 500,
+    height: 600,
     resizable: false,
     frame: false,
     center: true,
@@ -746,7 +747,7 @@ function showFirstRunWelcomeWithSplash() {
     }
   });
   welcomeWindow = win;
-  win.loadFile(path.join(__dirname, 'welcome', 'welcome.html'));
+  win.loadFile(path.join(__dirname, 'welcome', 'welcome.html'), welcomeLoadOptions());
   win.on('closed', () => { welcomeWindow = null; });
 
   let revealed = false;
@@ -783,8 +784,8 @@ function openWelcomeWindow() {
     return;
   }
   welcomeWindow = new BrowserWindow({
-    width: 480,
-    height: 560,
+    width: 500,
+    height: 600,
     resizable: false,
     frame: false,
     center: true,
@@ -796,8 +797,27 @@ function openWelcomeWindow() {
       sandbox: true
     }
   });
-  welcomeWindow.loadFile(path.join(__dirname, 'welcome', 'welcome.html'));
+  welcomeWindow.loadFile(path.join(__dirname, 'welcome', 'welcome.html'), welcomeLoadOptions());
   welcomeWindow.on('closed', () => { welcomeWindow = null; });
+}
+
+// Language, theme and the two shortcuts the guide mentions, handed to the
+// welcome page in its URL so welcome-boot.js can set dir/lang/theme before
+// the first paint (an IPC round-trip would land after it, and the page's CSP
+// blocks inline scripts).
+function welcomeLoadOptions() {
+  const settings = store.getSettings();
+  const configured = { ...DEFAULT_SHORTCUTS, ...(settings.shortcuts || {}) };
+  return {
+    query: {
+      lang: settings.language === 'he' ? 'he' : 'en',
+      theme: settings.theme === 'light' ? 'light' : 'dark',
+      manual: configured.manual || '',
+      // Win+V only works once Windows' own clipboard history is off, so the
+      // guide shows the shortcut that is actually registered right now.
+      history: shortcutStatus.history === true ? configured.history : configured.historyFallback
+    }
+  };
 }
 
 function openSettingsWindow() {
@@ -900,9 +920,9 @@ function buildTrayMenu() {
       checked: settings.enabled,
       click: (menuItem) => toggleMonitoring(menuItem.checked)
     },
-    { label: tr('tray.openManual').replace('{shortcut}', configured.manual.replace('CommandOrControl', 'Ctrl')), click: triggerManualPopup },
+    { label: tr('tray.openManual').replace('{shortcut}', formatAccelerator(configured.manual)), click: triggerManualPopup },
     { label: tr('tray.recentActions'), submenu: buildRecentActionsSubmenu() },
-    { label: tr('tray.history').replace('{shortcut}', `${configured.history} / ${configured.historyFallback.replace('CommandOrControl', 'Ctrl')}`), click: openHistoryWindow },
+    { label: tr('tray.history').replace('{shortcut}', `${formatAccelerator(configured.history)} / ${formatAccelerator(configured.historyFallback)}`), click: openHistoryWindow },
     {
       label: tr('tray.refreshShortcuts') + (shortcutStatus.history ? '' : tr('tray.refreshShortcuts.warn')),
       click: () => {
@@ -1268,6 +1288,12 @@ ipcMain.on('welcome:finish', () => {
 ipcMain.on('welcome:skip', () => {
   store.markWelcomeSeen();
   if (welcomeWindow && !welcomeWindow.isDestroyed()) welcomeWindow.close();
+});
+// Last step's "Open Settings" button: same as finishing, then opens Settings.
+ipcMain.on('welcome:open-settings', () => {
+  store.markWelcomeSeen();
+  if (welcomeWindow && !welcomeWindow.isDestroyed()) welcomeWindow.close();
+  openSettingsWindow();
 });
 
 // --- IPC: settings window ---
@@ -1694,6 +1720,9 @@ if (!gotSingleInstanceLock) {
   app.on('before-quit', () => { isQuitting = true; });
 
   app.whenReady().then(async () => {
+    // Before anything renders text (tray menu, welcome): settle the first-run
+    // language now that app.getLocale() is reliable - see store.js.
+    store.applyFirstRunLanguage(app.getLocale());
     createTray();
     // Shared/work-PC option: force monitoring off at this specific launch
     // regardless of whatever `enabled` was left at last time, without
