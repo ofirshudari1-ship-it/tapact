@@ -81,3 +81,30 @@ Screenshots: `screenshots/before/<window>__<lang>__<theme>.png` (128 files).
 - Real screen reader: no NVDA session available to the agent.
 - Installed copy (`C:\Program Files\TapAct`, elevated) - not driven by design; source run only.
 - Installer language marker path (`first-run-language.txt`) - covered by unit test only; running the installer is forbidden.
+
+---
+
+## After execution (2026-10-05, branch upgrade/2026-10-05-rtl-settings)
+
+Evidence: `browser-after.json` (96 rows, same harness, same 4 configs), `screenshots/after/` (132 png), `detect-after.json`, `live-harness/summarize.cjs after`, `live-harness/bidi-probe.cjs` (glyph positions via Range rects).
+
+| # | dimension | before | after | key evidence |
+|---|---|---|---|---|
+| 1 | RTL & Hebrew | 3 | 8 | 0 lang/dir mismatches in all windows x 4 configs (was 10, all welcome); bidi-probe: URL and `שלום John 050-1234567 ₪1,234` render in logical order; shortcut inputs `dir=ltr`, `Ctrl+Alt+P`, right-aligned in Hebrew, no clipping; template textarea `unicode-bidi: plaintext` (Hebrew template reads RTL in English UI, `settings-templates__1040x780__en__light.png`); 0 `→`/`—` in Hebrew strings (test) |
+| 2 | Responsive | 5 | 7 | welcome steps scroll instead of clipping (window 500x600); detector dropdown 280px; Settings 860x620 shots OK. Welcome step 4 still needs a short scroll |
+| 3 | Accessibility | 6 | 7 | axe serious color-contrast 0 (was 26 nodes); landmarks fixed; remaining: history `nested-interactive` (row role=button containing buttons, 3 per config) + `page-has-heading-one` (moderate) in popups. No screen-reader session |
+| 4 | Design & brand | 5 | 6 | welcome light theme works, real logo, flag-emoji letters gone, scrollbars follow theme; history + action popup still dark-only |
+| 5 | UX flows | 5 | 7 | welcome: 5 steps incl. "phone to WhatsApp in 3 steps", configured shortcuts shown, Open Settings button |
+| 6 | Forms | 5 | 6 | dedupe 0 works (test), hints truthful; still 3 Save buttons on one tab |
+| 7 | Perceived perf | 6 | 8 | console errors 0 in every window (welcome had 1 CSP error per load); lang/dir/theme set before first paint (lib/window-boot.js) |
+| 8 | Ease of setup | 4 | 8 | first run: he-IL -> `he`, en-US -> `en` (was `en` for both); every General hint matches code (UPGRADE-PLAN truth table) |
+| 9 | AI layer | ❓ | ❓ | not in scope |
+| 10 | UI code health | 5 | 6 | tests 164 -> 185 (language resolver, accelerator format, i18n parity/copy rules, dedupe); detect high 7 -> 0; big files untouched |
+
+**detect-after.json:** blocker 0 · high 0 · medium 1 (`ux.alert-confirm` template reset confirm) · documented ignores in `detect-ignore.json`.
+**Remaining leak flag:** English templates hint shows the `{שם}` token - this is the real token the app replaces (`phone.js:95`), kept on purpose.
+**Flake noted:** in one of two full runs the en/dark URL action popup did not appear within 8s (harness timing); in the other run it did (`action-url__en__dark.png`).
+
+### Visually verified (looked at the PNG) vs data-only
+- Looked at: welcome he/dark steps 1,3; welcome he/light step 4; welcome en/light step 0; Settings he/dark General (full), Shortcuts, Leads (full); Settings en/light Templates; history he/dark; action address he/dark; phone popup he/light.
+- Data-only (JSON probes, not opened as images): the remaining ~115 after-screenshots, including all en/dark shots and 860x620 shots.

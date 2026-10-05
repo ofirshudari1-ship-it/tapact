@@ -6,39 +6,25 @@
   "hebrew_files": 20,
   "physical_classes": 2,
   "logical_classes": 0,
-  "ignored": 18,
+  "ignored": 19,
   "by_severity": {
-   "high": 1,
    "medium": 1
   },
   "by_category": {
-   "rtl": 1,
    "ux": 1
   },
   "by_rule": {
-   "rtl.physical-class": 1,
    "ux.alert-confirm": 1
   },
   "rule_files": {
-   "rtl.physical-class": 1,
    "ux.alert-confirm": 1
   },
   "rule_severity": {
-   "rtl.physical-class": "high",
    "ux.alert-confirm": "medium"
   },
   "has_token_system": true
  },
  "findings": [
-  {
-   "id": "rtl.physical-class",
-   "severity": "high",
-   "category": "rtl",
-   "file": "lib/i18n-renderer.js",
-   "line": 488,
-   "snippet": "'settings.closeToTray.sub': 'The window is hidden instead of closed, so it reopens faster. TapAct keeps runnin",
-   "fix": "החלף ל-logical: ml→ms, mr→me, pl→ps, pr→pe, left→start, right→end, text-left/right→text-start/end, rounded-l/r→rounded-s/e, border-l/r→border-s/e, space-x→gap (או eslint-plugin-rtl-friendly --fix)"
-  },
   {
    "id": "ux.alert-confirm",
    "severity": "medium",

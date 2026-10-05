@@ -3,7 +3,7 @@
     {
       "rule": "rtl.physical-class",
       "glob": "lib/i18n-renderer.js",
-      "pattern": "right-click|To fully quit",
+      "pattern": "right-click|To fully quit|reopens faster",
       "reason": "False positive: the word 'right-click' in English UI prose (mouse button), not a CSS class. Scoped to i18n-renderer.js lines with that prose (the detector truncates the tray.hideHint line before 'right-click')."
     },
     {
