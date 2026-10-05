@@ -1,0 +1,32 @@
+{
+  "ignore": [
+    {
+      "rule": "rtl.physical-class",
+      "glob": "lib/i18n-renderer.js",
+      "pattern": "right-click|To fully quit",
+      "reason": "False positive: the word 'right-click' in English UI prose (mouse button), not a CSS class. Scoped to i18n-renderer.js lines with that prose (the detector truncates the tray.hideHint line before 'right-click')."
+    },
+    {
+      "rule": "design.font-default",
+      "pattern": "\"Segoe UI\"",
+      "reason": "Desktop Windows app: Segoe UI is the native Windows UI font with full Hebrew coverage; BRAND.md specifies 'system-ui / Segoe UI (Windows native)'."
+    },
+    {
+      "rule": "rtl.free-input-no-auto",
+      "pattern": "searchInput|nameInput|roleInput|messageArea|clipSearchInput|leadMessageTemplate|leadCustomSources",
+      "reason": "Handled in CSS instead of dir=auto: these fields use unicode-bidi: plaintext (settings.css / popup.css / clipboard-history.css 'Bidi' blocks), which is per-line and keeps the RTL caret/placeholder when empty (dir=auto turns an empty field LTR in Chromium). Verified live in browser-after.json fields."
+    },
+    {
+      "rule": "ux.hardcoded-date-format",
+      "glob": "lib/*",
+      "pattern": "getFullYear|getMonth",
+      "reason": "Machine formats, not display: Google Calendar URL dates (YYYYMMDDTHHMMSS) in detectors/datetime.js and the ZIP DOS date field in zip-writer.js."
+    },
+    {
+      "rule": "rtl.icon-directional",
+      "glob": "welcome/welcome.js",
+      "pattern": "ArrowLeft|ArrowRight",
+      "reason": "Keyboard handling that is already direction-aware (Left = next in RTL), not an icon."
+    }
+  ]
+}

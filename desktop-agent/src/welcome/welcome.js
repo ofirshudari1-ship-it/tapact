@@ -1,10 +1,10 @@
-// First-run guide. Language/theme come from welcome-boot.js (query string set
+// First-run guide. Language/theme come from lib/window-boot.js (query string set
 // by main.js) so everything below runs before the first paint - this script
 // sits at the end of <body>, and it applies the texts synchronously instead
 // of waiting for an IPC round-trip. The page's CSP blocks inline scripts, so
 // all logic lives here.
 (function () {
-  const boot = window.__welcomeBoot || { lang: 'en', theme: 'dark', manual: '', history: '' };
+  const boot = window.__boot || { lang: 'en', theme: 'dark', manual: '', history: '' };
   const fmt = (acc) => (window.formatAccelerator ? window.formatAccelerator(acc) : acc);
   const shortcuts = {
     manual: fmt(boot.manual) || 'Ctrl+Alt+P',

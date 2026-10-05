@@ -114,8 +114,8 @@ html, body {
 .detect-row .detect-text { display: flex; flex-direction: column; min-width: 0; }
 .detect-row .detect-label { font-size: 9px; color: var(--muted); }
 .detect-row .detect-value {
-  direction: ltr;
-  text-align: left;
+  unicode-bidi: plaintext;
+  text-align: match-parent;
   font-weight: 600;
   font-size: 12px;
   white-space: nowrap;

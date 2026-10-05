@@ -26,6 +26,12 @@ function a11yT(key, subject) {
 const SHORTCUT_KEYS = { manual: 'shortcutManualInput', history: 'shortcutHistoryInput', historyFallback: 'shortcutFallbackInput' };
 const SHORTCUT_STATUS_KEYS = { manual: 'shortcutManualStatus', history: 'shortcutHistoryStatus', historyFallback: 'shortcutFallbackStatus' };
 
+// Shown as Ctrl/Win instead of Electron's CommandOrControl/Super; the stored
+// value (shortcuts[field]) stays the Electron accelerator.
+function displayShortcut(acc) {
+  return typeof window.formatAccelerator === 'function' ? window.formatAccelerator(acc) : acc;
+}
+
 function acceleratorFromEvent(e) {
   const parts = [];
   if (e.ctrlKey) parts.push('CommandOrControl');
@@ -59,7 +65,7 @@ function setupShortcutCapture(field) {
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopPropagation();
-        input.value = shortcuts[field] || '';
+        input.value = displayShortcut(shortcuts[field] || '');
         input.classList.remove('capturing');
         document.removeEventListener('keydown', onKey, true);
         return;
@@ -72,7 +78,7 @@ function setupShortcutCapture(field) {
       const accelerator = acceleratorFromEvent(e);
       if (!accelerator) return;
       shortcuts[field] = accelerator;
-      input.value = accelerator;
+      input.value = displayShortcut(accelerator);
       input.classList.remove('capturing');
       document.removeEventListener('keydown', onKey, true);
     };
@@ -92,7 +98,7 @@ function setupShortcutCapture(field) {
 
 function renderShortcuts(status) {
   for (const field of Object.keys(SHORTCUT_KEYS)) {
-    s[SHORTCUT_KEYS[field]].value = shortcuts[field] || defaultShortcuts[field];
+    s[SHORTCUT_KEYS[field]].value = displayShortcut(shortcuts[field] || defaultShortcuts[field]);
     const statusEl = s[SHORTCUT_STATUS_KEYS[field]];
     if (status[field] === true) { statusEl.textContent = clipT('shortcuts.status.active'); statusEl.className = 'shortcut-status ok'; }
     else if (status[field] === false) { statusEl.textContent = clipT('shortcuts.status.taken'); statusEl.className = 'shortcut-status fail'; }
@@ -1422,7 +1428,7 @@ async function renderLeadHistory() {
     const row = document.createElement('div');
     row.className = 'history-row';
     const d = new Date(item.sentAt);
-    const fields = [item.phone, item.name, item.role, item.source, item.channel || '', d.toLocaleString('he-IL')];
+    const fields = [item.phone, item.name, item.role, item.source, item.channel || '', d.toLocaleString(document.documentElement.lang === 'he' ? 'he-IL' : 'en-US')];
     const classes = ['history-phone', 'history-name', 'history-role', 'history-source', 'history-channel', 'history-date'];
     fields.forEach((text, i) => {
       const span = document.createElement('span');

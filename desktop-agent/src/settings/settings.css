@@ -754,8 +754,7 @@ input:focus, select:focus {
   background: var(--sidebar-bg);
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
 }
 
 /* ─── Prefs grid ─── */
@@ -831,7 +830,7 @@ textarea:focus {
   font-size: 12px;
   flex-wrap: wrap;
 }
-.history-row .history-phone { font-weight: 600; color: #a5b4fc; min-width: 100px; direction: ltr; text-align: left; }
+.history-row .history-phone { font-weight: 600; color: #a5b4fc; min-width: 100px; direction: ltr; unicode-bidi: isolate; text-align: match-parent; }
 .history-row .history-name { flex: 1; }
 .history-row .history-role { color: var(--muted); }
 .history-row .history-source { color: var(--muted); font-size: 11px; }
@@ -1096,3 +1095,33 @@ input[type="time"]:focus-within { border-color: var(--brand-start); box-shadow: 
   .clip-item .clip-item-content:focus-visible, .footer-lang:focus-visible { outline-color: Highlight; }
   .fav-star-btn[aria-pressed="true"] { forced-color-adjust: none; color: Highlight; }
 }
+
+/* ─── Bidi: mixed Hebrew / English content (v3.9.0) ───
+   1. Text the user writes (templates, rule/tag names, lead template, search)
+      takes its direction from its own first strong letter, per line: a
+      Hebrew template in the English UI reads right-to-left with its
+      punctuation in place, an English line in the Hebrew UI reads LTR.
+   2. Values that are always left-to-right (shortcuts, regex, URLs, phone,
+      email, keys) are dir="ltr" but stay aligned to the layout's start side
+      (right in Hebrew) via match-parent - no physical left/right.
+   3. Stored items shown in lists (clipboard history, send history) follow
+      rule 1 but keep the list's alignment. */
+textarea:not([dir]),
+input[type="text"]:not([dir]),
+input[type="search"]:not([dir]),
+input:not([type]):not([dir]) {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+/* rtl-exception: an LTR value inside the Hebrew layout sits on the layout start (right).
+   match-parent does not reach the input's inner editor in Chromium, so this is explicit. */
+[dir="rtl"] input[dir="ltr"], [dir="rtl"] textarea[dir="ltr"] { text-align: right; }
+.clip-item .clip-item-text,
+.history-row .name,
+.history-row .history-name { unicode-bidi: plaintext; text-align: match-parent; }
+.history-row .phone { direction: ltr; unicode-bidi: isolate; }
+
+/* Native scrollbars and form controls follow the theme (the dark theme
+   showed a light scrollbar gutter beside the content). */
+:root { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }

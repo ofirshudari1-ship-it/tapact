@@ -9,7 +9,7 @@
      main.js passes (see welcomeLoadOptions), so the very first paint is
      already in the right direction and theme. Inline scripts are blocked by
      this page's CSP, which is why this is a file. -->
-<script src="welcome-boot.js"></script>
+<script src="../lib/window-boot.js"></script>
 <script src="../lib/i18n-renderer.js"></script>
 <script src="../lib/accelerator-format.js"></script>
 </head>
@@ -78,7 +78,7 @@
         <p class="lede" data-i18n="welcome.step4.body"></p>
         <p class="lede key-line" data-i18n-shortcut="welcome.step4.manual" data-shortcut="manual"></p>
         <p class="lede muted" data-i18n="welcome.step4.footer"></p>
-        <button type="button" id="openSettingsBtn" class="btn secondary inline-btn" data-i18n="welcome.btn.openSettings"></button>
+        <button type="button" id="openSettingsBtn" class="btn secondary inline-btn" data-i18n="welcome.btn.openSettings">Open Settings</button>
       </section>
 
     </main>
@@ -86,9 +86,9 @@
     <footer class="footer">
       <div class="dots" id="dots"></div>
       <div class="nav-buttons">
-        <button type="button" id="skipBtn" class="btn ghost" data-i18n="welcome.btn.skip"></button>
-        <button type="button" id="backBtn" class="btn secondary back" disabled data-i18n="welcome.btn.back"></button>
-        <button type="button" id="nextBtn" class="btn primary next" data-i18n="welcome.btn.next"></button>
+        <button type="button" id="skipBtn" class="btn ghost" data-i18n="welcome.btn.skip">Skip</button>
+        <button type="button" id="backBtn" class="btn secondary back" disabled data-i18n="welcome.btn.back">Back</button>
+        <button type="button" id="nextBtn" class="btn primary next" data-i18n="welcome.btn.next">Next</button>
       </div>
       <div class="copyright" translate="no" dir="ltr">© 2024-2026 TapAct</div>
     </footer>

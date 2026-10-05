@@ -150,7 +150,7 @@ html, body {
 }
 .phone-row .phone-text { display: flex; flex-direction: column; gap: 1px; }
 .phone-row .phone-label { font-size: 10px; color: var(--muted); }
-.phone-row .phone-value { direction: ltr; text-align: left; font-weight: 700; font-size: 14px; letter-spacing: 0.02em; }
+.phone-row .phone-value { direction: ltr; unicode-bidi: isolate; text-align: match-parent; font-weight: 700; font-size: 14px; letter-spacing: 0.02em; }
 
 /* ─── Hint boxes ─── */
 .hint-box {
@@ -359,3 +359,9 @@ select { cursor: pointer; }
 .wa-section { gap: 4px; }
 textarea { flex: none; min-height: 56px; max-height: 150px; overflow-y: auto; }
 .btn.channel-btn { padding: 7px 8px; }
+
+/* Bidi (v3.9.0): typed text takes its direction from its first letter, per
+   line; LTR-only values (manual phone) stay aligned to the layout start. */
+#nameInput, #roleInput, #messageArea { unicode-bidi: plaintext; text-align: start; }
+/* rtl-exception: LTR value on the RTL layout start (right). */
+[dir="rtl"] #manualPhone { text-align: right; }

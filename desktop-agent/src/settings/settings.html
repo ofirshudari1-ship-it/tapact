@@ -5,7 +5,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none';">
 <title>TapAct - Settings</title>
 <link rel="stylesheet" href="settings.css">
+<script src="../lib/window-boot.js"></script>
 <script src="../lib/i18n-renderer.js"></script>
+<script src="../lib/accelerator-format.js"></script>
 </head>
 <body>
   <div class="shell">
@@ -436,17 +438,17 @@
         <div class="panel">
           <div class="shortcut-row">
             <span class="shortcut-label" data-i18n="shortcuts.manual">פתיחה ידנית (טלפון/פעולה)</span>
-            <input type="text" id="shortcutManualInput" class="shortcut-input" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
+            <input type="text" id="shortcutManualInput" class="shortcut-input" dir="ltr" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
             <span id="shortcutManualStatus" class="shortcut-status"></span>
           </div>
           <div class="shortcut-row">
             <span class="shortcut-label" data-i18n="shortcuts.history">היסטוריית לוח (Win+V)</span>
-            <input type="text" id="shortcutHistoryInput" class="shortcut-input" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
+            <input type="text" id="shortcutHistoryInput" class="shortcut-input" dir="ltr" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
             <span id="shortcutHistoryStatus" class="shortcut-status"></span>
           </div>
           <div class="shortcut-row">
             <span class="shortcut-label" data-i18n="shortcuts.fallback">היסטוריית לוח (גיבוי — תמיד עובד)</span>
-            <input type="text" id="shortcutFallbackInput" class="shortcut-input" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
+            <input type="text" id="shortcutFallbackInput" class="shortcut-input" dir="ltr" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
             <span id="shortcutFallbackStatus" class="shortcut-status"></span>
           </div>
           <div class="actions">

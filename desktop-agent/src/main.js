@@ -423,7 +423,7 @@ function openPopupWindow(takeFocus = false) {
     }
   });
 
-  popupWindow.loadFile(path.join(__dirname, 'popup', 'popup.html'));
+  popupWindow.loadFile(path.join(__dirname, 'popup', 'popup.html'), { query: bootQuery() });
   popupWindow.once('ready-to-show', () => {
     if (takeFocus) popupWindow.show(); else popupWindow.showInactive();
     resetAutoCloseTimer();
@@ -487,7 +487,7 @@ function openActionPopupWindow(takeFocus = false) {
     }
   });
 
-  actionPopupWindow.loadFile(path.join(__dirname, 'action-popup', 'action-popup.html'));
+  actionPopupWindow.loadFile(path.join(__dirname, 'action-popup', 'action-popup.html'), { query: bootQuery() });
   actionPopupWindow.once('ready-to-show', () => {
     if (takeFocus) actionPopupWindow.show(); else actionPopupWindow.showInactive();
     resetAutoCloseTimer();
@@ -552,7 +552,7 @@ function openHistoryWindow() {
     }
   });
 
-  historyWindow.loadFile(path.join(__dirname, 'clipboard-history', 'clipboard-history.html'));
+  historyWindow.loadFile(path.join(__dirname, 'clipboard-history', 'clipboard-history.html'), { query: bootQuery() });
   historyWindow.once('ready-to-show', () => historyWindow.show());
   historyWindow.on('blur', () => {
     if (historyWindow && !historyWindow.isDestroyed()) historyWindow.close();
@@ -801,6 +801,14 @@ function openWelcomeWindow() {
   welcomeWindow.on('closed', () => { welcomeWindow = null; });
 }
 
+// Read by src/lib/window-boot.js in every window's <head>: sets lang/dir/
+// theme before the first paint (the windows otherwise start from their HTML
+// defaults until their own IPC init returns).
+function bootQuery() {
+  const settings = store.getSettings();
+  return { lang: settings.language === 'he' ? 'he' : 'en', theme: settings.theme === 'light' ? 'light' : 'dark' };
+}
+
 // Language, theme and the two shortcuts the guide mentions, handed to the
 // welcome page in its URL so welcome-boot.js can set dir/lang/theme before
 // the first paint (an IPC round-trip would land after it, and the page's CSP
@@ -810,8 +818,7 @@ function welcomeLoadOptions() {
   const configured = { ...DEFAULT_SHORTCUTS, ...(settings.shortcuts || {}) };
   return {
     query: {
-      lang: settings.language === 'he' ? 'he' : 'en',
-      theme: settings.theme === 'light' ? 'light' : 'dark',
+      ...bootQuery(),
       manual: configured.manual || '',
       // Win+V only works once Windows' own clipboard history is off, so the
       // guide shows the shortcut that is actually registered right now.
@@ -847,7 +854,7 @@ function openSettingsWindow() {
     }
   });
   settingsWindow.setMenuBarVisibility(false);
-  settingsWindow.loadFile(path.join(__dirname, 'settings', 'settings.html'));
+  settingsWindow.loadFile(path.join(__dirname, 'settings', 'settings.html'), { query: bootQuery() });
   settingsWindow.on('close', (e) => {
     const settings = store.getSettings();
     if (shouldHideToTray({ closeToTray: settings.closeToTray, isQuitting, hasTray: tray && !tray.isDestroyed() })) {

@@ -150,6 +150,8 @@ body.embedded .app {
 .item .icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
 .item .content { flex: 1; min-width: 0; }
 .item .text {
+  unicode-bidi: plaintext;
+  text-align: match-parent;
   font-size: 12.5px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -296,3 +298,7 @@ body.embedded .app {
   .item.pinned { border: 2px solid Highlight; background: Canvas; }
   :focus-visible { outline-color: Highlight !important; }
 }
+
+/* Typed search follows its own first letter (Hebrew or English). */
+#searchInput { unicode-bidi: plaintext; text-align: start; }
+:root { color-scheme: dark; }
