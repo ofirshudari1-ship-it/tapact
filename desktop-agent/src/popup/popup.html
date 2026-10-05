@@ -50,6 +50,13 @@
         <button id="dupConfirmBtn" class="btn small secondary" data-i18n="popup.sendAnyway">שלח בכל זאת</button>
       </section>
 
+      <!-- Default view = number + message + send. Name/role/source/template are optional extras. -->
+      <details id="moreOptions" class="more-options">
+      <summary data-i18n="popup.moreOptions">אפשרויות נוספות (שם, תבנית, מקור)</summary>
+      <div class="field-group">
+        <label class="field-label" for="templateSelect" data-i18n="popup.template">תבנית הודעה</label>
+        <select id="templateSelect"></select>
+      </div>
       <!-- Lead fields -->
       <div class="fields-grid">
         <div class="field-group">
@@ -72,13 +79,10 @@
           </select>
         </div>
       </div>
+      </details>
 
-      <!-- WhatsApp template (shown only when WhatsApp channel active) -->
+      <!-- WhatsApp message (shown only when WhatsApp channel active) -->
       <div id="whatsappSection" class="wa-section">
-        <div class="field-group">
-          <label class="field-label" for="templateSelect" data-i18n="popup.template">תבנית הודעה</label>
-          <select id="templateSelect"></select>
-        </div>
         <div class="field-group grow">
           <label class="field-label" for="messageArea" data-i18n="popup.message">הודעה</label>
           <textarea id="messageArea" rows="4"></textarea>

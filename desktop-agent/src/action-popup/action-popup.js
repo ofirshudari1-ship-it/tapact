@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Esc dismisses the popup, same as every other TapAct window/popup.
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.tapactAction.dismiss(); });
 
+  document.documentElement.addEventListener('mouseenter', () => window.tapactAction.setHover(true));
+  document.documentElement.addEventListener('mouseleave', () => window.tapactAction.setHover(false));
+
   ['keydown', 'click'].forEach((evt) =>
     document.addEventListener(evt, () => window.tapactAction.notifyActivity())
   );

@@ -35,7 +35,7 @@ function timeAgoLabel(ts) {
 }
 
 function fillWhatsappTemplate(text, name) {
-  return text.split('{שם}').join((name || '').trim()).replace(/\s{2,}/g, ' ').trim();
+  return text.split('{שם}').join((name || '').trim()).replace(/[ \t]{2,}/g, ' ').replace(/ +([,.!?:;])/g, '$1').trim();
 }
 
 function currentLead() {
@@ -320,8 +320,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.tapact.dismiss(); });
 
-  if (data.phone) els.nameInput.focus();
-  else els.manualPhone.focus();
+  document.documentElement.addEventListener('mouseenter', () => window.tapact.setHover(true));
+  document.documentElement.addEventListener('mouseleave', () => window.tapact.setHover(false));
+
+  // Default view is just number + message + send; the name field lives in
+  // the collapsed "more options", so only focus it when it's visible.
+  if (!data.phone) els.manualPhone.focus();
 });
 
 async function checkManualPhone() {

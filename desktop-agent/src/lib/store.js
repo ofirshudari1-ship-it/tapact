@@ -97,7 +97,7 @@ const DEFAULT_SETTINGS = {
   enabled: true,
   pollMs: 800,
   dedupeSeconds: 60, // suppresses re-popping the SAME clipboard text too often
-  autoCloseSeconds: 4,
+  autoCloseSeconds: 10,
   sendDedupeMinutes: 30, // "you already messaged this lead" warning window
   autoLaunch: false,
   // Which clipboard detectors are active. Phone is handled separately (it
@@ -253,7 +253,7 @@ function getSettings() {
   };
   // Migrate: earlier defaults were 20s, then 5s; clamp down to the current
   // 4s default for anyone who still has either old value saved.
-  if (merged.autoCloseSeconds === 20 || merged.autoCloseSeconds === 5) merged.autoCloseSeconds = 4;
+  if (merged.autoCloseSeconds === 20 || merged.autoCloseSeconds === 5 || merged.autoCloseSeconds === 4) merged.autoCloseSeconds = 10;
   return merged;
 }
 

@@ -395,7 +395,7 @@ function openPopupWindow() {
   const cursor = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(cursor);
   const width = 360;
-  const height = 620;
+  const height = 430;
   // Anchored above the cursor (where the copy/selection just happened),
   // never on top of it - see computeAnchoredPopupPosition.
   const { x, y } = computeAnchoredPopupPosition({ point: cursor, width, height, workArea: display.workArea });
@@ -1027,6 +1027,12 @@ ipcMain.on('popup:dismiss', () => closePopup());
 ipcMain.on('popup:open-settings', () => openSettingsWindow());
 ipcMain.on('popup:open-lead-settings', () => openSettingsWindow());
 ipcMain.on('popup:activity', () => resetAutoCloseTimer());
+// Mouse over the popup = the rep is reading/about to click, so the countdown
+// must not run; it restarts only once the cursor leaves.
+ipcMain.on('popup:hover', (_event, hovering) => {
+  if (hovering) clearAutoCloseTimer();
+  else resetAutoCloseTimer();
+});
 
 // --- IPC: lead capture multi-channel delivery ---
 
@@ -1117,6 +1123,10 @@ ipcMain.on('action-popup:run', (_event, index) => {
 ipcMain.on('action-popup:dismiss', () => closePopup());
 ipcMain.on('action-popup:open-settings', () => openSettingsWindow());
 ipcMain.on('action-popup:activity', () => { resetAutoCloseTimer(); resetAutoRunTimer(); });
+ipcMain.on('action-popup:hover', (_event, hovering) => {
+  if (hovering) { clearAutoCloseTimer(); clearAutoRunTimer(); }
+  else { resetAutoCloseTimer(); resetAutoRunTimer(); }
+});
 
 // --- IPC: clipboard-history panel (Win+V-style) ---
 

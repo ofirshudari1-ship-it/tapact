@@ -5,5 +5,6 @@ contextBridge.exposeInMainWorld('tapactAction', {
   runAction: (index) => ipcRenderer.send('action-popup:run', index),
   dismiss: () => ipcRenderer.send('action-popup:dismiss'),
   openSettings: () => ipcRenderer.send('action-popup:open-settings'),
-  notifyActivity: () => ipcRenderer.send('action-popup:activity')
+  notifyActivity: () => ipcRenderer.send('action-popup:activity'),
+  setHover: (hovering) => ipcRenderer.send('action-popup:hover', !!hovering)
 });

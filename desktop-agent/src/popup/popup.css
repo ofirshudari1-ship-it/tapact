@@ -345,3 +345,8 @@ select { cursor: pointer; }
   .btn, .icon-btn { border: 1px solid ButtonText; }
   :focus-visible { outline-color: Highlight !important; }
 }
+
+.more-options { border: 1px solid var(--border-light); border-radius: 8px; padding: 6px 10px; }
+.more-options > summary { cursor: pointer; font-size: 12px; color: var(--muted, #8a93a6); user-select: none; }
+.more-options[open] > summary { margin-bottom: 8px; }
+.more-options .field-group { margin-bottom: 8px; }
