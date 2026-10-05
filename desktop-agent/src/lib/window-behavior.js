@@ -77,7 +77,18 @@ function shouldPrimeClipboardOnResume({ wasEnabled, willBeEnabled }) {
   return wasEnabled === false && willBeEnabled === true;
 }
 
+// Cooldown before the same detected value (phone / link / address...) can
+// open a popup again. Settings allows 0 = no cooldown; the old inline
+// `(dedupeSeconds || 60)` silently turned 0 into 60 seconds. Missing or
+// invalid values fall back to the default (10s, see store DEFAULT_SETTINGS).
+function resolveDedupeMs(dedupeSeconds, fallbackSeconds = 10) {
+  const n = Number(dedupeSeconds);
+  if (dedupeSeconds === null || dedupeSeconds === undefined || dedupeSeconds === '' || !Number.isFinite(n) || n < 0) return fallbackSeconds * 1000;
+  return Math.round(n * 1000);
+}
+
 module.exports = {
+  resolveDedupeMs,
   shouldHideToTray,
   shouldShowTrayHideHint,
   autoLaunchNeedsReconcile,

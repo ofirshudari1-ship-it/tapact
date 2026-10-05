@@ -96,6 +96,28 @@ function setupShortcutCapture(field) {
   });
 }
 
+// Hints like "open manually with {shortcut}" show the shortcut the user
+// actually configured (it used to be hardcoded Ctrl+Alt+P / Ctrl+Alt+V).
+// The key goes in an LTR-isolated <kbd>, so it never reorders inside Hebrew.
+function renderShortcutHints() {
+  const lang = document.documentElement.lang === 'he' ? 'he' : 'en';
+  document.querySelectorAll('[data-i18n-shortcut]').forEach((el) => {
+    const text = window.i18n ? window.i18n.t(lang, el.getAttribute('data-i18n-shortcut')) : '';
+    const field = el.getAttribute('data-shortcut');
+    const acc = (shortcuts && shortcuts[field]) || (defaultShortcuts && defaultShortcuts[field]) || '';
+    el.textContent = '';
+    text.split('{shortcut}').forEach((part, i, all) => {
+      if (part) el.appendChild(document.createTextNode(part));
+      if (i < all.length - 1) {
+        const kbd = document.createElement('kbd');
+        kbd.dir = 'ltr';
+        kbd.textContent = displayShortcut(acc);
+        el.appendChild(kbd);
+      }
+    });
+  });
+}
+
 function renderShortcuts(status) {
   for (const field of Object.keys(SHORTCUT_KEYS)) {
     s[SHORTCUT_KEYS[field]].value = displayShortcut(shortcuts[field] || defaultShortcuts[field]);
@@ -104,6 +126,7 @@ function renderShortcuts(status) {
     else if (status[field] === false) { statusEl.textContent = clipT('shortcuts.status.taken'); statusEl.className = 'shortcut-status fail'; }
     else { statusEl.textContent = ''; statusEl.className = 'shortcut-status'; }
   }
+  renderShortcutHints();
   // Hide the Win+V hint when it's actually registered
   if (s.shortcutHint) {
     s.shortcutHint.classList.toggle('hidden', status.history === true);
@@ -1115,6 +1138,7 @@ function onSaveQuietHours() {
 function applyAppLanguage(lang) {
   if (typeof window.i18n === 'undefined') return;
   window.i18n.applyI18n(lang);
+  renderShortcutHints();
   // The window's title bar/taskbar text: main.js's openSettingsWindow() sets
   // an initial BrowserWindow `title`, but Electron overwrites it with this
   // page's own <title> once settings.html finishes loading - so without

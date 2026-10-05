@@ -8,7 +8,8 @@ const {
   autoLaunchNeedsReconcile,
   resolveTrayClickTarget,
   computeAnchoredPopupPosition,
-  shouldPrimeClipboardOnResume
+  shouldPrimeClipboardOnResume,
+  resolveDedupeMs
 } = require('../src/lib/window-behavior');
 
 describe('shouldHideToTray', () => {
@@ -150,5 +151,22 @@ describe('shouldPrimeClipboardOnResume', () => {
     // forced to false before this check runs, so no priming happens - there
     // is nothing to protect yet since the watcher won't poll at all.
     expect(shouldPrimeClipboardOnResume({ wasEnabled: false, willBeEnabled: false })).toBe(false);
+  });
+});
+
+describe('resolveDedupeMs', () => {
+  test('0 means no cooldown (it used to become 60 seconds)', () => {
+    expect(resolveDedupeMs(0)).toBe(0);
+  });
+  test('seconds are converted to milliseconds', () => {
+    expect(resolveDedupeMs(30)).toBe(30000);
+    expect(resolveDedupeMs('5')).toBe(5000);
+  });
+  test('missing or invalid values use the 10s default', () => {
+    expect(resolveDedupeMs(undefined)).toBe(10000);
+    expect(resolveDedupeMs(null)).toBe(10000);
+    expect(resolveDedupeMs('')).toBe(10000);
+    expect(resolveDedupeMs('abc')).toBe(10000);
+    expect(resolveDedupeMs(-3)).toBe(10000);
   });
 });

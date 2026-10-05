@@ -21,7 +21,7 @@
       </div>
       <div class="header-controls">
         <button type="button" id="langToggleBtn" class="header-pill" title="שנה שפה / Change language" aria-label="שנה שפה / Change language">🌐 EN</button>
-        <button type="button" id="themeToggleBtn" class="header-pill" title="ערכת נושא / Theme" aria-label="ערכת נושא / Theme">🌙</button>
+        <button type="button" id="themeToggleBtn" class="header-pill" data-i18n-title="settings.theme" data-i18n-aria="settings.theme" title="Theme" aria-label="Theme">🌙</button>
       </div>
     </header>
 
@@ -81,7 +81,7 @@
           </div>
         </div>
         <div class="hint-box">
-          <strong data-i18n="templates.hint.title">איך עובד:</strong> <span data-i18n="templates.hint.body">כשמספר טלפון מועתק, TapAct פותח חלונית עם התבנית שנבחרה. {שם} מוחלף בשם שמקלידים שם.</span>
+          <strong data-i18n="templates.hint.title">איך עובד:</strong> <span data-i18n="templates.hint.body">כשמעתיקים מספר טלפון, TapAct פותח חלונית עם התבנית שנבחרה. {שם} בטקסט מוחלף בשם שמקלידים בחלונית.</span>
         </div>
         <div id="list" class="list"></div>
         <span id="favCapMsg" class="saved-msg hidden" role="status" data-i18n="templates.fav.capReached">⭐ אפשר עד 3 מועדפות - הסירו אחת כדי להוסיף חדשה</span>
@@ -94,7 +94,7 @@
         </div>
         <div class="actions">
           <button id="saveTemplatesBtn" class="btn primary small" data-i18n="templates.save">שמור תבניות</button>
-          <button id="resetBtn" class="btn danger small" data-i18n="templates.reset">↺ אפס לברירת מחדל</button>
+          <button id="resetBtn" class="btn danger small" data-i18n="templates.reset">אפס לברירת מחדל</button>
           <span id="savedMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
         </div>
       </section>
@@ -122,7 +122,7 @@
             <span class="det-icon">📞</span>
             <div class="det-info">
               <div class="det-label" id="detLabel-phone" data-i18n="detectors.phone.label">מספר טלפון ישראלי</div>
-              <div class="det-desc" id="detDesc-phone" data-i18n="detectors.phone.desc">מזהה מספר → פותח חלונית לכידת ליד עם שליחה ל-WhatsApp וערוצים נוספים</div>
+              <div class="det-desc" id="detDesc-phone" data-i18n="detectors.phone.desc">מספר שזוהה ← חלונית עם הודעה מוכנה, לשליחה ב-WhatsApp או בערוצים נוספים</div>
             </div>
             <select class="det-pref" id="prefPhoneSelect" aria-labelledby="detLabel-phone">
               <option value="" data-i18n="settings.pref.phone.popup">פתח חלון לכידת ליד (ברירת מחדל)</option>
@@ -137,7 +137,7 @@
             <span class="det-icon">✉️</span>
             <div class="det-info">
               <div class="det-label" id="detLabel-email" data-i18n="detectors.email.label">כתובת אימייל</div>
-              <div class="det-desc" id="detDesc-email" data-i18n="detectors.email.desc">אימייל בודד → פתיחת הרכבת הודעה (mailto / Gmail)</div>
+              <div class="det-desc" id="detDesc-email" data-i18n="detectors.email.desc">כתובת מייל בודדת ← הודעה חדשה באפליקציית המייל או ב-Gmail</div>
             </div>
             <select class="det-pref" id="prefEmailSelect" aria-labelledby="detLabel-email">
               <option value="" data-i18n="settings.pref.email.default">מייל חדש (ברירת מחדל)</option>
@@ -154,7 +154,7 @@
             <span class="det-icon">📦</span>
             <div class="det-info">
               <div class="det-label" id="detLabel-tracking" data-i18n="detectors.tracking.label">מספר מעקב משלוח</div>
-              <div class="det-desc" id="detDesc-tracking" data-i18n="detectors.tracking.desc">דואר ישראל / UPS / FedEx / DHL → מעקב אחר החבילה</div>
+              <div class="det-desc" id="detDesc-tracking" data-i18n="detectors.tracking.desc">דואר ישראל, UPS, FedEx, DHL ← מעקב אחרי החבילה</div>
             </div>
             <select class="det-pref" id="prefTrackingSelect" aria-labelledby="detLabel-tracking">
               <option value="" data-i18n="settings.pref.tracking.default">חברה המשלחת (ברירת מחדל)</option>
@@ -168,7 +168,7 @@
             <span class="det-icon">🗺️</span>
             <div class="det-info">
               <div class="det-label" id="detLabel-address" data-i18n="detectors.address.label">כתובת</div>
-              <div class="det-desc" id="detDesc-address" data-i18n="detectors.address.desc">כתובת ישראלית → ניווט ב-Google Maps / Waze</div>
+              <div class="det-desc" id="detDesc-address" data-i18n="detectors.address.desc">כתובת בישראל ← ניווט ב-Google Maps או ב-Waze</div>
             </div>
             <select class="det-pref" id="prefAddressSelect" aria-labelledby="detLabel-address">
               <option value="" data-i18n="settings.pref.address.default">Google Maps (ברירת מחדל)</option>
@@ -185,7 +185,7 @@
             <span class="det-icon">🔗</span>
             <div class="det-info">
               <div class="det-label" id="detLabel-link" data-i18n="detectors.link.label">קישור</div>
-              <div class="det-desc" id="detDesc-link" data-i18n="detectors.link.desc">קישור בודד → פתיחה בדפדפן ברירת המחדל</div>
+              <div class="det-desc" id="detDesc-link" data-i18n="detectors.link.desc">קישור בודד ← פתיחה בדפדפן ברירת המחדל</div>
             </div>
             <span class="switch"><input type="checkbox" id="detectUrlCheck" aria-labelledby="detLabel-link" aria-describedby="detDesc-link"><span class="slider"></span></span>
           </label>
@@ -194,7 +194,7 @@
             <span class="det-icon">📅</span>
             <div class="det-info">
               <div class="det-label" id="detLabel-datetime" data-i18n="detectors.datetime.label">תאריך / שעה</div>
-              <div class="det-desc" id="detDesc-datetime" data-i18n="detectors.datetime.desc">תאריך שהועתק → שמירה ביומן Google</div>
+              <div class="det-desc" id="detDesc-datetime" data-i18n="detectors.datetime.desc">תאריך שהועתק ← שמירה ב-Google Calendar. כבוי כברירת מחדל.</div>
             </div>
             <span class="switch"><input type="checkbox" id="detectDatetimeCheck" aria-labelledby="detLabel-datetime" aria-describedby="detDesc-datetime"><span class="slider"></span></span>
           </label>
@@ -212,17 +212,12 @@
           <span class="page-icon">⚡</span>
           <div>
             <h2 data-i18n="custom-rules.title">כללים מותאמים אישית</h2>
-            <p data-i18n="custom-rules.subtitle">הגדר תבנית משלך: ביטוי רגולרי שמזוהה בהעתקה → כתובת URL שנפתחת.</p>
+            <p data-i18n="custom-rules.subtitle">הגדר תבנית משלך: ביטוי רגולרי שמזוהה בהעתקה ← כתובת URL שנפתחת.</p>
           </div>
         </div>
         <div class="hint-box">
           <strong data-i18n="custom-rules.hint.title">איך עובד:</strong>
-          <span data-i18n="custom-rules.hint.body">
-            בשדה "כתובת URL" השתמשו בטוקן <code>{value}</code> — הוא יוחלף
-            בערך שזוהה (למשל מספר הזמנה פנימי). ה-URL חייב להתחיל ב-
-            <code>http://</code> או <code>https://</code>. כלל שלא תקין
-            (ביטוי רגולרי שגוי, או URL לא מאובטח) פשוט לא יופעל.
-          </span>
+          <span data-i18n="custom-rules.hint.body">בשדה כתובת ה-URL כותבים {value}, והוא מוחלף בערך שזוהה (למשל מספר הזמנה פנימי). הכתובת חייבת להתחיל ב-http:// או ב-https://. כלל עם ביטוי רגולרי שגוי או כתובת מסוג אחר פשוט לא יופעל.</span>
         </div>
         <div class="hint-box" data-i18n="custom-rules.order.hint">הסדר קובע איזה כלל מופעל קודם - כלל שגוררים למעלה נבדק ראשון.</div>
         <div id="customRulesList" class="list"></div>
@@ -230,7 +225,7 @@
           <button id="addCustomRuleBtn" class="btn secondary small" data-i18n="custom-rules.add">+ כלל חדש</button>
         </div>
         <div class="actions">
-          <button id="saveCustomRulesBtn" class="btn primary small" data-i18n="settings.save">שמור כללים</button>
+          <button id="saveCustomRulesBtn" class="btn primary small" data-i18n="settings.save">שמור הגדרות</button>
           <span id="savedCustomRulesMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
         </div>
       </section>
@@ -250,56 +245,56 @@
           <label class="switch-row">
             <div class="label-text">
               <span data-i18n="settings.monitor.enabled">ניטור לוח פעיל</span>
-              <span class="label-sub" data-i18n="settings.monitor.enabled.sub">TapAct עוקב אחרי לוח ההעתקה ברקע</span>
+              <span class="label-sub" data-i18n="settings.monitor.enabled.sub">כשהמתג כבוי, TapAct לא בודק מה מעתיקים: אין חלוניות ולא נשמרת היסטוריה.</span>
             </div>
             <span class="switch"><input type="checkbox" id="enabledCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
               <span data-i18n="settings.autolaunch">הפעלה אוטומטית עם Windows</span>
-              <span class="label-sub" data-i18n="settings.autolaunch.sub">מופעל עם כניסה למערכת</span>
+              <span class="label-sub" data-i18n="settings.autolaunch.sub">TapAct נפתח לבד כשנכנסים ל-Windows.</span>
             </div>
             <span class="switch"><input type="checkbox" id="autoLaunchCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
-              <span data-i18n="settings.startMinimized">הפעלה ממוזערת למגש</span>
-              <span class="label-sub" data-i18n="settings.startMinimized.sub">פותח ישירות לאייקון המגש ללא חלון</span>
+              <span data-i18n="settings.startMinimized">הפעלה ישירה למגש</span>
+              <span class="label-sub" data-i18n="settings.startMinimized.sub">TapAct תמיד נפתח במגש. ההגדרה הזו רק מדלגת על מדריך הפתיחה בהפעלה הראשונה.</span>
             </div>
             <span class="switch"><input type="checkbox" id="startMinimizedCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
-              <span data-i18n="settings.closeToTray">סגירת X ממוזערת למגש</span>
-              <span class="label-sub" data-i18n="settings.closeToTray.sub">לחיצת X לא יוצאת מהאפליקציה — לחיצה ימנית על המגש > יציאה</span>
+              <span data-i18n="settings.closeToTray">X מסתיר את חלון ההגדרות</span>
+              <span class="label-sub" data-i18n="settings.closeToTray.sub">החלון מוסתר במקום להיסגר, ולכן נפתח שוב מהר יותר. TapAct ממשיך לרוץ במגש בכל מקרה. ליציאה: לחיצה ימנית על הסמל במגש ← יציאה.</span>
             </div>
             <span class="switch"><input type="checkbox" id="closeToTrayCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
-              <span data-i18n="settings.notifications">הצג התראת מגש בזיהוי</span>
-              <span class="label-sub" data-i18n="settings.notifications.sub">מציג הודעת Balloon כשמספר טלפון מזוהה</span>
+              <span data-i18n="settings.notifications">התראת Windows כשמזוהה טלפון</span>
+              <span class="label-sub" data-i18n="settings.notifications.sub">הודעה ליד השעון בכל פעם שמזוהה מספר טלפון, בנוסף לחלונית. כשהמתג מופעל, מוצג גם הסבר חד-פעמי כשחלון ההגדרות מוסתר למגש.</span>
             </div>
             <span class="switch"><input type="checkbox" id="showTrayNotificationCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
               <span data-i18n="settings.sound">צליל בזיהוי</span>
-              <span class="label-sub" data-i18n="settings.sound.sub">משמיע צליל מערכת קצר כשמזוהה משהו אוטומטית</span>
+              <span class="label-sub" data-i18n="settings.sound.sub">צליל מערכת קצר כשנפתחת חלונית מזיהוי אוטומטי. בשעות שקטות אין צליל.</span>
             </div>
             <span class="switch"><input type="checkbox" id="soundOnDetectCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
               <span data-i18n="settings.startPaused">התחל במצב מושהה</span>
-              <span class="label-sub" data-i18n="settings.startPaused.sub">בכל הפעלה מחדש, הניטור מתחיל כבוי - שימושי במחשב משותף</span>
+              <span class="label-sub" data-i18n="settings.startPaused.sub">בכל הפעלה של TapAct הניטור כבוי עד שמפעילים אותו. מתאים למחשב משותף.</span>
             </div>
             <span class="switch"><input type="checkbox" id="startPausedCheck"><span class="slider"></span></span>
           </label>
           <div class="field-row">
             <div class="field-label-col">
               <label class="field-label" for="trayClickSelect" data-i18n="settings.trayClick">לחיצה בודדת על אייקון המגש</label>
-              <span class="field-hint" data-i18n="settings.trayClick.hint">קליק ימני תמיד פותח את התפריט המלא, כולל יציאה.</span>
+              <span class="field-hint" data-i18n="settings.trayClick.hint">לחיצה ימנית תמיד פותחת את התפריט המלא, כולל יציאה.</span>
             </div>
             <select id="trayClickSelect">
               <option value="history" data-i18n="settings.trayClick.history">פתח היסטוריית העתקות</option>
@@ -310,29 +305,29 @@
           <div class="divider"></div>
           <div class="field-row">
             <div class="field-label-col">
-              <label class="field-label" for="pollInput" data-i18n="settings.poll">מרווח סריקה (מ״ש)</label>
-              <span class="field-hint" data-i18n="settings.poll.hint">כל כמה זמן TapAct בודק מה הועתק - ערך נמוך תופס העתקות מהר יותר, אבל צורך יותר משאבי מחשב.</span>
+              <label class="field-label" for="pollInput" data-i18n="settings.poll">תדירות בדיקת הלוח (אלפיות שנייה)</label>
+              <span class="field-hint" data-i18n="settings.poll.hint">כל כמה זמן TapAct בודק מה הועתק. ערך נמוך תופס העתקות מהר יותר וצורך קצת יותר משאבים. ברירת מחדל: 800.</span>
             </div>
             <input type="number" id="pollInput" min="200" max="5000" step="100">
           </div>
           <div class="field-row">
             <div class="field-label-col">
-              <label class="field-label" for="dedupeInput" data-i18n="settings.dedupe">חסימת קפיצות חוזרות לאותו טקסט (שניות)</label>
-              <span class="field-hint" data-i18n="settings.dedupe.hint">מונע פתיחת חלונית שוב על אותה העתקה בדיוק, בטווח הזמן הזה.</span>
+              <label class="field-label" for="dedupeInput" data-i18n="settings.dedupe">לא להציג שוב את אותו פריט (שניות)</label>
+              <span class="field-hint" data-i18n="settings.dedupe.hint">אם אותו מספר, קישור או כתובת מזוהים שוב בתוך הזמן הזה, החלונית לא נפתחת שוב. 0 = בלי המתנה.</span>
             </div>
             <input type="number" id="dedupeInput" min="0" max="600" step="5">
           </div>
           <div class="field-row">
             <div class="field-label-col">
-              <label class="field-label" for="autoCloseInput" data-i18n="settings.autoClose">סגירה אוטומטית של החלונית (שניות, 0 = ללא)</label>
-              <span class="field-hint" data-i18n="settings.autoClose.hint">כמה שניות עד שהחלונית נסגרת מעצמה אם לא לוחצים כלום.</span>
+              <label class="field-label" for="autoCloseInput" data-i18n="settings.autoClose">סגירה אוטומטית של החלונית (שניות)</label>
+              <span class="field-hint" data-i18n="settings.autoClose.hint">החלונית נסגרת לבד אחרי הזמן הזה אם לא משתמשים בה. כשהעכבר מעליה, הספירה נעצרת. 0 = לא נסגרת לבד.</span>
             </div>
             <input type="number" id="autoCloseInput" min="0" max="120" step="5">
           </div>
           <div class="field-row">
             <div class="field-label-col">
-              <label class="field-label" for="sendDedupeInput" data-i18n="settings.sendDedupe">התרעת כפילות שליחה (דקות)</label>
-              <span class="field-hint" data-i18n="settings.sendDedupe.hint">מתריע לפני שליחת הודעה לאותו איש קשר פעמיים בטווח הזמן הזה.</span>
+              <label class="field-label" for="sendDedupeInput" data-i18n="settings.sendDedupe">אזהרה על שליחה כפולה (דקות)</label>
+              <span class="field-hint" data-i18n="settings.sendDedupe.hint">אם כבר שלחתם הודעה לאותו מספר בזמן הזה, החלונית מזהירה לפני שליחה נוספת. 0 = בלי אזהרה.</span>
             </div>
             <input type="number" id="sendDedupeInput" min="0" max="1440" step="5">
           </div>
@@ -348,8 +343,8 @@
             <div class="pref-item">
               <span class="pref-label" id="languageSegLabel" data-i18n="settings.language">שפת ממשק</span>
               <div class="seg-control" id="languageSeg" role="group" aria-labelledby="languageSegLabel">
-                <button type="button" class="seg-btn" data-val="he">🇮🇱 עברית</button>
-                <button type="button" class="seg-btn" data-val="en">🇺🇸 English</button>
+                <button type="button" class="seg-btn" data-val="he" lang="he">עברית</button>
+                <button type="button" class="seg-btn" data-val="en" lang="en">English</button>
               </div>
             </div>
             <div class="pref-item">
@@ -372,7 +367,7 @@
 
         <div class="panel">
           <div class="panel-title" data-i18n="settings.quietHours.title">שעות שקטות</div>
-          <p class="muted" data-i18n="settings.quietHours.sub">בטווח השעות האלה TapAct ממשיך לתעד בהיסטוריה, אבל לא פותח חלונית אוטומטית — פתיחה ידנית (Ctrl+Alt+P) תמיד עובדת.</p>
+          <p class="muted" data-i18n-shortcut="settings.quietHours.sub" data-shortcut="manual">בשעות האלה לא נפתחות חלוניות אוטומטיות ואין צליל. ההעתקות עדיין נשמרות בהיסטוריה, ופתיחה ידנית עם Ctrl+Alt+P עובדת כרגיל. אפשר טווח שעובר את חצות, למשל 18:00 עד 08:00.</p>
           <label class="switch-row">
             <div class="label-text">
               <span data-i18n="settings.quietHours.enabled">הפעל שעות שקטות</span>
@@ -403,16 +398,16 @@
                each toggle in Settings ▸ סוגי זיהוי instead - this panel is
                left with only the auto-run behavior, which is genuinely
                generic (applies whatever the chosen action is, for any type). -->
-          <p class="muted" data-i18n="settings.actions.sub">לאחר שנבחרה פעולה מועדפת למעלה, כאן קובעים אם היא תרוץ אוטומטית וכעבור כמה שניות.</p>
+          <p class="muted" data-i18n="settings.actions.sub">הפעולה הראשית לכל סוג נבחרת בלשונית "סוגי זיהוי". כאן קובעים אם היא תרוץ לבד, בלי לחיצה.</p>
           <label class="switch-row">
             <div class="label-text">
-              <span data-i18n="settings.autoRun">הרץ פעולת ברירת מחדל אוטומטית</span>
-              <span class="label-sub" data-i18n="settings.autoRun.sub">בלי ללחוץ — החלונית עדיין נפתחת לרגע, Escape מבטל</span>
+              <span data-i18n="settings.autoRun">הרצת הפעולה הראשית אוטומטית</span>
+              <span class="label-sub" data-i18n="settings.autoRun.sub">החלונית נפתחת, ואחרי ההשהיה הפעולה רצה לבד. עכבר מעל החלונית עוצר את הספירה, וסגירה שלה מבטלת. לא חל על חלונית הטלפון.</span>
             </div>
             <span class="switch"><input type="checkbox" id="autoRunCheck"><span class="slider"></span></span>
           </label>
           <div class="field-row">
-            <label class="field-label" for="autoRunDelayInput" data-i18n="settings.autoRunDelay">השהיה לפני הרצה אוטומטית (שניות)</label>
+            <label class="field-label" for="autoRunDelayInput" data-i18n="settings.autoRunDelay">השהיה לפני ההרצה (שניות)</label>
             <input type="number" id="autoRunDelayInput" min="1" max="30" step="1">
           </div>
           <div class="actions">
@@ -421,9 +416,7 @@
           </div>
         </div>
 
-        <div class="hint-box" data-i18n="settings.manual.hint">
-          פתיחה ידנית: תמיד אפשר לפתוח את החלונית עם Ctrl+Alt+P מכל מקום, או דרך תפריט המגש.
-        </div>
+        <div class="hint-box" data-i18n-shortcut="settings.manual.hint" data-shortcut="manual">פתיחה ידנית: Ctrl+Alt+P פותח את החלונית עם מה שיש עכשיו בלוח, מכל מקום. אפשר גם מתפריט המגש.</div>
       </section>
 
       <!-- Shortcuts -->
@@ -447,7 +440,7 @@
             <span id="shortcutHistoryStatus" class="shortcut-status"></span>
           </div>
           <div class="shortcut-row">
-            <span class="shortcut-label" data-i18n="shortcuts.fallback">היסטוריית לוח (גיבוי — תמיד עובד)</span>
+            <span class="shortcut-label" data-i18n="shortcuts.fallback">היסטוריית לוח (גיבוי, תמיד עובד)</span>
             <input type="text" id="shortcutFallbackInput" class="shortcut-input" dir="ltr" readonly data-i18n-placeholder="shortcuts.input.placeholder" placeholder="לחץ והקש קיצור">
             <span id="shortcutFallbackStatus" class="shortcut-status"></span>
           </div>
@@ -457,11 +450,7 @@
             <span id="savedShortcutsMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
           </div>
         </div>
-        <div class="hint-box warn" id="shortcutHint" data-i18n="shortcuts.hint">
-          "✗ תפוס" ליד קיצור היסטוריה בד"כ אומר ש-Windows עצמו מחזיק ב-Win+V.
-          כבו אותו בהגדרות Windows ▸ מערכת ▸ לוח, ואז לחצו "שמור קיצורים" שוב
-          — או "רענן קיצורי מקלדת" בתפריט המגש.
-        </div>
+        <div class="hint-box warn" id="shortcutHint" data-i18n="shortcuts.hint">"✗ תפוס" ליד קיצור ההיסטוריה אומר בדרך כלל ש-Windows משתמש ב-Win+V. מכבים את היסטוריית הלוח של Windows (הגדרות ← מערכת ← לוח), ואז לוחצים "שמור קיצורים" שוב, או בוחרים "רענן קיצורי מקלדת" בתפריט המגש.</div>
       </section>
 
       <!-- Auto-tags -->
@@ -470,7 +459,7 @@
           <span class="page-icon">🏷️</span>
           <div>
             <h2 data-i18n="tags.title">תגיות אוטומטיות</h2>
-            <p data-i18n="tags.subtitle">מוסיפות תגית להעתקות שמכילות מילות מפתח — לחיפוש וסינון בהיסטוריה.</p>
+            <p data-i18n="tags.subtitle">מוסיפות תגית להעתקות שמכילות מילות מפתח, כדי לחפש ולסנן בהיסטוריה.</p>
           </div>
         </div>
         <div class="panel">
@@ -483,7 +472,7 @@
             <span id="savedTagRulesMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
           </div>
         </div>
-        <div class="hint-box" data-i18n="tags.hint">שינוי כלל לא מתייג מחדש העתקות ישנות — רק חדשות מכאן ואילך.</div>
+        <div class="hint-box" data-i18n="tags.hint">שינוי בכלל לא מתייג מחדש העתקות ישנות, רק העתקות חדשות מעכשיו.</div>
       </section>
 
       <!-- Clipboard history -->
@@ -492,7 +481,7 @@
           <span class="page-icon">📋</span>
           <div>
             <h2 data-i18n="clip.title">היסטוריית לוח</h2>
-            <p data-i18n="clip.subtitle">כל טקסט שהועתק — כמו Win+V, רק חכם יותר.</p>
+            <p data-i18n="clip.subtitle">כל טקסט שהועתק, כמו Win+V, עם חיפוש, סינון ותגיות.</p>
           </div>
         </div>
         <div class="panel clip-history-panel">
@@ -500,28 +489,28 @@
             <input id="clipSearchInput" type="text" class="clip-search-input" data-i18n-placeholder="clip.panel.search" placeholder="Search history, including tags...">
           </div>
           <div class="clip-filters" id="clipFilters">
-            <button class="clip-chip active" data-cat="all" data-i18n="clip.filter.all">All</button>
-            <button class="clip-chip" data-cat="phone" data-i18n="clip.filter.phone">📞 Phone</button>
-            <button class="clip-chip" data-cat="tracking" data-i18n="clip.filter.tracking">📦 Tracking</button>
-            <button class="clip-chip" data-cat="address" data-i18n="clip.filter.address">🗺️ Address</button>
-            <button class="clip-chip" data-cat="url" data-i18n="clip.filter.link">🔗 Link</button>
-            <button class="clip-chip" data-cat="email" data-i18n="clip.filter.email">✉️ Email</button>
-            <button class="clip-chip" data-cat="custom" data-i18n="clip.filter.custom">⚡ Action</button>
-            <button class="clip-chip" data-cat="text" data-i18n="clip.filter.text">📋 Text</button>
+            <button class="clip-chip active" data-cat="all" data-i18n="clip.filter.all">הכל</button>
+            <button class="clip-chip" data-cat="phone" data-i18n="clip.filter.phone">📞 טלפון</button>
+            <button class="clip-chip" data-cat="tracking" data-i18n="clip.filter.tracking">📦 מעקב</button>
+            <button class="clip-chip" data-cat="address" data-i18n="clip.filter.address">🗺️ כתובת</button>
+            <button class="clip-chip" data-cat="url" data-i18n="clip.filter.link">🔗 קישור</button>
+            <button class="clip-chip" data-cat="email" data-i18n="clip.filter.email">✉️ מייל</button>
+            <button class="clip-chip" data-cat="custom" data-i18n="clip.filter.custom">⚡ מותאם</button>
+            <button class="clip-chip" data-cat="text" data-i18n="clip.filter.text">📋 טקסט</button>
           </div>
           <div class="clip-count-row" id="clipCountLabel"></div>
           <div class="clip-history-list" id="clipHistoryList"></div>
           <div class="clip-empty hidden" id="clipEmptyState">
             <span class="clip-empty-icon">📋</span>
-            <span id="clipEmptyStateText" data-i18n="clip.panel.empty">No copies in history yet</span>
+            <span id="clipEmptyStateText" data-i18n="clip.panel.empty">אין עדיין העתקות בהיסטוריה</span>
           </div>
           <div class="clip-history-footer">
             <span class="clip-history-status">
               <span id="clipPauseDot" class="clip-pause-dot"></span>
-              <span id="clipStatusText" data-i18n="clip.panel.recording">Recording</span>
-              <button id="clipToggleBtn" class="btn secondary xs" data-i18n="clip.pause">Pause</button>
+              <span id="clipStatusText" data-i18n="clip.panel.recording">מקליט</span>
+              <button id="clipToggleBtn" class="btn secondary xs" data-i18n="clip.pause">השהה</button>
             </span>
-            <button id="clipClearAllBtn" class="btn danger xs" data-i18n="clip.panel.clearAll">Clear All</button>
+            <button id="clipClearAllBtn" class="btn danger xs" data-i18n="clip.panel.clearAll">נקה הכל</button>
           </div>
         </div>
         <div class="panel">
@@ -547,22 +536,14 @@
             <span id="savedClipHistoryMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
           </div>
         </div>
-        <div class="hint-box" data-i18n="clip.hint">
-          העתקות שמסומנות כרגישות (למשל סיסמה מ-1Password / Bitwarden) לא נשמרות —
-          זה אותו תקן ש-Windows עצמו מכבד.
-        </div>
+        <div class="hint-box" data-i18n="clip.hint">העתקות שמסומנות כרגישות (למשל סיסמה מ-1Password או מ-Bitwarden) לא נשמרות. זה אותו סימון ש-Windows עצמו מכבד.</div>
         <div class="panel">
           <div class="panel-title" data-i18n="clip.winv.title">להשתמש ב-Win+V עם TapAct?</div>
           <p class="muted" data-i18n="clip.winv.desc">
             Win+V שמור ל-Clipboard History המובנה של Windows. כדי ש-TapAct יקבל אותו:
           </p>
-          <div class="hint-box warn" data-i18n="clip.winv.hint">
-            הגדרות Windows ▸ מערכת ▸ לוח (Clipboard) ▸ כבה "היסטוריית לוח".
-            לאחר מכן לחץ "שמור קיצורים" בלשונית קיצורי מקלדת.
-          </div>
-          <p class="muted" data-i18n="clip.winv.fallback">
-            ללא שינוי זה — <code>Ctrl+Alt+V</code> ותפריט המגש תמיד עובדים.
-          </p>
+          <div class="hint-box warn" data-i18n="clip.winv.hint">בהגדרות Windows: מערכת ← לוח, ומכבים את "היסטוריית לוח". אחר כך לוחצים "שמור קיצורים" בלשונית "קיצורי מקלדת".</div>
+          <p class="muted" data-i18n-shortcut="clip.winv.fallback" data-shortcut="historyFallback">גם בלי השינוי הזה, Ctrl+Alt+V ותפריט המגש תמיד עובדים.</p>
         </div>
       </section>
 
@@ -754,11 +735,11 @@
           </div>
           <table style="border-collapse:collapse;font-size:14px;min-width:260px;">
             <tr>
-              <td style="padding:6px 16px 6px 0;color:var(--muted);" data-i18n="about.version">גרסה</td>
+              <td style="padding-block:6px;padding-inline-end:16px;color:var(--muted);" data-i18n="about.version">גרסה</td>
               <td style="padding:6px 0;font-weight:600;" id="aboutVersion">—</td>
             </tr>
             <tr>
-              <td style="padding:6px 16px 6px 0;color:var(--muted);" data-i18n="about.buildDate">תאריך בנייה</td>
+              <td style="padding-block:6px;padding-inline-end:16px;color:var(--muted);" data-i18n="about.buildDate">תאריך בנייה</td>
               <td style="padding:6px 0;" id="aboutBuildDate">—</td>
             </tr>
           </table>
@@ -787,10 +768,10 @@
             <p id="diagMsg" class="saved-msg hidden" role="status" aria-live="polite"></p>
           </div>
           <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-            <button class="btn secondary small" id="openChangelogBtn" data-i18n="about.btn.changelog">יומן שינויים (CHANGELOG)</button>
+            <button class="btn secondary small" id="openChangelogBtn" data-i18n="about.btn.changelog">יומן שינויים</button>
             <button class="btn secondary small" id="openSiteBtn" data-i18n="about.btn.site">אתר TapAct</button>
           </div>
-          <div style="font-size:12px;color:var(--muted);margin-top:8px;" data-i18n="about.copyright">© 2024–2026 TapAct. All rights reserved.</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;" data-i18n="about.copyright">© 2024-2026 TapAct. כל הזכויות שמורות.</div>
         </div>
       </section>
 

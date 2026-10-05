@@ -51,7 +51,7 @@ const { findPhone, fillTemplate, buildWhatsAppUrl } = require('./lib/phone');
 const { findGenericAction } = require('./lib/detectors');
 const store = require('./lib/store');
 const { postJson, cleanupLeadWithAi, buildShareText, buildMailtoUrl } = require('./lib/lead-delivery');
-const { shouldHideToTray, shouldShowTrayHideHint, autoLaunchNeedsReconcile, resolveTrayClickTarget, computeAnchoredPopupPosition, shouldPrimeClipboardOnResume } = require('./lib/window-behavior');
+const { resolveDedupeMs, shouldHideToTray, shouldShowTrayHideHint, autoLaunchNeedsReconcile, resolveTrayClickTarget, computeAnchoredPopupPosition, shouldPrimeClipboardOnResume } = require('./lib/window-behavior');
 const { sanitizeSettingsPatch } = require('./lib/settings-guard');
 const { buildRedactedSettingsSnapshot, buildSystemInfoText } = require('./lib/diagnostics');
 const { createZip } = require('./lib/zip-writer');
@@ -257,7 +257,7 @@ async function checkClipboard() {
   // logged, so a real detector bug shows up in tapact.log instead of
   // silently doing nothing.
   try {
-    const dedupeMs = (settings.dedupeSeconds || 60) * 1000;
+    const dedupeMs = resolveDedupeMs(settings.dedupeSeconds);
 
     // Generic detectors (tracking/address/url) run before phone on purpose:
     // findPhone's "bare 9-digit run" heuristic (see lib/phone.js) treats any

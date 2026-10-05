@@ -665,7 +665,7 @@ input:focus, select:focus {
   align-self: center;
   flex-shrink: 0;
   min-width: 160px;
-  max-width: 200px;
+  max-width: 280px;
   font-size: 12px;
   padding: 5px 8px;
 }
@@ -1125,3 +1125,21 @@ input:not([type]):not([dir]) {
    showed a light scrollbar gutter beside the content). */
 :root { color-scheme: dark; }
 [data-theme="light"] { color-scheme: light; }
+
+/* Shortcut keys inside hints (renderShortcutHints in settings.js). */
+kbd {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+  padding: 0 6px;
+  margin: 0 2px;
+  border: 1px solid var(--border-light);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--input-bg);
+  color: var(--fg);
+  font-size: 0.92em;
+  font-weight: 600;
+  white-space: nowrap;
+}
