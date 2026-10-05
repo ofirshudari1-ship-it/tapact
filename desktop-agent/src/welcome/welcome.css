@@ -225,10 +225,12 @@ html, body { color-scheme: dark; }
   color: #fff;
   background: linear-gradient(120deg, var(--brand-fill-start), var(--brand-fill-end));
 }
-.inline-btn { flex: 0 0 auto; padding: 9px 18px; margin-top: 2px; }
+/* .btn sets flex: 1 later in this file; in the column-flex step that made
+   this button grow tall. Higher specificity keeps it content-sized. */
+.btn.inline-btn { flex: 0 0 auto; padding: 9px 18px; margin-top: 2px; }
 .copyright { text-align: center; font-size: 11px; color: var(--muted); }
 .step .lede { font-size: 13.5px; color: var(--muted); line-height: 1.65; max-width: 360px; }
-.step .lede.muted { font-size: 12px; opacity: 0.75; }
+.step .lede.muted { font-size: 12px; }
 .step .lede code {
   font-family: "JetBrains Mono", ui-monospace, monospace;
   direction: ltr;
@@ -370,3 +372,8 @@ html, body { color-scheme: dark; }
   .btn, .hdr-pill { border: 1px solid ButtonText; }
   :focus-visible { outline-color: Highlight !important; }
 }
+
+/* The last step carries the "Open Settings" button; drop its decorative icon
+   and tighten spacing so the whole step fits the 500x600 window unscrolled. */
+.step[data-step="4"] { gap: 10px; padding-top: 16px; }
+.step[data-step="4"] .icon { display: none; }

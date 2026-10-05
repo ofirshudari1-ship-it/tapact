@@ -1,0 +1,286 @@
+[
+ {
+  "lang": "he",
+  "theme": "dark",
+  "welcome": [
+   {
+    "step": "0",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "1",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "2",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "3",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "4",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": 452,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   }
+  ],
+  "history": {
+   "axeSerious": [],
+   "nestedButtons": 0,
+   "pastedByEnter": [
+    "שלום John 050-1234567 ₪1,234"
+   ],
+   "panelClosedAfterPaste": true,
+   "pinnedAfterClick": 1,
+   "pasteDuringPin": 0
+  },
+  "settings": {
+   "footerLang": {
+    "title": "החלפת שפה",
+    "aria": "החלפת שפה"
+   },
+   "autoRunSub": "החלונית נפתחת, ואחרי ההשהיה הפעולה רצה לבד. כשהעכבר מעל החלונית הספירה נעצרת, וכשהוא יוצא היא מתחילה מההתחלה. סגירת החלונית מבטלת. לא חל על חלונית הטלפון.",
+   "notificationsSub": "הודעה ליד השעון בכל פעם שנפתחת חלונית הטלפון, גם בזיהוי אוטומטי וגם בפתיחה ידנית. כשהמתג מופעל, מוצג גם הסבר חד-פעמי כשחלון ההגדרות מוסתר למגש.",
+   "axeSerious": []
+  },
+  "welcomeConsoleErrors": []
+ },
+ {
+  "lang": "he",
+  "theme": "light",
+  "welcome": [
+   {
+    "step": "0",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "1",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "2",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "3",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "4",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": 452,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   }
+  ],
+  "history": {
+   "axeSerious": [],
+   "nestedButtons": 0,
+   "pastedByEnter": [
+    "שלום John 050-1234567 ₪1,234"
+   ],
+   "panelClosedAfterPaste": true,
+   "pinnedAfterClick": 1,
+   "pasteDuringPin": 0
+  },
+  "settings": {
+   "footerLang": {
+    "title": "החלפת שפה",
+    "aria": "החלפת שפה"
+   },
+   "autoRunSub": "החלונית נפתחת, ואחרי ההשהיה הפעולה רצה לבד. כשהעכבר מעל החלונית הספירה נעצרת, וכשהוא יוצא היא מתחילה מההתחלה. סגירת החלונית מבטלת. לא חל על חלונית הטלפון.",
+   "notificationsSub": "הודעה ליד השעון בכל פעם שנפתחת חלונית הטלפון, גם בזיהוי אוטומטי וגם בפתיחה ידנית. כשהמתג מופעל, מוצג גם הסבר חד-פעמי כשחלון ההגדרות מוסתר למגש.",
+   "axeSerious": []
+  },
+  "welcomeConsoleErrors": []
+ },
+ {
+  "lang": "en",
+  "theme": "dark",
+  "welcome": [
+   {
+    "step": "0",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "1",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "2",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "3",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "4",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": 453,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   }
+  ],
+  "history": {
+   "axeSerious": [],
+   "nestedButtons": 0,
+   "pastedByEnter": [
+    "שלום John 050-1234567 ₪1,234"
+   ],
+   "panelClosedAfterPaste": true,
+   "pinnedAfterClick": 1,
+   "pasteDuringPin": 0
+  },
+  "settings": {
+   "footerLang": {
+    "title": "Change language",
+    "aria": "Change language"
+   },
+   "autoRunSub": "The popup opens, and after the delay the action runs by itself. While the cursor is over the popup the countdown stops, and it starts over when the cursor leaves. Closing the popup cancels. Doesn't apply to the phone popup.",
+   "notificationsSub": "A notification near the clock every time the phone popup opens, from automatic detection or a manual open. When on, you also get a one-time tip when the Settings window hides to the tray.",
+   "axeSerious": []
+  },
+  "welcomeConsoleErrors": []
+ },
+ {
+  "lang": "en",
+  "theme": "light",
+  "welcome": [
+   {
+    "step": "0",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "1",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "2",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "3",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": null,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   },
+   {
+    "step": "4",
+    "scrollH": 425,
+    "clientH": 425,
+    "btnBottom": 453,
+    "stepBottom": 497,
+    "axeSerious": [],
+    "axeAll": []
+   }
+  ],
+  "history": {
+   "axeSerious": [],
+   "nestedButtons": 0,
+   "pastedByEnter": [
+    "שלום John 050-1234567 ₪1,234"
+   ],
+   "panelClosedAfterPaste": true,
+   "pinnedAfterClick": 1,
+   "pasteDuringPin": 0
+  },
+  "settings": {
+   "footerLang": {
+    "title": "Change language",
+    "aria": "Change language"
+   },
+   "autoRunSub": "The popup opens, and after the delay the action runs by itself. While the cursor is over the popup the countdown stops, and it starts over when the cursor leaves. Closing the popup cancels. Doesn't apply to the phone popup.",
+   "notificationsSub": "A notification near the clock every time the phone popup opens, from automatic detection or a manual open. When on, you also get a one-time tip when the Settings window hides to the tray.",
+   "axeSerious": []
+  },
+  "welcomeConsoleErrors": []
+ }
+]

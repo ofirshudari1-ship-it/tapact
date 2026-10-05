@@ -21,6 +21,7 @@ const STRINGS = {
     'nav.history': 'היסטוריית שליחות',
     // Header
     'header.subtitle': 'סוכן לוח ההעתקה החכם שלך',
+    'footer.changeLanguage': 'החלפת שפה',
     // Settings page
     'settings.title': 'הגדרות כלליות',
     'settings.subtitle': 'ניטור לוח, תזמון, פעולות ברירת מחדל.',
@@ -33,8 +34,8 @@ const STRINGS = {
     'settings.startMinimized.sub': 'TapAct תמיד נפתח במגש. ההגדרה הזו רק מדלגת על מדריך הפתיחה בהפעלה הראשונה.',
     'settings.closeToTray': 'X מסתיר את חלון ההגדרות',
     'settings.closeToTray.sub': 'החלון מוסתר במקום להיסגר, ולכן נפתח שוב מהר יותר. TapAct ממשיך לרוץ במגש בכל מקרה. ליציאה: לחיצה ימנית על הסמל במגש ← יציאה.',
-    'settings.notifications': 'התראת Windows כשמזוהה טלפון',
-    'settings.notifications.sub': 'הודעה ליד השעון בכל פעם שמזוהה מספר טלפון, בנוסף לחלונית. כשהמתג מופעל, מוצג גם הסבר חד-פעמי כשחלון ההגדרות מוסתר למגש.',
+    'settings.notifications': 'התראת Windows עם חלונית הטלפון',
+    'settings.notifications.sub': 'הודעה ליד השעון בכל פעם שנפתחת חלונית הטלפון, גם בזיהוי אוטומטי וגם בפתיחה ידנית. כשהמתג מופעל, מוצג גם הסבר חד-פעמי כשחלון ההגדרות מוסתר למגש.',
     'settings.sound': 'צליל בזיהוי',
     'settings.sound.sub': 'צליל מערכת קצר כשנפתחת חלונית מזיהוי אוטומטי. בשעות שקטות אין צליל.',
     'settings.startPaused': 'התחל במצב מושהה',
@@ -49,7 +50,7 @@ const STRINGS = {
     'settings.dedupe': 'לא להציג שוב את אותו פריט (שניות)',
     'settings.dedupe.hint': 'אם אותו מספר, קישור או כתובת מזוהים שוב בתוך הזמן הזה, החלונית לא נפתחת שוב. 0 = בלי המתנה.',
     'settings.autoClose': 'סגירה אוטומטית של החלונית (שניות)',
-    'settings.autoClose.hint': 'החלונית נסגרת לבד אחרי הזמן הזה אם לא משתמשים בה. כשהעכבר מעליה, הספירה נעצרת. 0 = לא נסגרת לבד.',
+    'settings.autoClose.hint': 'החלונית נסגרת לבד אחרי הזמן הזה אם לא משתמשים בה. כשהעכבר מעליה הספירה נעצרת, וכשהוא יוצא היא מתחילה מההתחלה. 0 = לא נסגרת לבד.',
     'settings.sendDedupe': 'אזהרה על שליחה כפולה (דקות)',
     'settings.sendDedupe.hint': 'אם כבר שלחתם הודעה לאותו מספר בזמן הזה, החלונית מזהירה לפני שליחה נוספת. 0 = בלי אזהרה.',
     'settings.save': 'שמור הגדרות',
@@ -74,7 +75,7 @@ const STRINGS = {
     'settings.actions.title': 'פעולת ברירת מחדל',
     'settings.actions.sub': 'הפעולה הראשית לכל סוג נבחרת בלשונית "סוגי זיהוי". כאן קובעים אם היא תרוץ לבד, בלי לחיצה.',
     'settings.autoRun': 'הרצת הפעולה הראשית אוטומטית',
-    'settings.autoRun.sub': 'החלונית נפתחת, ואחרי ההשהיה הפעולה רצה לבד. עכבר מעל החלונית עוצר את הספירה, וסגירה שלה מבטלת. לא חל על חלונית הטלפון.',
+    'settings.autoRun.sub': 'החלונית נפתחת, ואחרי ההשהיה הפעולה רצה לבד. כשהעכבר מעל החלונית הספירה נעצרת, וכשהוא יוצא היא מתחילה מההתחלה. סגירת החלונית מבטלת. לא חל על חלונית הטלפון.',
     'settings.autoRunDelay': 'השהיה לפני ההרצה (שניות)',
     'settings.save.actions': 'שמור',
     // Shortcuts page
@@ -474,6 +475,7 @@ const STRINGS = {
     'nav.history': 'Send History',
     // Header
     'header.subtitle': 'Your smart clipboard agent',
+    'footer.changeLanguage': 'Change language',
     // Settings page
     'settings.title': 'General Settings',
     'settings.subtitle': 'Clipboard monitoring, timing, default actions.',
@@ -486,8 +488,8 @@ const STRINGS = {
     'settings.startMinimized.sub': 'TapAct always starts in the tray. This only skips the welcome guide on the very first launch.',
     'settings.closeToTray': 'X hides the Settings window',
     'settings.closeToTray.sub': 'The window is hidden instead of closed, so it reopens faster. TapAct keeps running in the tray either way. To quit: right-click the tray icon → Exit.',
-    'settings.notifications': 'Windows notification for phone numbers',
-    'settings.notifications.sub': 'A notification near the clock each time a phone number is detected, in addition to the popup. When on, you also get a one-time tip when the Settings window hides to the tray.',
+    'settings.notifications': 'Windows notification with the phone popup',
+    'settings.notifications.sub': 'A notification near the clock every time the phone popup opens, from automatic detection or a manual open. When on, you also get a one-time tip when the Settings window hides to the tray.',
     'settings.sound': 'Sound on detection',
     'settings.sound.sub': 'A short system sound when a popup opens from automatic detection. Silent during quiet hours.',
     'settings.startPaused': 'Start paused',
@@ -502,7 +504,7 @@ const STRINGS = {
     'settings.dedupe': 'Don\'t show the same item again for (seconds)',
     'settings.dedupe.hint': 'If the same number, link or address is detected again within this time, the popup doesn\'t open again. 0 = no wait.',
     'settings.autoClose': 'Auto-close the popup after (seconds)',
-    'settings.autoClose.hint': 'The popup closes by itself after this time if you don\'t use it. Hovering over it pauses the countdown. 0 = never closes by itself.',
+    'settings.autoClose.hint': 'The popup closes by itself after this time if you don\'t use it. While the cursor is over it the countdown stops, and it starts over when the cursor leaves. 0 = never closes by itself.',
     'settings.sendDedupe': 'Duplicate send warning (minutes)',
     'settings.sendDedupe.hint': 'If you already messaged this number within this time, the popup warns you before you send again. 0 = no warning.',
     'settings.save': 'Save Settings',
@@ -527,7 +529,7 @@ const STRINGS = {
     'settings.actions.title': 'Default Action',
     'settings.actions.sub': 'The main action for each type is chosen in the "Detection Types" tab. Here you decide whether it runs by itself, without a click.',
     'settings.autoRun': 'Run the main action automatically',
-    'settings.autoRun.sub': 'The popup opens, and after the delay the action runs by itself. Hovering over the popup pauses the countdown; closing it cancels. Doesn\'t apply to the phone popup.',
+    'settings.autoRun.sub': 'The popup opens, and after the delay the action runs by itself. While the cursor is over the popup the countdown stops, and it starts over when the cursor leaves. Closing the popup cancels. Doesn\'t apply to the phone popup.',
     'settings.autoRunDelay': 'Delay before it runs (seconds)',
     'settings.save.actions': 'Save',
     // Shortcuts page

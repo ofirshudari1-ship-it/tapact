@@ -1,0 +1,228 @@
+{
+ "root": "C:\\Users\\ofirs\\Downloads\\CLAUDE BOTS\\PC-Software\\TapAct\\desktop-agent\\src",
+ "stack": "unknown",
+ "summary": {
+  "files_scanned": 39,
+  "hebrew_files": 20,
+  "physical_classes": 2,
+  "logical_classes": 0,
+  "ignored": 0,
+  "by_severity": {
+   "high": 2,
+   "medium": 6,
+   "low": 12
+  },
+  "by_category": {
+   "rtl": 11,
+   "design": 5,
+   "ux": 4
+  },
+  "by_rule": {
+   "rtl.physical-class": 2,
+   "design.font-default": 5,
+   "ux.alert-confirm": 1,
+   "rtl.free-input-no-auto": 7,
+   "rtl.icon-directional": 2,
+   "ux.hardcoded-date-format": 3
+  },
+  "rule_files": {
+   "rtl.physical-class": 1,
+   "design.font-default": 5,
+   "ux.alert-confirm": 1,
+   "rtl.free-input-no-auto": 3,
+   "rtl.icon-directional": 1,
+   "ux.hardcoded-date-format": 2
+  },
+  "rule_severity": {
+   "rtl.physical-class": "high",
+   "design.font-default": "medium",
+   "ux.alert-confirm": "medium",
+   "rtl.free-input-no-auto": "low",
+   "rtl.icon-directional": "low",
+   "ux.hardcoded-date-format": "low"
+  },
+  "has_token_system": true
+ },
+ "findings": [
+  {
+   "id": "rtl.physical-class",
+   "severity": "high",
+   "category": "rtl",
+   "file": "lib/i18n-renderer.js",
+   "line": 488,
+   "snippet": "'settings.closeToTray.sub': 'The window is hidden instead of closed, so it reopens faster. TapAct keeps runnin",
+   "fix": "החלף ל-logical: ml→ms, mr→me, pl→ps, pr→pe, left→start, right→end, text-left/right→text-start/end, rounded-l/r→rounded-s/e, border-l/r→border-s/e, space-x→gap (או eslint-plugin-rtl-friendly --fix)"
+  },
+  {
+   "id": "rtl.physical-class",
+   "severity": "high",
+   "category": "rtl",
+   "file": "lib/i18n-renderer.js",
+   "line": 831,
+   "snippet": "'tray.hideHint.content': 'The window closed, but TapAct is still active in the tray. To fully quit: right-clic",
+   "fix": "החלף ל-logical: ml→ms, mr→me, pl→ps, pr→pe, left→start, right→end, text-left/right→text-start/end, rounded-l/r→rounded-s/e, border-l/r→border-s/e, space-x→gap (או eslint-plugin-rtl-friendly --fix)"
+  },
+  {
+   "id": "design.font-default",
+   "severity": "medium",
+   "category": "design",
+   "file": "action-popup/action-popup.css",
+   "line": 17,
+   "snippet": "font-family: \"Segoe UI\", -apple-system, system-ui, Arial, sans-serif;",
+   "fix": "גופן ברירת מחדל (Inter/Roboto/Arial) — בחר גופן עברי מובחן"
+  },
+  {
+   "id": "design.font-default",
+   "severity": "medium",
+   "category": "design",
+   "file": "clipboard-history/clipboard-history.css",
+   "line": 19,
+   "snippet": "font-family: \"Segoe UI\", -apple-system, system-ui, Arial, sans-serif;",
+   "fix": "גופן ברירת מחדל (Inter/Roboto/Arial) — בחר גופן עברי מובחן"
+  },
+  {
+   "id": "design.font-default",
+   "severity": "medium",
+   "category": "design",
+   "file": "popup/popup.css",
+   "line": 45,
+   "snippet": "font-family: \"Segoe UI\", -apple-system, system-ui, Arial, sans-serif;",
+   "fix": "גופן ברירת מחדל (Inter/Roboto/Arial) — בחר גופן עברי מובחן"
+  },
+  {
+   "id": "design.font-default",
+   "severity": "medium",
+   "category": "design",
+   "file": "settings/settings.css",
+   "line": 42,
+   "snippet": "font-family: \"Segoe UI\", -apple-system, system-ui, Arial, sans-serif;",
+   "fix": "גופן ברירת מחדל (Inter/Roboto/Arial) — בחר גופן עברי מובחן"
+  },
+  {
+   "id": "design.font-default",
+   "severity": "medium",
+   "category": "design",
+   "file": "welcome/welcome.css",
+   "line": 39,
+   "snippet": "font-family: \"Segoe UI\", -apple-system, system-ui, Arial, sans-serif;",
+   "fix": "גופן ברירת מחדל (Inter/Roboto/Arial) — בחר גופן עברי מובחן"
+  },
+  {
+   "id": "ux.alert-confirm",
+   "severity": "medium",
+   "category": "ux",
+   "file": "settings/settings.js",
+   "line": 1100,
+   "snippet": "if (!confirm(clipT('templates.resetConfirm'))) return;",
+   "fix": "window.alert/confirm חוסמים ולא נגישים — dialog/undo-toast של המערכת"
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "clipboard-history/clipboard-history.html",
+   "line": 20,
+   "snippet": "<input id=\"searchInput\" type=\"text\" data-i18n-placeholder=\"clip.panel.search\" placeholder=\"Search history, inc…",
+   "fix": "קלט חופשי → dir=\"auto\" כדי שמילה באנגלית לא תקפוץ לצד הלא נכון"
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "popup/popup.html",
+   "line": 65,
+   "snippet": "<input id=\"nameInput\" type=\"text\" data-i18n-placeholder=\"popup.name.placeholder\" placeholder=\"ישראל ישראלי\">",
+   "fix": "קלט חופשי → dir=\"auto\" כדי שמילה באנגלית לא תקפוץ לצד הלא נכון"
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "popup/popup.html",
+   "line": 69,
+   "snippet": "<input id=\"roleInput\" type=\"text\" data-i18n-placeholder=\"popup.role.placeholder\" placeholder=\"מנהל מכירות\">",
+   "fix": "קלט חופשי → dir=\"auto\" כדי שמילה באנגלית לא תקפוץ לצד הלא נכון"
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "popup/popup.html",
+   "line": 89,
+   "snippet": "<textarea id=\"messageArea\" rows=\"4\"></textarea>",
+   "fix": "textarea → dir=\"auto\""
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "settings/settings.html",
+   "line": 489,
+   "snippet": "<input id=\"clipSearchInput\" type=\"text\" class=\"clip-search-input\" data-i18n-placeholder=\"clip.panel.search\" pl…",
+   "fix": "קלט חופשי → dir=\"auto\" כדי שמילה באנגלית לא תקפוץ לצד הלא נכון"
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "settings/settings.html",
+   "line": 669,
+   "snippet": "<textarea id=\"leadMessageTemplate\" rows=\"4\" data-i18n-placeholder=\"leads.template.placeholder\" placeholder=\"לי…",
+   "fix": "textarea → dir=\"auto\""
+  },
+  {
+   "id": "rtl.free-input-no-auto",
+   "severity": "low",
+   "category": "rtl",
+   "file": "settings/settings.html",
+   "line": 699,
+   "snippet": "<input type=\"text\" id=\"leadCustomSources\" data-i18n-placeholder=\"leads.custom.sources.placeholder\" placeholder…",
+   "fix": "קלט חופשי → dir=\"auto\" כדי שמילה באנגלית לא תקפוץ לצד הלא נכון"
+  },
+  {
+   "id": "rtl.icon-directional",
+   "severity": "low",
+   "category": "rtl",
+   "file": "welcome/welcome.js",
+   "line": 120,
+   "snippet": "if (e.key === 'ArrowLeft') goTo(current + (rtl ? 1 : -1));",
+   "fix": "אייקון כיווני (חץ/chevron): ב-RTL 'הבא' מצביע שמאלה. באפליקציה דו-לשונית — rtl:-scale-x-100 / DirectionalIcon; בחד-לשונית עברית — לוודא שהכיוון הפיזי נכון"
+  },
+  {
+   "id": "rtl.icon-directional",
+   "severity": "low",
+   "category": "rtl",
+   "file": "welcome/welcome.js",
+   "line": 121,
+   "snippet": "if (e.key === 'ArrowRight') goTo(current + (rtl ? -1 : 1));",
+   "fix": "אייקון כיווני (חץ/chevron): ב-RTL 'הבא' מצביע שמאלה. באפליקציה דו-לשונית — rtl:-scale-x-100 / DirectionalIcon; בחד-לשונית עברית — לוודא שהכיוון הפיזי נכון"
+  },
+  {
+   "id": "ux.hardcoded-date-format",
+   "severity": "low",
+   "category": "ux",
+   "file": "lib/detectors/datetime.js",
+   "line": 25,
+   "snippet": "const ns = `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`;",
+   "fix": "פורמט תאריך/מספר דרך Intl.DateTimeFormat('he-IL') / Intl.NumberFormat('he-IL')"
+  },
+  {
+   "id": "ux.hardcoded-date-format",
+   "severity": "low",
+   "category": "ux",
+   "file": "lib/detectors/datetime.js",
+   "line": 31,
+   "snippet": "const es = `${end.getFullYear()}${pad(end.getMonth() + 1)}${pad(end.getDate())}T${pad(end.getHours())}${pad(en",
+   "fix": "פורמט תאריך/מספר דרך Intl.DateTimeFormat('he-IL') / Intl.NumberFormat('he-IL')"
+  },
+  {
+   "id": "ux.hardcoded-date-format",
+   "severity": "low",
+   "category": "ux",
+   "file": "lib/zip-writer.js",
+   "line": 42,
+   "snippet": "(((d.getMonth() + 1) & 0xf) << 5) |",
+   "fix": "פורמט תאריך/מספר דרך Intl.DateTimeFormat('he-IL') / Intl.NumberFormat('he-IL')"
+  }
+ ]
+}

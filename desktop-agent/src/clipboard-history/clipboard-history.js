@@ -233,11 +233,10 @@ function buildRow(item) {
   const row = document.createElement('div');
   row.className = 'item';
   if (item.pinned) row.classList.add('pinned');
-  // Keyboard-operable, not just clickable: Tab reaches the row, Enter/Space
-  // copies it — matching what a mouse click does (see keydown handler below).
-  row.tabIndex = 0;
-  row.setAttribute('role', 'button');
-  row.setAttribute('aria-label', item.text);
+  // The row is a plain container. Its text area (below) is the real <button>
+  // that copies the item; pin/delete/quick-action are sibling buttons, so no
+  // interactive element sits inside another (axe nested-interactive). A click
+  // anywhere else on the row still copies, via the row's click listener.
 
   if (selectMode) {
     const checkbox = document.createElement('input');
@@ -254,9 +253,11 @@ function buildRow(item) {
   icon.className = 'icon';
   icon.textContent = CATEGORY_ICON[item.category] || '📋';
 
-  const content = document.createElement('div');
+  const content = document.createElement('button');
+  content.type = 'button';
   content.className = 'content';
-  const text = document.createElement('div');
+  content.setAttribute('aria-label', item.text);
+  const text = document.createElement('span');
   text.className = 'text';
   if (item.pinned) {
     // Always-visible pin badge (unlike the .item-actions pin/delete buttons,
@@ -268,7 +269,7 @@ function buildRow(item) {
     text.appendChild(pinBadge);
   }
   text.appendChild(document.createTextNode(item.text));
-  const meta = document.createElement('div');
+  const meta = document.createElement('span');
   meta.className = 'meta';
   meta.title = fullDateLabel(item.copiedAt);
   meta.textContent = `${timeAgoLabel(item.copiedAt)} · ${fullDateLabel(item.copiedAt)}`;
@@ -276,7 +277,7 @@ function buildRow(item) {
   content.appendChild(meta);
 
   if (item.tags && item.tags.length) {
-    const tagsRow = document.createElement('div');
+    const tagsRow = document.createElement('span');
     tagsRow.className = 'tags-row';
     for (const tag of item.tags) {
       const chip = document.createElement('span');
@@ -338,13 +339,9 @@ function buildRow(item) {
     if (selectMode) toggleSelected(item.id);
     else window.tapactHistory.copyItem(item.id);
   };
+  // One listener on the row: the content <button> (mouse or Enter/Space)
+  // bubbles here; the action buttons and checkbox stop propagation.
   row.addEventListener('click', activate);
-  row.addEventListener('keydown', (e) => {
-    if (e.target !== row) return; // let the go/pin/delete/checkbox handle their own Enter/Space
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    e.preventDefault(); // Space must not also scroll the list
-    activate();
-  });
 
   return row;
 }
