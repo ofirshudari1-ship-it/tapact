@@ -1,5 +1,7 @@
 # TapAct - Chrome Extension
 
+Version 1.3.1 (the desktop agent is versioned separately).
+
 Copy any phone number (from a CRM, spreadsheet, email, a Facebook/LinkedIn
 profile - anywhere), click the TapAct icon (or press **Alt+Shift+P**), and
 it opens a WhatsApp chat with a ready-made message - no retyping the number,
@@ -9,10 +11,9 @@ no opening WhatsApp Web and starting a blank chat.
 
 Chrome doesn't allow silently installing an unpacked extension no matter
 what - Developer mode + Load unpacked is unavoidable, so there's no
-installer here. Two ways to get the files:
-
-- Use this `chrome-extension` folder directly, or
-- Download `TapAct-v1.2.1.zip` (same folder) and unzip it anywhere.
+installer here. Use this `chrome-extension` folder directly (the old
+`ActionClip-v1.2.1.zip` in this folder is outdated: it holds version 1.2.1 -
+do not use it).
 
 Then:
 
@@ -39,6 +40,16 @@ is the same steps (or just click the refresh icon on TapAct's card in
 If no number was detected in the last copy (or clipboard access was
 blocked), a manual field lets you paste/type one instead.
 
+What counts as a phone number (the same rules as the desktop agent, checked by
+a shared test): Israeli mobile and landline numbers in any common format
+(`050-123-4567`, `+972 (0)50 123 4567`, `00972...`, with en/em dashes, non
+breaking spaces or right-to-left marks); numbers from other countries written
+with `+` or `00` (`+44 7911 123456`, `0044...`); two numbers copied together
+(the first valid one is used). A bare 9-digit number counts only if it looks
+like a mobile number with the leading 0 dropped (`50`, `52`-`56`, `58`, `59`);
+valid Israeli ID numbers, company numbers (`51...`) and ordinary digit strings
+do not.
+
 ## Managing templates, settings and history
 
 Click the ⚙ icon in the popup (or go to `chrome://extensions` → TapAct →
@@ -57,8 +68,9 @@ Details → Extension options) for three tabs:
 
 Everything happens locally in the browser: the extension reads your
 clipboard only when you open its popup, never sends it anywhere, and the
-only outbound action is opening a `wa.me` link in a new tab (which is just
-opening WhatsApp Web with the browser you already have signed in).
+only outbound action is opening `web.whatsapp.com` in a new tab with the
+number and message in the link (WhatsApp Web in the browser you already
+have signed in).
 Templates and settings are stored in `chrome.storage.sync` (your own Google
 account); send history is stored in `chrome.storage.local` (this browser
 profile only, not synced) - either way, not on any TapAct server, because

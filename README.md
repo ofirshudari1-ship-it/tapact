@@ -19,7 +19,7 @@ Two independent components, install either or both:
 
 For the Chrome extension: load `chrome-extension/` unpacked via `chrome://extensions` (Developer mode), or check the [Chrome Web Store listing](chrome-extension/) if published.
 
-**Current version:** 3.11.0 (desktop agent) / 1.3.0 (Chrome extension) - versioned separately on purpose: the desktop agent ships bug fixes faster, while the extension has a slower release cycle since every change needs review against Chrome's store policy.
+**Current version:** 3.12.0 (desktop agent) / 1.3.1 (Chrome extension) - versioned separately on purpose: the desktop agent ships bug fixes faster, while the extension has a slower release cycle since every change needs review against Chrome's store policy.
 
 ## Where to find things
 
@@ -46,4 +46,8 @@ npm run dist      # build the Windows installer -> desktop-agent/dist/TapAct-Set
 
 ## Privacy, in short
 
-No external server. All detection and clipboard history run and stay local on your machine. The only outbound action is opening a link in your default browser. Full detail: [`PRIVACY.md`](PRIVACY.md).
+No TapAct server, no account, no analytics. Detection and clipboard history run on your computer. What does go out: the update check (to GitHub, at launch and about every 6 hours); the links you click (WhatsApp Web by default, `wa.me` or the WhatsApp app, Maps, Waze, tracking pages), which carry the number, address or tracking number you acted on; and, only if you turn them on, the optional lead channels (your webhook, Slack or email) and the optional AI cleanup (Anthropic's API, with your own key). Full detail: [`PRIVACY.md`](PRIVACY.md).
+
+## Upgrading from ActionClip
+
+TapAct is the new name of ActionClip (2.x). Both watch the clipboard, so running both shows two popups for every copy. When you install TapAct on a PC that still has ActionClip, the installer offers to uninstall it (default: No; skipped in silent installs). ActionClip's own settings and history are not imported into TapAct.

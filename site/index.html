@@ -344,7 +344,7 @@
         <svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="5" width="11" height="15" rx="2.2" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="9.5" y="3.5" width="5" height="2.6" rx="1" fill="#fff"/><path d="M13.2 8.5 L8.8 14.5 L11.3 14.5 L10 19.5 L15.2 12.7 L12.6 12.7 Z" fill="#fde68a"/></svg>
       </span>
       <span class="brand-word">TapAct</span>
-      <span class="ver-badge" data-gh-version="tapact">v3.11.0</span>
+      <span class="ver-badge" data-gh-version="tapact">v3.12.0</span>
     </div>
     <nav class="links">
       <a href="#how">How it works</a>
@@ -540,7 +540,7 @@
           </div>
         </div>
         <div class="comp-facts">
-          <div class="comp-fact"><span class="k">Detects</span><span class="v">Phone + email + tracking + address + link + date/time + your own custom rules</span></div>
+          <div class="comp-fact"><span class="k">Detects</span><span class="v">Phone + email + tracking + address + link + your own custom rules (date/time is optional, off by default)</span></div>
           <div class="comp-fact"><span class="k">Trigger</span><span class="v">Automatic (in the background), or <code>Ctrl+Alt+P</code> anytime</span></div>
           <div class="comp-fact"><span class="k">Best for</span><span class="v">Excel, documents, any desktop app</span></div>
           <div class="comp-fact"><span class="k">Install</span><span class="v">A real Setup.exe file (NSIS), standard uninstall</span></div>
@@ -549,7 +549,7 @@
           <span class="pill">System tray</span>
           <span class="pill">Recent actions quick-repeat</span>
           <span class="pill">Clipboard history (Win+V)</span>
-          <span class="pill">Auto-starts with Windows</span>
+          <span class="pill">Optional start with Windows</span>
         </div>
       </div>
     </div>
@@ -596,7 +596,7 @@
       <div class="feat">
         <span class="fi">🔒</span>
         <h3>Everything local</h3>
-        <p>No external server. The only outbound action is opening a link (WhatsApp/Maps/Waze/tracking) in the browser — including sensitive copies (passwords), which are automatically skipped from history.</p>
+        <p>No TapAct server. Detection and history stay on your computer. What goes out is the update check and the links you click (WhatsApp/Maps/Waze/tracking), plus optional lead channels and AI cleanup if you turn them on. Copies that Windows marks as sensitive (such as from a password manager) are skipped from history.</p>
       </div>
     </div>
   </div>
@@ -611,6 +611,24 @@
     </div>
     <div class="timeline">
       <div class="tl-item current">
+        <div class="tl-head">
+          <span class="tl-ver">v3.12.0</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">Safer rules, smarter phone detection, an honest privacy page</p>
+        <ul class="tl-list">
+          <li><b>Phone numbers:</b> now understood in more forms: <span class="mono">+972 (0)50 123 4567</span>, <span class="mono">0044...</span> and <span class="mono">00351...</span>, numbers with en dashes, non-breaking spaces or right-to-left marks, and two numbers copied together. A bare 9-digit number counts only if it looks like a mobile number, and postal tracking numbers (RR...IL) are never taken for phones.</li>
+          <li><b>Better choices:</b> "0521234567 Yossi Levi, Haifa" and "משלוח 0521234567" open the phone popup instead of an address or DHL popup. Notes like "3 passports, Portugal" no longer look like an address.</li>
+          <li><b>Custom rules cannot freeze TapAct:</b> a pattern is checked when you save it (invalid or very heavy ones are rejected with a clear message) and runs with a time limit.</li>
+          <li><b>Safer links:</b> links from imported history or custom rules open only if they are http, https, mailto, tel or whatsapp links.</li>
+          <li><b>Settings:</b> switching language updates the whole Settings window and the tray at once. An empty number field keeps the previous value and says so, out-of-range numbers are corrected with a message, and a 60 second duplicate wait can be chosen again.</li>
+          <li><b>Updates:</b> TapAct also checks every 6 hours while it runs. "Restart now" restarts TapAct by itself.</li>
+          <li><b>Installer:</b> the language you pick reaches the app on all-users installs, no "delete your data?" question during an update, and a fresh install offers to uninstall the older ActionClip (default: No).</li>
+          <li><b>Fixed:</b> an edited message in the phone popup is what gets sent; WhatsApp with no number shows an error; a pending auto-run no longer closes a newer popup; "Call" opens a +972 number.</li>
+          <li><b>Privacy page:</b> rewritten to list exactly what goes out (update check, links you click, optional lead channels and AI cleanup). Chrome extension 1.3.1 uses the same phone rules.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
         <div class="tl-head">
           <span class="tl-ver">v3.11.0</span>
           <span class="tl-date">2026-10-06</span>
@@ -934,7 +952,7 @@
       </div>
       <div class="install-card">
         <h3>🖥️ Desktop agent</h3>
-        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.11.0.exe</span>
+        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.12.0.exe</span>
         <a class="btn primary" data-gh-download="tapact" href="https://github.com/ofirshudari1-ship-it/tapact/releases/latest" style="margin-top:6px;width:100%;justify-content:center;">⬇ Download the installer</a>
         <ol class="install-steps">
           <li>Run the Setup file (admin rights required — the agent installs per-machine)</li>
@@ -952,7 +970,7 @@
     <div class="section-head">
       <p class="eyebrow">Automatic updates</p>
       <h2>Stays current on its own</h2>
-      <p>From v2.5.6 onward, the desktop agent checks GitHub Releases for a newer build a few seconds after it starts — no manual re-download for routine updates.</p>
+      <p>The desktop agent checks GitHub Releases for a newer build a few seconds after it starts and then about every 6 hours while it runs — no manual re-download for routine updates.</p>
     </div>
     <div class="install-grid">
       <div class="install-card">
@@ -961,7 +979,7 @@
       </div>
       <div class="install-card">
         <h3>⬇️ Auto-download + confirm</h3>
-        <p class="install-note">If an update exists, it downloads in the background, then a small dialog offers "Restart Now" or "Later" — pick Later and it installs automatically on the next normal quit.</p>
+        <p class="install-note">If an update exists, it downloads in the background, then a small dialog offers "Restart Now" or "Later" — pick Later and it installs automatically when you next quit TapAct (TapAct does not start again by itself after that).</p>
       </div>
       <div class="install-card">
         <h3>🔌 Fails quietly offline</h3>
@@ -980,11 +998,11 @@
     <div class="install-grid">
       <div class="install-card">
         <h3>Is my data sent to the cloud?</h3>
-        <p class="install-note">No. There's no TapAct server at all — no analytics, no telemetry, no AI calls. The only thing that leaves the device is opening a <span class="mono">wa.me</span> link in the browser, exactly like typing the URL yourself. Full details: <span class="mono">PRIVACY.md</span>.</p>
+        <p class="install-note">There is no TapAct server, no account, no analytics and no telemetry, and detection and clipboard history stay on your computer. What does go out: the update check (to GitHub, at launch and about every 6 hours); the links you click (WhatsApp Web by default, or <span class="mono">wa.me</span> or the WhatsApp app, Maps, Waze, tracking pages), which carry the number, address or tracking number you acted on; and only if you turn them on, the lead channels (your own webhook, Slack or email) and the optional AI cleanup (Anthropic's API, with your own key). Full details: <span class="mono">PRIVACY.md</span>.</p>
       </div>
       <div class="install-card">
         <h3>Do I need administrator rights?</h3>
-        <p class="install-note">Not required — the installer automatically falls back to a per-user install under <span class="mono">%LOCALAPPDATA%</span> if there are no admin rights. The Chrome extension needs no permissions beyond Chrome's standard extension-load confirmation.</p>
+        <p class="install-note">Yes, for the desktop agent: it installs for all users under Program Files, and Windows asks for administrator permission when you run Setup and when TapAct starts. There is no per-user install. The Chrome extension needs no administrator rights, only Chrome's standard confirmation when loading an extension.</p>
       </div>
       <div class="install-card">
         <h3>Where are templates and history stored?</h3>
@@ -1023,7 +1041,7 @@
         <svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="5" width="11" height="15" rx="2.2" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="9.5" y="3.5" width="5" height="2.6" rx="1" fill="#fff"/><path d="M13.2 8.5 L8.8 14.5 L11.3 14.5 L10 19.5 L15.2 12.7 L12.6 12.7 Z" fill="#fde68a"/></svg>
       </span>
       <span class="brand-word">TapAct</span>
-      <span class="ver-badge" data-gh-version="tapact">v3.11.0</span>
+      <span class="ver-badge" data-gh-version="tapact">v3.12.0</span>
     </div>
     <nav class="links">
       <a href="#how-he">איך זה עובד</a>
@@ -1217,7 +1235,7 @@
           </div>
         </div>
         <div class="comp-facts">
-          <div class="comp-fact"><span class="k">מזהה</span><span class="v">טלפון + אימייל + מעקב + כתובת + קישור + תאריך/שעה + כללים מותאמים אישית</span></div>
+          <div class="comp-fact"><span class="k">מזהה</span><span class="v">טלפון + אימייל + מעקב + כתובת + קישור + כללים מותאמים אישית (תאריך/שעה אופציונלי, כבוי כברירת מחדל)</span></div>
           <div class="comp-fact"><span class="k">טריגר</span><span class="v">אוטומטי (ברקע), או <code>Ctrl+Alt+P</code> בכל רגע</span></div>
           <div class="comp-fact"><span class="k">מתאים ל</span><span class="v">Excel, מסמכים, כל אפליקציה שולחנית</span></div>
           <div class="comp-fact"><span class="k">התקנה</span><span class="v">קובץ Setup.exe אמיתי (NSIS), הסרה רגילה</span></div>
@@ -1226,7 +1244,7 @@
           <span class="pill">מגש המערכת</span>
           <span class="pill">תפריט פעולות אחרונות</span>
           <span class="pill">היסטוריית לוח (Win+V)</span>
-          <span class="pill">הפעלה אוטומטית עם Windows</span>
+          <span class="pill">הפעלה עם Windows (אופציונלי)</span>
         </div>
       </div>
     </div>
@@ -1273,7 +1291,7 @@
       <div class="feat">
         <span class="fi">🔒</span>
         <h3>הכל מקומי</h3>
-        <p>אין שרת חיצוני. הפעולה היחידה כלפי חוץ היא פתיחת קישור (WhatsApp/Maps/Waze/מעקב) בדפדפן - כולל העתקות רגישות (סיסמאות) שמדולגות אוטומטית מההיסטוריה.</p>
+        <p>אין שרת של TapAct. הזיהוי וההיסטוריה נשארים במחשב. מה שיוצא הוא בדיקת העדכונים והקישורים שלוחצים עליהם (WhatsApp/Maps/Waze/מעקב), ובנוסף ערוצי לידים וניקוי AI אופציונליים אם מדליקים אותם. העתקות ש-Windows מסמן כרגישות (למשל ממנהל סיסמאות) לא נשמרות בהיסטוריה.</p>
       </div>
     </div>
   </div>
@@ -1288,6 +1306,24 @@
     </div>
     <div class="timeline">
       <div class="tl-item current">
+        <div class="tl-head">
+          <span class="tl-ver">v3.12.0</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">כללים בטוחים יותר, זיהוי טלפון חכם יותר, ודף פרטיות מדויק</p>
+        <ul class="tl-list">
+          <li><b>מספרי טלפון:</b> מובנים עכשיו ביותר צורות: <span class="mono">+972 (0)50 123 4567</span>, <span class="mono">0044...</span> ו-<span class="mono">00351...</span>, מספרים עם מקף ארוך, רווח בלתי שבור או סימני כיווניות, ושני מספרים שהועתקו יחד. מספר חשוף בן 9 ספרות נחשב רק אם הוא נראה כמו נייד, ומספרי מעקב של הדואר (RR...IL) לא נתפסים יותר כטלפון.</li>
+          <li><b>בחירה טובה יותר:</b> "0521234567 Yossi Levi, Haifa" ו"משלוח 0521234567" פותחים את חלון הטלפון ולא חלון כתובת או DHL. הערות כמו "3 passports, Portugal" כבר לא נראות ככתובת.</li>
+          <li><b>כללים מותאמים לא יכולים להקפיא את TapAct:</b> הביטוי נבדק בשמירה (ביטוי לא תקין או כבד מאוד נדחה עם הודעה ברורה) ורץ עם הגבלת זמן.</li>
+          <li><b>קישורים בטוחים יותר:</b> קישורים מהיסטוריה שיובאה או מכללים מותאמים נפתחים רק אם הם קישורי http, https, mailto, tel או whatsapp.</li>
+          <li><b>הגדרות:</b> החלפת שפה מעדכנת מיד את כל חלון ההגדרות ואת המגש. שדה מספר ריק שומר את הערך הקודם ואומר זאת, מספר מחוץ לטווח מתוקן עם הודעה, ואפשר שוב לבחור המתנה של 60 שניות בין התראות כפולות.</li>
+          <li><b>עדכונים:</b> TapAct בודק עדכונים גם כל 6 שעות בזמן שהוא רץ. "הפעל מחדש עכשיו" מפעיל את TapAct מחדש בעצמו.</li>
+          <li><b>התקנה:</b> השפה שבחרתם מגיעה לאפליקציה גם בהתקנה לכל המשתמשים, אין שאלת "למחוק את הנתונים?" בזמן עדכון, והתקנה חדשה מציעה להסיר את ActionClip הישן (ברירת המחדל: לא).</li>
+          <li><b>תוקן:</b> הודעה שערכתם בחלון הטלפון היא זו שנשלחת; וואטסאפ בלי מספר מציג שגיאה; הרצה אוטומטית ממתינה כבר לא סוגרת חלון חדש יותר; "חיוג" פותח מספר עם +972.</li>
+          <li><b>דף הפרטיות:</b> נכתב מחדש ומפרט בדיוק מה יוצא (בדיקת עדכונים, קישורים שלוחצים עליהם, ערוצי לידים וניקוי AI אופציונליים). תוסף Chrome 1.3.1 משתמש באותם כללי טלפון.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
         <div class="tl-head">
           <span class="tl-ver">v3.11.0</span>
           <span class="tl-date">2026-10-06</span>
@@ -1611,7 +1647,7 @@
       </div>
       <div class="install-card">
         <h3>🖥️ סוכן שולחן עבודה</h3>
-        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.11.0.exe</span>
+        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.12.0.exe</span>
         <a class="btn primary" data-gh-download="tapact" href="https://github.com/ofirshudari1-ship-it/tapact/releases/latest" style="margin-top:6px;width:100%;justify-content:center;">⬇ הורדת קובץ ההתקנה</a>
         <ol class="install-steps">
           <li>מריצים את קובץ ה-Setup (נדרשות הרשאות מנהל - ההתקנה היא ברמת המחשב)</li>
@@ -1629,7 +1665,7 @@
     <div class="section-head">
       <p class="eyebrow">עדכונים אוטומטיים</p>
       <h2>נשאר מעודכן לבד</h2>
-      <p>מגרסה 2.5.6 ואילך, הסוכן בודק ב-GitHub Releases אם יש גרסה חדשה כמה שניות אחרי שהוא עולה - בלי צורך בהורדה ידנית לעדכונים שגרתיים.</p>
+      <p>הסוכן בודק ב-GitHub Releases אם יש גרסה חדשה כמה שניות אחרי שהוא עולה, ואחר כך כל כ-6 שעות בזמן שהוא רץ - בלי צורך בהורדה ידנית לעדכונים שגרתיים.</p>
     </div>
     <div class="install-grid">
       <div class="install-card">
@@ -1638,7 +1674,7 @@
       </div>
       <div class="install-card">
         <h3>⬇️ הורדה אוטומטית + אישור</h3>
-        <p class="install-note">אם יש עדכון, הוא יורד ברקע, ואז חלונית קטנה מציעה "התקן עכשיו" או "מאוחר יותר" - בחירה ב"מאוחר יותר" מתקינה אוטומטית ביציאה הבאה הרגילה.</p>
+        <p class="install-note">אם יש עדכון, הוא יורד ברקע, ואז חלונית קטנה מציעה "התקן עכשיו" או "מאוחר יותר" - בחירה ב"מאוחר יותר" מתקינה אוטומטית כשיוצאים מ-TapAct בפעם הבאה (ואחרי זה TapAct לא עולה שוב לבד).</p>
       </div>
       <div class="install-card">
         <h3>🔌 נכשל בשקט אם אין רשת</h3>
@@ -1657,11 +1693,11 @@
     <div class="install-grid">
       <div class="install-card">
         <h3>האם המידע שלי נשלח לענן?</h3>
-        <p class="install-note">לא. אין שרת של TapAct בכלל - לא analytics, לא telemetry, לא קריאת AI. הפעולה היחידה שיוצאת מהמכשיר היא פתיחת קישור <span class="mono">wa.me</span> בדפדפן, בדיוק כמו הקלדת ה-URL בעצמך. פירוט מלא: <span class="mono">PRIVACY.md</span>.</p>
+        <p class="install-note">אין שרת של TapAct, אין חשבון, אין analytics ואין telemetry, והזיהוי והיסטוריית הלוח נשארים במחשב שלכם. מה כן יוצא: בדיקת העדכונים (ל-GitHub, בהפעלה וכל כ-6 שעות); הקישורים שלוחצים עליהם (WhatsApp Web כברירת מחדל, או <span class="mono">wa.me</span> או אפליקציית וואטסאפ, Maps, Waze, דפי מעקב), שנושאים את המספר, הכתובת או מספר המעקב שפעלתם עליהם; ורק אם הדלקתם אותם, ערוצי הלידים (ה-webhook, Slack או המייל שלכם) וניקוי ה-AI האופציונלי (ה-API של Anthropic, עם מפתח משלכם). פירוט מלא: <span class="mono">PRIVACY.md</span>.</p>
       </div>
       <div class="install-card">
         <h3>האם צריך הרשאות מנהל (Admin)?</h3>
-        <p class="install-note">לא חובה - המתקין נופל אוטומטית להתקנה per-user ב-<span class="mono">%LOCALAPPDATA%</span> אם אין הרשאות. תוסף ה-Chrome לא דורש הרשאות כלל מעבר לאישור הרגיל של Chrome בטעינת תוסף.</p>
+        <p class="install-note">כן, לסוכן שולחן העבודה: הוא מותקן לכל המשתמשים ב-Program Files, ו-Windows מבקש הרשאת מנהל בהרצת ה-Setup ובהפעלת TapAct. אין התקנה לכל משתמש בנפרד. תוסף ה-Chrome לא דורש הרשאות מנהל, רק את האישור הרגיל של Chrome בטעינת תוסף.</p>
       </div>
       <div class="install-card">
         <h3>איפה נשמרות התבניות וההיסטוריה?</h3>
