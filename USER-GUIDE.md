@@ -1,6 +1,6 @@
 # TapAct - User Guide / מדריך משתמש
 
-Current version: 3.12.0. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
+Current version: 3.12.1. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
 
 ## English
 
@@ -11,7 +11,7 @@ A Windows background agent that watches what you copy and offers the right next 
 ### Install
 
 1. Download `TapAct-Setup-<version>.exe` from the [latest release](https://github.com/ofirshudari1-ship-it/tapact/releases/latest).
-2. Run it. The installer asks for administrator permission and lets you choose the language (English or Hebrew).
+2. Run it. The installer asks for administrator permission once and lets you choose the language (English or Hebrew). TapAct itself then runs as a normal user, with no permission prompt when it starts, and "Start with Windows" (Settings > General) really starts it when you sign in. An update asks for administrator permission once when it installs.
 3. TapAct starts in the system tray. On the first run a short welcome guide opens in the language of your Windows.
 4. TapAct checks for updates at launch and about every 6 hours, downloads them quietly and asks before restarting. If you pick "Later" the update installs when you quit TapAct, and you start TapAct again yourself. Settings > About > Updates shows the status and has "Check for updates now".
 5. If the older ActionClip is installed, the installer offers to uninstall it (default: No). Running both shows two popups for every copy.
@@ -70,7 +70,7 @@ No TapAct server, no account, no analytics. Detection and clipboard history run 
 ### התקנה
 
 1. מורידים `TapAct-Setup-<גרסה>.exe` מ[הגרסה האחרונה](https://github.com/ofirshudari1-ship-it/tapact/releases/latest).
-2. מריצים. ההתקנה מבקשת הרשאת מנהל ומאפשרת לבחור שפה (עברית או אנגלית).
+2. מריצים. ההתקנה מבקשת הרשאת מנהל פעם אחת ומאפשרת לבחור שפה (עברית או אנגלית). אחרי זה TapAct רץ כמשתמש רגיל, בלי חלון הרשאה בכל הפעלה, ו"הפעלה אוטומטית עם Windows" (הגדרות > כללי) באמת פותחת אותו בכניסה ל-Windows. עדכון מבקש הרשאת מנהל פעם אחת בזמן ההתקנה.
 3. TapAct עולה במגש המערכת. בהפעלה הראשונה נפתח מדריך קצר בשפת ה-Windows שלכם.
 4. TapAct בודק עדכונים בהפעלה וכל כ-6 שעות, מוריד אותם בשקט ושואל לפני שהוא מופעל מחדש. אם בוחרים "אחר כך", העדכון מותקן כשיוצאים מ-TapAct, ואת TapAct מפעילים שוב בעצמכם. בהגדרות ▸ אודות ▸ עדכונים רואים את המצב ואפשר ללחוץ "בדוק עדכונים עכשיו".
 5. אם האפליקציה הישנה ActionClip מותקנת, ההתקנה מציעה להסיר אותה (ברירת המחדל: לא). כששניהם רצים, כל העתקה פותחת שתי חלוניות.

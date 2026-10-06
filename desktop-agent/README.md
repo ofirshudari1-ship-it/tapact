@@ -13,9 +13,9 @@ Get the latest installer from the GitHub Releases page:
 **[Download the latest version](https://github.com/ofirshudari1-ship-it/tapact/releases/latest)**
 
 1. Download `TapAct-Setup-<version>.exe` from the release's Assets.
-2. Run the installer. It installs for all users (Program Files) and asks for administrator permission.
+2. Run the installer. It installs for all users (Program Files) and asks for administrator permission once. TapAct itself runs as a normal user (no prompt when it starts), and updates ask for administrator permission once when they install.
 3. Follow the setup wizard: choose English or Hebrew, then finish.
-4. TapAct starts after the installer finishes and adds an icon to your system tray (it may be hidden under the "^" arrow the first time). "Start with Windows" is off until you turn it on in Settings.
+4. TapAct starts after the installer finishes and adds an icon to your system tray (it may be hidden under the "^" arrow the first time). "Start with Windows" is off until you turn it on in Settings; it works because TapAct does not need administrator rights to start.
 5. Copy a phone number, address, tracking number, or link to try it out.
 
 **System requirements:** Windows 10/11.

@@ -344,7 +344,7 @@
         <svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="5" width="11" height="15" rx="2.2" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="9.5" y="3.5" width="5" height="2.6" rx="1" fill="#fff"/><path d="M13.2 8.5 L8.8 14.5 L11.3 14.5 L10 19.5 L15.2 12.7 L12.6 12.7 Z" fill="#fde68a"/></svg>
       </span>
       <span class="brand-word">TapAct</span>
-      <span class="ver-badge" data-gh-version="tapact">v3.12.0</span>
+      <span class="ver-badge" data-gh-version="tapact">v3.12.1</span>
     </div>
     <nav class="links">
       <a href="#how">How it works</a>
@@ -611,6 +611,20 @@
     </div>
     <div class="timeline">
       <div class="tl-item current">
+        <div class="tl-head">
+          <span class="tl-ver">v3.12.1</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">No administrator prompt on launch, and secrets stay out of the popup</p>
+        <ul class="tl-list">
+          <li><b>Normal user:</b> TapAct no longer asks for administrator permission when it starts. The installer still asks once (it installs for all users), and an update asks once when it installs.</li>
+          <li><b>Start with Windows works:</b> before, Windows skipped TapAct at sign-in because it required administrator rights. Now the setting does what it says.</li>
+          <li><b>Privacy:</b> the phone popup no longer receives your AI key, webhook, Slack link or e-mail address, only which channels are on. Only the Settings window can read them.</li>
+          <li><b>Clear messages:</b> lead sending errors appear in your language, and importing clipboard history now says how many items were imported, or that nothing was, or that the file could not be read.</li>
+          <li><b>Good to know:</b> when the window in front is itself running as administrator, Windows may block TapAct's keyboard shortcuts and place the popup behind it.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
         <div class="tl-head">
           <span class="tl-ver">v3.12.0</span>
           <span class="tl-date">2026-10-06</span>
@@ -952,12 +966,12 @@
       </div>
       <div class="install-card">
         <h3>🖥️ Desktop agent</h3>
-        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.12.0.exe</span>
+        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.12.1.exe</span>
         <a class="btn primary" data-gh-download="tapact" href="https://github.com/ofirshudari1-ship-it/tapact/releases/latest" style="margin-top:6px;width:100%;justify-content:center;">⬇ Download the installer</a>
         <ol class="install-steps">
-          <li>Run the Setup file (admin rights required — the agent installs per-machine)</li>
+          <li>Run the Setup file (it asks for administrator permission once - the agent installs for all users)</li>
           <li>Go through the standard Windows wizard steps</li>
-          <li>The agent launches automatically — icon in the system tray</li>
+          <li>The agent launches automatically as a normal user - icon in the system tray</li>
         </ol>
         <p class="install-note">Windows may show a SmartScreen warning for unsigned internal software — click "More info" → "Run anyway". After this first install, future updates download and install themselves automatically — see "Automatic updates" below.</p>
       </div>
@@ -1002,7 +1016,7 @@
       </div>
       <div class="install-card">
         <h3>Do I need administrator rights?</h3>
-        <p class="install-note">Yes, for the desktop agent: it installs for all users under Program Files, and Windows asks for administrator permission when you run Setup and when TapAct starts. There is no per-user install. The Chrome extension needs no administrator rights, only Chrome's standard confirmation when loading an extension.</p>
+        <p class="install-note">Only to install. The desktop agent installs for all users under Program Files, so Windows asks for administrator permission once when you run Setup, and once more when an update installs. TapAct itself runs as a normal user: no prompt when it starts, and "Start with Windows" works. There is no per-user install. The Chrome extension needs no administrator rights, only Chrome's standard confirmation when loading an extension.</p>
       </div>
       <div class="install-card">
         <h3>Where are templates and history stored?</h3>
@@ -1041,7 +1055,7 @@
         <svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="5" width="11" height="15" rx="2.2" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="9.5" y="3.5" width="5" height="2.6" rx="1" fill="#fff"/><path d="M13.2 8.5 L8.8 14.5 L11.3 14.5 L10 19.5 L15.2 12.7 L12.6 12.7 Z" fill="#fde68a"/></svg>
       </span>
       <span class="brand-word">TapAct</span>
-      <span class="ver-badge" data-gh-version="tapact">v3.12.0</span>
+      <span class="ver-badge" data-gh-version="tapact">v3.12.1</span>
     </div>
     <nav class="links">
       <a href="#how-he">איך זה עובד</a>
@@ -1306,6 +1320,20 @@
     </div>
     <div class="timeline">
       <div class="tl-item current">
+        <div class="tl-head">
+          <span class="tl-ver">v3.12.1</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">בלי חלון הרשאת מנהל בהפעלה, והסודות נשארים מחוץ לחלון הקופץ</p>
+        <ul class="tl-list">
+          <li><b>משתמש רגיל:</b> TapAct כבר לא מבקש הרשאת מנהל כשהוא נפתח. ההתקנה עדיין מבקשת פעם אחת (היא מתקינה לכל המשתמשים), ועדכון מבקש פעם אחת בזמן ההתקנה.</li>
+          <li><b>הפעלה עם Windows עובדת:</b> קודם Windows דילג על TapAct בכניסה כי הוא דרש הרשאות מנהל. עכשיו ההגדרה עושה מה שכתוב.</li>
+          <li><b>פרטיות:</b> חלון הטלפון הקופץ כבר לא מקבל את מפתח ה-AI, ה-webhook, קישור ה-Slack או כתובת המייל שלכם, רק אילו ערוצים פעילים. רק חלון ההגדרות יכול לקרוא אותם.</li>
+          <li><b>הודעות ברורות:</b> שגיאות שליחת לידים מופיעות בשפה שלכם, וייבוא היסטוריית לוח אומר עכשיו כמה פריטים יובאו, שלא יובא כלום, או שאי אפשר לקרוא את הקובץ.</li>
+          <li><b>טוב לדעת:</b> כשהחלון הקדמי עצמו רץ כמנהל, Windows עלול לחסום את קיצורי המקלדת של TapAct ולפתוח את החלון הקופץ מאחוריו.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
         <div class="tl-head">
           <span class="tl-ver">v3.12.0</span>
           <span class="tl-date">2026-10-06</span>
@@ -1647,10 +1675,10 @@
       </div>
       <div class="install-card">
         <h3>🖥️ סוכן שולחן עבודה</h3>
-        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.12.0.exe</span>
+        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.12.1.exe</span>
         <a class="btn primary" data-gh-download="tapact" href="https://github.com/ofirshudari1-ship-it/tapact/releases/latest" style="margin-top:6px;width:100%;justify-content:center;">⬇ הורדת קובץ ההתקנה</a>
         <ol class="install-steps">
-          <li>מריצים את קובץ ה-Setup (נדרשות הרשאות מנהל - ההתקנה היא ברמת המחשב)</li>
+          <li>מריצים את קובץ ה-Setup (הוא מבקש הרשאת מנהל פעם אחת - ההתקנה היא לכל המשתמשים)</li>
           <li>עוברים את שלבי האשף הרגילים של Windows</li>
           <li>הסוכן עולה אוטומטית - אייקון במגש המערכת</li>
         </ol>
@@ -1697,7 +1725,7 @@
       </div>
       <div class="install-card">
         <h3>האם צריך הרשאות מנהל (Admin)?</h3>
-        <p class="install-note">כן, לסוכן שולחן העבודה: הוא מותקן לכל המשתמשים ב-Program Files, ו-Windows מבקש הרשאת מנהל בהרצת ה-Setup ובהפעלת TapAct. אין התקנה לכל משתמש בנפרד. תוסף ה-Chrome לא דורש הרשאות מנהל, רק את האישור הרגיל של Chrome בטעינת תוסף.</p>
+        <p class="install-note">רק להתקנה. הסוכן מותקן לכל המשתמשים ב-Program Files, ולכן Windows מבקש הרשאת מנהל פעם אחת בהרצת ה-Setup ופעם נוספת כשעדכון מותקן. TapAct עצמו רץ כמשתמש רגיל: בלי חלון הרשאה בהפעלה, ו"הפעלה אוטומטית עם Windows" עובדת. אין התקנה לכל משתמש בנפרד. תוסף ה-Chrome לא דורש הרשאות מנהל, רק את האישור הרגיל של Chrome בטעינת תוסף.</p>
       </div>
       <div class="install-card">
         <h3>איפה נשמרות התבניות וההיסטוריה?</h3>
