@@ -1,6 +1,6 @@
 # TapAct - User Guide / מדריך משתמש
 
-Current version: 3.10.2. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
+Current version: 3.11.0. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
 
 ## English
 
@@ -32,6 +32,10 @@ A Windows background agent that watches what you copy and offers the right next 
 - You copied the same thing less than 10 seconds ago.
 - Quiet hours are on, monitoring is paused, or you snoozed the popup.
 - Several windows opened within 20 seconds (for example copying a column of numbers): popups pause for a minute, everything is still saved to history.
+
+### Where WhatsApp opens
+
+By default the chat opens in WhatsApp Web in your browser. Settings > General settings > "Where WhatsApp opens" lets you pick the WhatsApp desktop app instead (if it is not installed, WhatsApp Web opens), or the wa.me link.
 
 ### Snooze and close
 
@@ -82,6 +86,10 @@ Right-click the tray icon > Settings. Main tabs: Message templates (use `{name}`
 - העתקתם את אותו דבר לפני פחות מ-10 שניות.
 - שעות שקט פעילות, הניטור מושהה, או שהשהיתם את החלון.
 - נפתחו כמה חלונות ב-20 שניות (למשל העתקת עמודה של מספרים): החלונות נעצרים לדקה, והכול ממשיך להישמר בהיסטוריה.
+
+### איפה נפתח וואטסאפ
+
+כברירת מחדל השיחה נפתחת ב-WhatsApp Web בדפדפן. בהגדרות ▸ הגדרות כלליות ▸ "איפה נפתח וואטסאפ" אפשר לבחור במקום זה את אפליקציית WhatsApp למחשב (אם היא לא מותקנת, ייפתח WhatsApp Web), או את הקישור wa.me.
 
 ### השהיה וסגירה
 

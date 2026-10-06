@@ -59,3 +59,13 @@ describe('sanitizeSettingsPatch', () => {
     expect(sanitizeSettingsPatch({ snoozeUntil: 9999999999999, showTrayNotification: true })).toEqual({});
   });
 });
+
+describe('whatsappTarget setting', () => {
+  const { sanitizeSettingsPatch: sanitize } = require('../src/lib/settings-guard');
+  test('only the three known targets are accepted', () => {
+    expect(sanitize({ whatsappTarget: 'desktop' })).toEqual({ whatsappTarget: 'desktop' });
+    expect(sanitize({ whatsappTarget: 'web' })).toEqual({ whatsappTarget: 'web' });
+    expect(sanitize({ whatsappTarget: 'wame' })).toEqual({ whatsappTarget: 'wame' });
+    expect(sanitize({ whatsappTarget: 'javascript:alert(1)' })).toEqual({});
+  });
+});

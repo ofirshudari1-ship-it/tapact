@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   s.soundOnDetectCheck = document.getElementById('soundOnDetectCheck');
   s.startPausedCheck = document.getElementById('startPausedCheck');
   s.trayClickSelect = document.getElementById('trayClickSelect');
+  s.whatsappTargetSelect = document.getElementById('whatsappTargetSelect');
   s.quietHoursEnabledCheck = document.getElementById('quietHoursEnabledCheck');
   s.quietHoursStartInput = document.getElementById('quietHoursStartInput');
   s.quietHoursEndInput = document.getElementById('quietHoursEndInput');
@@ -520,6 +521,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (s.soundOnDetectCheck) s.soundOnDetectCheck.checked = settings.soundOnDetect === true;
   if (s.startPausedCheck) s.startPausedCheck.checked = settings.startPaused === true;
   if (s.trayClickSelect) s.trayClickSelect.value = settings.trayClickAction || 'history';
+  if (s.whatsappTargetSelect) s.whatsappTargetSelect.value = settings.whatsappTarget || 'web';
   if (s.autoInstallUpdatesCheck) s.autoInstallUpdatesCheck.checked = settings.autoInstallUpdates !== false;
 
   const quietHours = settings.quietHours || {};
@@ -1119,6 +1121,7 @@ function onSaveSettings() {
     soundOnDetect: s.soundOnDetectCheck ? s.soundOnDetectCheck.checked : false,
     startPaused: s.startPausedCheck ? s.startPausedCheck.checked : false,
     trayClickAction: s.trayClickSelect ? s.trayClickSelect.value : 'history',
+    whatsappTarget: s.whatsappTargetSelect ? s.whatsappTargetSelect.value : 'web',
     pollMs: Math.max(200, Number(s.pollInput.value) || 400),
     dedupeSeconds: Math.max(0, Number(s.dedupeInput.value) || 0),
     autoCloseSeconds: Math.max(0, Number(s.autoCloseInput.value) || 0),

@@ -47,7 +47,7 @@ function log(level, msg, extra) {
   else if (level === LOG_LEVELS.WARN) console.warn(line.trimEnd());
 }
 
-const { findPhone, fillTemplate, buildWhatsAppUrl } = require('./lib/phone');
+const { findPhone, fillTemplate, buildWhatsAppUrl, normalizeWhatsAppTarget } = require('./lib/phone');
 const { findGenericAction } = require('./lib/detectors');
 const store = require('./lib/store');
 const { postJson, cleanupLeadWithAi, buildShareText, buildMailtoUrl } = require('./lib/lead-delivery');
@@ -175,6 +175,26 @@ function applyActionPreference(action, settings) {
   return { ...action, actions: reordered };
 }
 
+// The one place that decides how a WhatsApp chat is opened, honoring Settings >
+// General > "Where WhatsApp opens". 'desktop' falls back to WhatsApp Web when no
+// app is registered for whatsapp:// (otherwise Windows would show "no app to open").
+function resolveWhatsAppUrl(normalizedPhone, message) {
+  let target = normalizeWhatsAppTarget(store.getSettings().whatsappTarget);
+  if (target === 'desktop') {
+    let hasApp = false;
+    try { hasApp = !!app.getApplicationNameForProtocol('whatsapp://'); } catch (_) { /* treat as not installed */ }
+    if (!hasApp) target = 'web';
+  }
+  return buildWhatsAppUrl(normalizedPhone, message, target);
+}
+
+// A stored history action: WhatsApp ones keep the phone (`wa`) so the link is built
+// when clicked, using whatever target is selected THEN - not the one at copy time.
+function actionUrl(action) {
+  if (!action) return '';
+  return action.wa ? resolveWhatsAppUrl(action.wa, '') : action.url;
+}
+
 function categorizeForHistory(text) {
   const action = findGenericAction(text, { tracking: true, address: true, url: true, email: true }, store.getCustomActionRules(), store.getSettings().language);
   if (action) {
@@ -183,7 +203,7 @@ function categorizeForHistory(text) {
   }
   const phone = findPhone(text);
   if (phone) {
-    return { category: 'phone', actions: [{ label: `WhatsApp: ${phone.display}`, url: buildWhatsAppUrl(phone.normalized, '') }] };
+    return { category: 'phone', actions: [{ label: `WhatsApp: ${phone.display}`, url: buildWhatsAppUrl(phone.normalized, '', 'web'), wa: phone.normalized }] };
   }
   return { category: 'text', actions: null };
 }
@@ -415,7 +435,7 @@ function handlePhoneDetected(phone, settings, takeFocus = false, anchorPoint = n
     return;
   }
   if (action === 'whatsapp') {
-    shell.openExternal(buildWhatsAppUrl(phone.normalized, ''));
+    shell.openExternal(resolveWhatsAppUrl(phone.normalized, ''));
     return;
   }
   // default: 'popup'
@@ -1095,7 +1115,7 @@ function buildRecentActionsSubmenu() {
     sublabel: item.actions[0].label,
     click: () => {
       const chosen = item.actions[0];
-      if (chosen && chosen.url) shell.openExternal(chosen.url);
+      if (chosen && actionUrl(chosen)) shell.openExternal(actionUrl(chosen));
     }
   }));
 }
@@ -1240,7 +1260,7 @@ ipcMain.on('popup:send', (_event, { phone, message, name, templateLabel }) => {
   // NOTE: popup is NOT closed here so multi-channel sends can complete;
   // the renderer calls popup:dismiss after all channels finish.
   if (phone && phone.normalized) {
-    shell.openExternal(buildWhatsAppUrl(phone.normalized, message));
+    shell.openExternal(resolveWhatsAppUrl(phone.normalized, message));
     store.addHistoryEntry({
       normalized: phone.normalized,
       display: phone.display,
@@ -1400,7 +1420,7 @@ ipcMain.on('history-panel:copy-item', async (_event, id) => {
 ipcMain.on('history-panel:run-action', (_event, { id, index }) => {
   const item = store.getClipboardHistory().find((i) => i.id === id);
   const chosen = item && item.actions && item.actions[index];
-  if (chosen && chosen.url) shell.openExternal(chosen.url);
+  if (chosen && actionUrl(chosen)) shell.openExternal(actionUrl(chosen));
   if (historyWindow && !historyWindow.isDestroyed()) historyWindow.close();
 });
 

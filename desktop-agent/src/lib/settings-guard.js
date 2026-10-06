@@ -18,7 +18,7 @@ const SETTINGS_ALLOWLIST = new Set([
   'actionPreferences', 'detectors',
   'closeToTray', 'soundOnDetect',
   'quietHours', 'historyEnabled', 'historyStorageLimit', 'historyPreviewLimit',
-  'language', 'theme', 'trayClickAction', 'startPaused', 'autoInstallUpdates'
+  'language', 'theme', 'trayClickAction', 'whatsappTarget', 'startPaused', 'autoInstallUpdates'
 ]);
 
 const BOOLEAN_KEYS = new Set([
@@ -41,7 +41,8 @@ const NUMBER_RANGES = {
 const ENUMS = {
   language: ['he', 'en'],
   theme: ['dark', 'light'],
-  trayClickAction: ['history', 'settings', 'none']
+  trayClickAction: ['history', 'settings', 'none'],
+  whatsappTarget: ['web', 'desktop', 'wame']
 };
 
 const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);

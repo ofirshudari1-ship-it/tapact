@@ -114,8 +114,23 @@ function fillTemplate(text, name) {
   return replaceNamePlaceholders(text, name).replace(/\s{2,}/g, ' ').trim();
 }
 
-function buildWhatsAppUrl(normalizedPhone, message) {
-  return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
+// Where the chat opens: 'web' = WhatsApp Web straight in the browser (default - the
+// call-center reps work in WhatsApp Web), 'desktop' = the WhatsApp desktop app via its
+// whatsapp:// protocol, 'wame' = the universal wa.me link (WhatsApp's own page that
+// offers the app or Web).
+const WHATSAPP_TARGETS = ['web', 'desktop', 'wame'];
+
+function normalizeWhatsAppTarget(target) {
+  return WHATSAPP_TARGETS.includes(target) ? target : 'web';
+}
+
+function buildWhatsAppUrl(normalizedPhone, message, target) {
+  const text = message ? 'text=' + encodeURIComponent(message) : '';
+  switch (normalizeWhatsAppTarget(target)) {
+    case 'desktop': return `whatsapp://send?phone=${normalizedPhone}${text ? '&' + text : ''}`;
+    case 'wame': return `https://wa.me/${normalizedPhone}${text ? '?' + text : ''}`;
+    default: return `https://web.whatsapp.com/send?phone=${normalizedPhone}${text ? '&' + text : ''}`;
+  }
 }
 
 module.exports = {
@@ -123,6 +138,8 @@ module.exports = {
   findPhone,
   fillTemplate,
   buildWhatsAppUrl,
+  normalizeWhatsAppTarget,
+  WHATSAPP_TARGETS,
   normalizeIsraeliPhone,
   normalizeInternationalPhone,
   formatInternationalDisplay

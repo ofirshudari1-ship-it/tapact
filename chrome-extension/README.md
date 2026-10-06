@@ -33,8 +33,8 @@ is the same steps (or just click the refresh icon on TapAct's card in
 3. The popup shows the detected number, a name field (optional), and a
    message template. Pick a different template from the dropdown if needed,
    tweak the text, then click **פתח בוואטסאפ**.
-4. A new tab opens `wa.me/<number>` with the message pre-filled - just hit
-   send in WhatsApp.
+4. A new tab opens WhatsApp Web (`web.whatsapp.com/send`) on that number with the
+   message pre-filled - just hit send in WhatsApp.
 
 If no number was detected in the last copy (or clipboard access was
 blocked), a manual field lets you paste/type one instead.

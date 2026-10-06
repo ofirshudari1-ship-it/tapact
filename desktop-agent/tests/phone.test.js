@@ -144,8 +144,8 @@ describe('fillTemplate', () => {
 });
 
 describe('buildWhatsAppUrl', () => {
-  test('builds correct wa.me URL', () => {
-    const url = buildWhatsAppUrl('972501234567', 'שלום!');
+  test('builds correct wa.me URL when the wa.me target is chosen', () => {
+    const url = buildWhatsAppUrl('972501234567', 'שלום!', 'wame');
     expect(url).toContain('https://wa.me/972501234567');
     expect(url).toContain(encodeURIComponent('שלום!'));
   });
@@ -173,5 +173,22 @@ describe('findPhone - Israeli ID numbers starting with 0', () => {
   });
   test('a bare 9-digit landline that fails the ID check is still a phone', () => {
     expect(findPhone('034567892')).not.toBeNull();
+  });
+});
+
+describe('buildWhatsAppUrl - where the chat opens', () => {
+  const { buildWhatsAppUrl, normalizeWhatsAppTarget } = require('../src/lib/phone');
+  test('WhatsApp Web is the default', () => {
+    expect(buildWhatsAppUrl('972523334455', 'hi')).toBe('https://web.whatsapp.com/send?phone=972523334455&text=hi');
+    expect(buildWhatsAppUrl('972523334455', '', 'web')).toBe('https://web.whatsapp.com/send?phone=972523334455');
+  });
+  test('desktop app and wa.me variants', () => {
+    expect(buildWhatsAppUrl('972523334455', 'hi', 'desktop')).toBe('whatsapp://send?phone=972523334455&text=hi');
+    expect(buildWhatsAppUrl('972523334455', 'a b', 'wame')).toBe('https://wa.me/972523334455?text=a%20b');
+    expect(buildWhatsAppUrl('972523334455', '', 'wame')).toBe('https://wa.me/972523334455');
+  });
+  test('unknown targets fall back to web; Hebrew text is encoded', () => {
+    expect(normalizeWhatsAppTarget('nonsense')).toBe('web');
+    expect(buildWhatsAppUrl('972523334455', 'שלום')).toContain('text=%D7%A9%D7%9C%D7%95%D7%9D');
   });
 });

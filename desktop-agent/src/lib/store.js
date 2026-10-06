@@ -102,6 +102,7 @@ const DEFAULT_SETTINGS = {
   enabled: true,
   pollMs: 250,          // fast enough that the popup shows up while the cursor is still at the copy
   dedupeSeconds: 10, // suppresses re-popping the SAME clipboard text too often
+  whatsappTarget: 'web', // where the WhatsApp button opens: 'web' | 'desktop' | 'wame'
   autoCloseSeconds: 7,
   sendDedupeMinutes: 30, // "you already messaged this lead" warning window
   autoLaunch: false,

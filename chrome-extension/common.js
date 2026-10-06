@@ -89,7 +89,9 @@ function pcFindPhone(text) {
 }
 
 function pcBuildWhatsAppUrl(normalizedPhone, message) {
-  return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
+  // WhatsApp Web directly (the team works in WhatsApp Web) - skips the wa.me interstitial page.
+  const text = message ? '&text=' + encodeURIComponent(message) : '';
+  return `https://web.whatsapp.com/send?phone=${normalizedPhone}${text}`;
 }
 
 // --- Storage ---

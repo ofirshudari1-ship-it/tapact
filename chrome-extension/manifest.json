@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "TapAct – Copy to WhatsApp",
   "short_name": "TapAct",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Copy a phone number anywhere, then open a WhatsApp chat with a ready-made message in one click.",
   "icons": {
     "16": "icons/icon16.png",
