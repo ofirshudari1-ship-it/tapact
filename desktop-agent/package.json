@@ -1,6 +1,6 @@
 {
   "name": "tapact",
-  "version": "3.9.1",
+  "version": "3.10.0",
   "description": "TapAct desktop agent - a full clipboard-history manager (like Windows' own Win+V) that also pops up a one-click action for what you just copied: phone -> WhatsApp, tracking number -> shipment tracking, address -> navigation, link -> open.",
   "private": true,
   "main": "src/main.js",
