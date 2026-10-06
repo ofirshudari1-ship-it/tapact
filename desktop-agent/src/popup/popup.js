@@ -122,6 +122,7 @@ function applyChannelVisibility() {
 
   // "Send all" only when more than one channel
   const activeCount = [ls.channelWhatsapp, ls.channelWebhook, ls.channelSlack, ls.channelEmail, ls.channelCopy].filter(Boolean).length;
+  state.activeChannelCount = activeCount;
   els.sendAllBtn.classList.toggle('hidden', activeCount < 2);
 
   // No channels notice
@@ -184,6 +185,13 @@ async function onSendChannel(channel) {
   }
 
   if (!result.ok && result.error) showStatus(popT('popup.genericError') + ': ' + result.error, 'fail');
+
+  // WhatsApp is the whole point of this popup: once the chat is open there is
+  // nothing left to do here, so get out of the way (only when WhatsApp is the
+  // sole channel - with several channels the rep may still want the others).
+  if (result.ok && channel === 'whatsapp' && state.activeChannelCount === 1) {
+    setTimeout(() => window.tapact.dismiss(), 500);
+  }
 }
 
 async function onSendAll() {
