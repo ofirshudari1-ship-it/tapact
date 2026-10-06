@@ -16,14 +16,14 @@ const SETTINGS_ALLOWLIST = new Set([
   'enabled', 'autoLaunch', 'pollMs', 'dedupeSeconds', 'autoCloseSeconds',
   'sendDedupeMinutes', 'autoRunAction', 'autoRunDelaySeconds',
   'actionPreferences', 'detectors',
-  'startMinimized', 'closeToTray', 'showTrayNotification', 'soundOnDetect',
+  'closeToTray', 'soundOnDetect',
   'quietHours', 'historyEnabled', 'historyStorageLimit', 'historyPreviewLimit',
   'language', 'theme', 'trayClickAction', 'startPaused', 'autoInstallUpdates'
 ]);
 
 const BOOLEAN_KEYS = new Set([
-  'enabled', 'autoLaunch', 'autoRunAction', 'startMinimized', 'closeToTray',
-  'showTrayNotification', 'soundOnDetect', 'historyEnabled', 'startPaused',
+  'enabled', 'autoLaunch', 'autoRunAction', 'closeToTray',
+  'soundOnDetect', 'historyEnabled', 'startPaused',
   'autoInstallUpdates'
 ]);
 

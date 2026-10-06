@@ -51,7 +51,9 @@ const { findPhone, fillTemplate, buildWhatsAppUrl } = require('./lib/phone');
 const { findGenericAction } = require('./lib/detectors');
 const store = require('./lib/store');
 const { postJson, cleanupLeadWithAi, buildShareText, buildMailtoUrl } = require('./lib/lead-delivery');
-const { resolveDedupeMs, shouldHideToTray, shouldShowTrayHideHint, autoLaunchNeedsReconcile, resolveTrayClickTarget, computeAnchoredPopupPosition, shouldPrimeClipboardOnResume } = require('./lib/window-behavior');
+const { resolveDedupeMs, shouldHideToTray, shouldShowTrayHideHint, autoLaunchNeedsReconcile, resolveTrayClickTarget, shouldPrimeClipboardOnResume } = require('./lib/window-behavior');
+const { createCursorTrail, computeAnchoredPopupPosition, computeFitBounds, boundsCorrection, nudgeInside } = require('./lib/popup-placement');
+const { decideAutoPopup, isQuietHours, computeSnoozeUntil, normalizeSnooze, createBurstGuard } = require('./lib/popup-policy');
 const { sanitizeSettingsPatch } = require('./lib/settings-guard');
 const { buildRedactedSettingsSnapshot, buildSystemInfoText } = require('./lib/diagnostics');
 const { createZip } = require('./lib/zip-writer');
@@ -117,6 +119,17 @@ let trayClickTimer = null; // debounces tray 'click' so a double-click doesn't a
 let lastClipboardText = '';
 let lastNotifiedAt = new Map(); // normalized phone -> timestamp ms
 let lastGenericNotifiedAt = new Map(); // "type:raw" -> timestamp ms
+// Where the copy happened: the cursor is sampled on every poll tick, and the
+// sample from the tick before the one that noticed the change is used (the
+// cursor may already have moved on by the time the change is detected).
+const cursorTrail = createCursorTrail();
+const burstGuard = createBurstGuard();
+let popupAnchor = null;          // { point, rtl } of the popup that is currently open
+let popupBurstNotice = false;    // the popup that tripped the burst guard shows a one-time hint
+const popupHolds = new Set();    // reasons the auto-close countdown is paused (hover, focus, menu...)
+let countdownState = { durationMs: 0, startedAt: 0, paused: false };
+let snoozeTimer = null;
+let burstTimer = null;
 let currentPopupPhone = null; // { raw, normalized, display }
 let currentGenericAction = null; // detector result, see lib/detectors/*.js
 
@@ -178,7 +191,7 @@ function categorizeForHistory(text) {
 function startClipboardWatcher() {
   stopClipboardWatcher();
   const { pollMs } = store.getSettings();
-  clipboardTimer = setInterval(checkClipboard, pollMs);
+  clipboardTimer = setInterval(pollTick, pollMs);
 }
 
 function stopClipboardWatcher() {
@@ -187,6 +200,32 @@ function stopClipboardWatcher() {
 }
 
 let clipboardCheckInFlight = false;
+
+function ownWindowFocused() {
+  try {
+    const f = BrowserWindow.getFocusedWindow();
+    return !!f && !f.isDestroyed();
+  } catch (_) { return false; }
+}
+
+// One cheap cursor sample per poll tick (GetCursorPos), so the popup can open
+// where the copy was made even though detection lags by up to one interval.
+function pollTick() {
+  const now = Date.now();
+  try {
+    const p = screen.getCursorScreenPoint();
+    cursorTrail.push({ x: p.x, y: p.y, t: now, ownFocus: ownWindowFocused() });
+  } catch (_) { /* no cursor sample this tick */ }
+  return checkClipboard(now);
+}
+
+// Single place that puts text on the clipboard on behalf of TapAct itself
+// (paste from history, merged paste, lead "copy" channel): updates the
+// baseline FIRST so the next poll tick never treats it as a new copy.
+async function writeClipboardFromApp(text) {
+  lastClipboardText = text;
+  await clipboard.writeText(text);
+}
 
 // electron@44's clipboard.readText() returns a Promise<string> (the whole
 // clipboard module was migrated to the W3C navigator.clipboard-style async
@@ -201,7 +240,7 @@ let clipboardCheckInFlight = false;
 // tick silently no-opped forever afterwards - detection was never actually
 // broken by environment flakiness, it just never ran a single successful
 // tick after that fix landed, on this Electron version.
-async function checkClipboard() {
+async function checkClipboard(tickAt = Date.now()) {
   const settings = store.getSettings();
   if (!settings.enabled) return;
   if (clipboardCheckInFlight) return; // don't overlap polls if one is still resolving
@@ -219,6 +258,13 @@ async function checkClipboard() {
     return;
   }
   lastClipboardText = text;
+
+  // Where was the cursor when the copy happened, and was a TapAct window the
+  // one being used? (Both from the tick before this one, see pollTick.)
+  const copySample = cursorTrail.pick(tickAt);
+  let copyPoint = copySample ? { x: copySample.x, y: copySample.y } : null;
+  if (!copyPoint) { try { copyPoint = screen.getCursorScreenPoint(); } catch (_) { copyPoint = null; } }
+  const copyInOwnWindow = !!(copySample && copySample.ownFocus) || ownWindowFocused();
 
   // Everything below used to run unguarded: any exception here (a bad
   // tag rule, a store write failure, anything) left clipboardCheckInFlight
@@ -258,6 +304,15 @@ async function checkClipboard() {
   // silently doing nothing.
   try {
     const dedupeMs = resolveDedupeMs(settings.dedupeSeconds);
+    const now = Date.now();
+    const policyBase = {
+      text,
+      ownWindowFocused: copyInOwnWindow,
+      snoozeUntil: currentSnoozeUntil(),
+      quiet: isQuietHours(settings.quietHours, new Date(now)),
+      burstPaused: burstGuard.isPaused(now),
+      now
+    };
 
     // Generic detectors (tracking/address/url) run before phone on purpose:
     // findPhone's "bare 9-digit run" heuristic (see lib/phone.js) treats any
@@ -275,12 +330,16 @@ async function checkClipboard() {
     if (action) {
       const dedupeKey = `${action.type}:${action.raw}`;
       const lastSeen = lastGenericNotifiedAt.get(dedupeKey) || 0;
-      if (Date.now() - lastSeen < dedupeMs) return;
-      lastGenericNotifiedAt.set(dedupeKey, Date.now());
-      if (isQuietHoursNow(settings)) return; // still logged to history above, just no popup
+      if (now - lastSeen < dedupeMs) return;
+      // Still logged to history above; the policy only decides about the popup.
+      const decision = decideAutoPopup({ ...policyBase, type: action.type, phone: null, detectorEnabled: true });
+      if (!decision.show) { log(LOG_LEVELS.INFO, `popup skipped (${decision.reason})`, { type: action.type }); return; }
+      lastGenericNotifiedAt.set(dedupeKey, now);
       currentGenericAction = applyActionPreference(action, settings);
+      popupBurstNotice = burstGuard.recordOpen(now).paused;
+      if (popupBurstNotice) onBurstPaused();
       playDetectSound(settings);
-      openActionPopupWindow();
+      openActionPopupWindow(false, copyPoint);
       return;
     }
 
@@ -288,37 +347,20 @@ async function checkClipboard() {
       const found = findPhone(text);
       if (found) {
         const lastSeen = lastNotifiedAt.get(found.normalized) || 0;
-        if (Date.now() - lastSeen < dedupeMs) return;
-        lastNotifiedAt.set(found.normalized, Date.now());
-        if (isQuietHoursNow(settings)) return;
+        if (now - lastSeen < dedupeMs) return;
+        const decision = decideAutoPopup({ ...policyBase, type: 'phone', phone: found, detectorEnabled: true });
+        if (!decision.show) { log(LOG_LEVELS.INFO, `popup skipped (${decision.reason})`, { type: 'phone' }); return; }
+        lastNotifiedAt.set(found.normalized, now);
+        const trip = burstGuard.recordOpen(now);
+        popupBurstNotice = trip.paused;
+        if (trip.paused) onBurstPaused();
         playDetectSound(settings);
-        handlePhoneDetected(found, settings);
+        handlePhoneDetected(found, settings, false, copyPoint);
       }
     }
   } catch (err) {
     log(LOG_LEVELS.ERROR, 'checkClipboard: detection step failed', { message: err && err.message });
   }
-}
-
-// True when "now" (local time) falls inside the configured quiet-hours
-// window. Handles overnight ranges (e.g. 18:00 -> 08:00) by treating them
-// as "outside [end, start)" instead of the usual "inside [start, end)".
-function isQuietHoursNow(settings) {
-  const qh = settings.quietHours;
-  if (!qh || !qh.enabled) return false;
-  const toMinutes = (hhmm) => {
-    const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || '');
-    if (!m) return null;
-    return (parseInt(m[1], 10) % 24) * 60 + (parseInt(m[2], 10) % 60);
-  };
-  const start = toMinutes(qh.start);
-  const end = toMinutes(qh.end);
-  if (start == null || end == null || start === end) return false;
-  const now = new Date();
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  if (start < end) return nowMin >= start && nowMin < end;
-  // Overnight window (crosses midnight)
-  return nowMin >= start || nowMin < end;
 }
 
 function playDetectSound(settings) {
@@ -348,21 +390,24 @@ async function triggerManualPopup() {
   const action = findGenericAction(text, detectorsCfg, store.getCustomActionRules(), settings.language); // see checkClipboard for why this runs first
   if (action) {
     currentGenericAction = applyActionPreference(action, settings);
+    popupBurstNotice = false;
     openActionPopupWindow(true);
     return;
   }
 
   const phone = detectorsCfg.phone !== false ? findPhone(text) : null;
   if (phone) {
+    popupBurstNotice = false;
     handlePhoneDetected(phone, store.getSettings(), true);
     return;
   }
 
   currentPopupPhone = null;
+  popupBurstNotice = false;
   openPopupWindow(true);
 }
 
-function handlePhoneDetected(phone, settings, takeFocus = false) {
+function handlePhoneDetected(phone, settings, takeFocus = false, anchorPoint = null) {
   const action = (settings.actionPreferences || {}).phone || 'popup';
   if (action === 'none') return;
   if (action === 'call') {
@@ -375,12 +420,12 @@ function handlePhoneDetected(phone, settings, takeFocus = false) {
   }
   // default: 'popup'
   currentPopupPhone = phone;
-  openPopupWindow(takeFocus);
+  openPopupWindow(takeFocus, anchorPoint);
 }
 
 // takeFocus: only for popups the user asked for (shortcut/tray). Automatic ones
 // appear without stealing keyboard focus, so a rep mid-sentence isn't interrupted.
-function openPopupWindow(takeFocus = false) {
+function openPopupWindow(takeFocus = false, anchorPoint = null) {
   if (popupWindow && !popupWindow.isDestroyed()) {
     popupWindow.close();
   }
@@ -388,26 +433,19 @@ function openPopupWindow(takeFocus = false) {
   // and the generic action popup share a single autoCloseTimer/autoRunTimer
   // (see resetAutoCloseTimer/closePopup), so leaving the OTHER type's window
   // open here would let opening this one silently reset/extend the other's
-  // countdown, and closePopup() would then dismiss both together instead of
-  // each closing on its own schedule. Closing it here keeps that shared timer
-  // correct instead of trying to give each window its own.
+  // countdown. Closing it here keeps that shared timer correct.
   if (actionPopupWindow && !actionPopupWindow.isDestroyed()) {
     actionPopupWindow.close();
   }
+  popupHolds.clear();
 
-  const cursor = screen.getCursorScreenPoint();
-  const display = screen.getDisplayNearestPoint(cursor);
   const width = 320;
   const height = 230; // initial guess; the popup reports its real content height via popup:fit
-  // Anchored above the cursor (where the copy/selection just happened),
-  // never on top of it - see computeAnchoredPopupPosition.
-  const { x, y } = computeAnchoredPopupPosition({ point: cursor, width, height, workArea: display.workArea });
+  const { rect, anchor } = anchoredRect(anchorPoint, width, height);
+  popupAnchor = { ...anchor, width };
 
-  popupWindow = new BrowserWindow({
-    width,
-    height,
-    x,
-    y,
+  const win = new BrowserWindow({
+    ...rect,
     frame: false,
     alwaysOnTop: true,
     resizable: true,
@@ -422,30 +460,57 @@ function openPopupWindow(takeFocus = false) {
       sandbox: true
     }
   });
+  popupWindow = win;
 
-  popupWindow.loadFile(path.join(__dirname, 'popup', 'popup.html'), { query: bootQuery() });
-  popupWindow.once('ready-to-show', () => {
-    if (takeFocus) popupWindow.show(); else popupWindow.showInactive();
-    resetAutoCloseTimer();
-    // Tray balloon notification on phone detection
-    const s = store.getSettings();
-    if (s.showTrayNotification === true && tray && !tray.isDestroyed()) {
-      tray.displayBalloon({
-        iconType: 'info',
-        title: tr('tray.phoneDetected.title'),
-        content: currentPopupPhone ? currentPopupPhone.display : tr('tray.phoneDetected.fallback'),
-        largeIcon: false,
-        noSound: true
-      });
-    }
+  win.loadFile(path.join(__dirname, 'popup', 'popup.html'), { query: bootQuery() });
+  win.once('ready-to-show', () => {
+    if (win.isDestroyed()) return;
+    placePopupWindow(win, popupIntendedRects.get(win) || rect);
+    if (takeFocus) win.show(); else win.showInactive();
+    if (popupWindow === win) resetAutoCloseTimer();
   });
-  popupWindow.on('closed', () => {
-    popupWindow = null;
-    clearAutoCloseTimer();
+  // A replaced popup's 'closed' arrives AFTER the new one was created: it must
+  // only clean up if it is still the current popup (it used to null the new
+  // window's reference, and the new window's ready-to-show then threw).
+  win.on('closed', () => {
+    if (popupWindow === win) {
+      popupWindow = null;
+      clearAutoCloseTimer();
+    }
   });
 }
 
-function openActionPopupWindow(takeFocus = false) {
+// Resolves where a popup of width x height goes: next to the copy point (or the
+// cursor, for manual opens), on the display that contains that point.
+function anchoredRect(anchorPoint, width, height) {
+  const point = anchorPoint || screen.getCursorScreenPoint();
+  const display = screen.getDisplayNearestPoint(point);
+  const rtl = store.getSettings().language === 'he';
+  const wa = display.workArea;
+  const h = Math.min(height, Math.max(120, wa.height - 16));
+  const { x, y } = computeAnchoredPopupPosition({ point, width, height: h, workArea: wa, rtl });
+  return { rect: { x, y, width, height: h }, anchor: { point, rtl } };
+}
+
+// DIP bounds can be applied with the wrong scale factor on mixed-DPI setups
+// (the window is still on the old display while being moved): re-apply once if
+// the result differs from what was asked for.
+const popupIntendedRects = new WeakMap(); // last bounds we asked for (the renderer may have fitted since creation)
+function placePopupWindow(win, rect) {
+  if (!win || win.isDestroyed()) return;
+  popupIntendedRects.set(win, rect);
+  win.setBounds(rect);
+  const fix = boundsCorrection(rect, win.getBounds());
+  if (fix) win.setBounds(fix);
+  // Fractional scales (125%) can make the window 1-2px bigger than asked:
+  // keep the real bounds inside the work area of the display it is on.
+  const actual = win.getBounds();
+  const wa = screen.getDisplayNearestPoint({ x: actual.x + Math.round(actual.width / 2), y: actual.y + Math.round(actual.height / 2) }).workArea;
+  const nudge = nudgeInside(actual, wa);
+  if (nudge) win.setPosition(nudge.x, nudge.y);
+}
+
+function openActionPopupWindow(takeFocus = false, anchorPoint = null) {
   if (actionPopupWindow && !actionPopupWindow.isDestroyed()) {
     actionPopupWindow.close();
   }
@@ -454,26 +519,18 @@ function openActionPopupWindow(takeFocus = false) {
   if (popupWindow && !popupWindow.isDestroyed()) {
     popupWindow.close();
   }
+  popupHolds.clear();
 
-  const cursor = screen.getCursorScreenPoint();
-  const display = screen.getDisplayNearestPoint(cursor);
   const width = 280;
-  const bounds = display.workArea;
   // Long/wrapped custom-rule action labels can push actual content past this
-  // estimate; the popup body scrolls internally (action-popup.css) as a
-  // safety net, but we still cap the window itself to the visible work area
-  // so it never tries to render off-screen on small/scaled displays.
-  const estimatedHeight = 88 + 38 * ((currentGenericAction && currentGenericAction.actions.length) || 1);
-  const height = Math.min(estimatedHeight, bounds.height - 16);
-  // Anchored above the cursor (where the copy just happened), never on top
-  // of the text itself - see computeAnchoredPopupPosition.
-  const { x, y } = computeAnchoredPopupPosition({ point: cursor, width, height, workArea: bounds });
+  // estimate; the popup reports its measured height via action-popup:fit and
+  // the body scrolls internally (action-popup.css) as a safety net.
+  const estimatedHeight = 104 + 38 * ((currentGenericAction && currentGenericAction.actions.length) || 1);
+  const { rect, anchor } = anchoredRect(anchorPoint, width, estimatedHeight);
+  popupAnchor = { ...anchor, width };
 
-  actionPopupWindow = new BrowserWindow({
-    width,
-    height,
-    x,
-    y,
+  const win = new BrowserWindow({
+    ...rect,
     frame: false,
     alwaysOnTop: true,
     resizable: false,
@@ -486,23 +543,45 @@ function openActionPopupWindow(takeFocus = false) {
       sandbox: true
     }
   });
+  actionPopupWindow = win;
 
-  actionPopupWindow.loadFile(path.join(__dirname, 'action-popup', 'action-popup.html'), { query: bootQuery() });
-  actionPopupWindow.once('ready-to-show', () => {
-    if (takeFocus) actionPopupWindow.show(); else actionPopupWindow.showInactive();
-    resetAutoCloseTimer();
-    resetAutoRunTimer();
+  win.loadFile(path.join(__dirname, 'action-popup', 'action-popup.html'), { query: bootQuery() });
+  win.once('ready-to-show', () => {
+    if (win.isDestroyed()) return;
+    placePopupWindow(win, popupIntendedRects.get(win) || rect);
+    if (takeFocus) win.show(); else win.showInactive();
+    if (actionPopupWindow === win) {
+      resetAutoCloseTimer();
+      resetAutoRunTimer();
+    }
   });
-  actionPopupWindow.on('closed', () => {
-    actionPopupWindow = null;
-    clearAutoCloseTimer();
+  win.on('closed', () => {
+    if (actionPopupWindow === win) {
+      actionPopupWindow = null;
+      clearAutoCloseTimer();
+    }
   });
+}
+
+function activePopupWindow() {
+  if (popupWindow && !popupWindow.isDestroyed()) return popupWindow;
+  if (actionPopupWindow && !actionPopupWindow.isDestroyed()) return actionPopupWindow;
+  return null;
+}
+
+// Which detector the open popup belongs to (for "don't show for <type>").
+function currentPopupType() {
+  if (actionPopupWindow && !actionPopupWindow.isDestroyed()) return currentGenericAction ? currentGenericAction.type : null;
+  if (popupWindow && !popupWindow.isDestroyed()) return 'phone';
+  return null;
 }
 
 function closePopup() {
   if (popupWindow && !popupWindow.isDestroyed()) popupWindow.close();
   if (actionPopupWindow && !actionPopupWindow.isDestroyed()) actionPopupWindow.close();
   clearAutoRunTimer();
+  popupHolds.clear();
+  countdownState = { durationMs: 0, startedAt: 0, paused: false };
 }
 
 // Standalone QUICK-ACCESS history popup (Win+V equivalent): a small,
@@ -629,16 +708,49 @@ function broadcastHistoryItemsChanged() {
   }
 }
 
+// The auto-close countdown only runs while nothing holds it: hover, a focused
+// field, the "more options" section and the snooze menu each add a hold
+// (popup:hold from the popup). When the last hold is released the countdown
+// restarts from the full duration. The popup draws the thin bar from the state
+// pushed here, so what the bar shows is what the timer will do.
+function pushCountdown() {
+  const win = activePopupWindow();
+  if (win && !win.webContents.isDestroyed()) win.webContents.send('popup:countdown', countdownState);
+}
+
 function resetAutoCloseTimer() {
   clearAutoCloseTimer();
   const { autoCloseSeconds } = store.getSettings();
-  if (!autoCloseSeconds) return;
-  autoCloseTimer = setTimeout(closePopup, autoCloseSeconds * 1000);
+  if (!autoCloseSeconds) {
+    countdownState = { durationMs: 0, startedAt: 0, paused: false };
+  } else if (popupHolds.size) {
+    countdownState = { durationMs: autoCloseSeconds * 1000, startedAt: 0, paused: true };
+  } else {
+    autoCloseTimer = setTimeout(closePopup, autoCloseSeconds * 1000);
+    countdownState = { durationMs: autoCloseSeconds * 1000, startedAt: Date.now(), paused: false };
+  }
+  pushCountdown();
 }
 
 function clearAutoCloseTimer() {
   if (autoCloseTimer) clearTimeout(autoCloseTimer);
   autoCloseTimer = null;
+}
+
+function setPopupHold(reason, on) {
+  if (typeof reason !== 'string' || !reason || !activePopupWindow()) return;
+  if (on) popupHolds.add(reason); else popupHolds.delete(reason);
+  clearAutoCloseTimer();
+  clearAutoRunTimer();
+  resetAutoCloseTimer();
+  if (!popupHolds.size && actionPopupWindow && !actionPopupWindow.isDestroyed()) resetAutoRunTimer();
+}
+
+// Typing/clicking inside a popup restarts the countdown (only when nothing holds it).
+function notePopupActivity() {
+  if (popupHolds.size || !activePopupWindow()) return;
+  resetAutoCloseTimer();
+  if (actionPopupWindow && !actionPopupWindow.isDestroyed()) resetAutoRunTimer();
 }
 
 // Optional (off by default, Settings ▸ הגדרות ▸ הרצה אוטומטית): fires the
@@ -868,11 +980,85 @@ function openSettingsWindow() {
   });
 }
 
+// --- Snooze (popups only; history logging and manual triggers are unaffected) ---
+
+function currentSnoozeUntil() {
+  const raw = store.getSettings().snoozeUntil;
+  const norm = normalizeSnooze(Number(raw), Date.now());
+  if (norm !== (Number(raw) || 0)) store.saveSettings({ snoozeUntil: norm }); // expired: auto-clear
+  return norm;
+}
+
+function formatClock(ts) {
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function scheduleSnoozeExpiry() {
+  if (snoozeTimer) clearTimeout(snoozeTimer);
+  snoozeTimer = null;
+  const until = currentSnoozeUntil();
+  if (!until) return;
+  snoozeTimer = setTimeout(() => {
+    snoozeTimer = null;
+    currentSnoozeUntil(); // clears the stored value
+    refreshTray();
+    broadcastSettingsState();
+  }, Math.min(until - Date.now() + 50, 2147483000));
+}
+
+function setSnoozeUntil(ts) {
+  store.saveSettings({ snoozeUntil: ts });
+  scheduleSnoozeExpiry();
+  refreshTray();
+  broadcastSettingsState();
+}
+
+function clearSnooze() { setSnoozeUntil(0); }
+
+function refreshTray() {
+  if (tray && !tray.isDestroyed()) tray.setContextMenu(buildTrayMenu());
+}
+
+// Tells an open Settings window what changed outside it (snooze set/cleared,
+// a detector switched off from a popup) so its switches and status line are true.
+function broadcastSettingsState() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    const st = store.getSettings();
+    settingsWindow.webContents.send('settings:state-changed', { snoozeUntil: currentSnoozeUntil(), detectors: st.detectors });
+  }
+}
+
+// The popup that trips the burst guard tells the user (inside itself); the
+// tray tooltip says it too until the pause is over. Never a Windows notification.
+function onBurstPaused() {
+  refreshTray();
+  if (burstTimer) clearTimeout(burstTimer);
+  burstTimer = setTimeout(() => { burstTimer = null; refreshTray(); }, burstGuard.pausedUntil() - Date.now() + 50);
+}
+
+// Snooze / skip chosen from a popup's menu. 'type' turns that detector off
+// (visible, and undoable, in Settings > Detection types).
+function handlePopupSnooze(kind) {
+  const type = currentPopupType();
+  if (kind === 'type') {
+    if (type && type !== 'custom' && Object.prototype.hasOwnProperty.call(store.getSettings().detectors || {}, type)) {
+      store.saveSettings({ detectors: { [type]: false } });
+      broadcastSettingsState();
+    }
+  } else if (['m15', 'h1', 'tomorrow'].includes(kind)) {
+    setSnoozeUntil(computeSnoozeUntil(kind, Date.now()));
+  } else {
+    return;
+  }
+  closePopup();
+}
+
 // First time (only) a window is hidden instead of closed, tell the user
 // where it went via a tray balloon — directly answers the "wait, did it
 // close?" confusion a tray app's two kinds of 'close' can otherwise cause.
 function maybeShowTrayHideHint(settings) {
-  if (!shouldShowTrayHideHint({ hideHintSeen: settings.trayHideHintSeen, showTrayNotification: settings.showTrayNotification })) return;
+  if (!shouldShowTrayHideHint({ hideHintSeen: settings.trayHideHintSeen })) return;
   store.saveSettings({ trayHideHintSeen: true });
   if (tray && !tray.isDestroyed()) {
     tray.displayBalloon({
@@ -917,7 +1103,23 @@ function buildRecentActionsSubmenu() {
 function buildTrayMenu() {
   const settings = store.getSettings();
   const configured = { ...DEFAULT_SHORTCUTS, ...(settings.shortcuts || {}) };
-  if (tray) tray.setToolTip(settings.enabled ? tr('tray.tooltip.active') : tr('tray.tooltip.paused'));
+  const snoozeUntil = currentSnoozeUntil();
+  if (tray) {
+    let tip = settings.enabled ? tr('tray.tooltip.active') : tr('tray.tooltip.paused');
+    if (settings.enabled && snoozeUntil) tip = tr('tray.tooltip.snoozed').replace('{time}', formatClock(snoozeUntil));
+    else if (settings.enabled && burstGuard.isPaused(Date.now())) tip = tr('tray.tooltip.burst');
+    tray.setToolTip(tip);
+  }
+  const snoozeItems = snoozeUntil
+    ? [{ label: tr('tray.snooze.active').replace('{time}', formatClock(snoozeUntil)), click: clearSnooze }]
+    : [{
+      label: tr('tray.snooze.title'),
+      submenu: [
+        { label: tr('tray.snooze.m15'), click: () => setSnoozeUntil(computeSnoozeUntil('m15')) },
+        { label: tr('tray.snooze.h1'), click: () => setSnoozeUntil(computeSnoozeUntil('h1')) },
+        { label: tr('tray.snooze.tomorrow'), click: () => setSnoozeUntil(computeSnoozeUntil('tomorrow')) }
+      ]
+    }];
   return Menu.buildFromTemplate([
     { label: settings.enabled ? tr('tray.status.active') : tr('tray.status.paused'), enabled: false },
     { type: 'separator' },
@@ -927,6 +1129,7 @@ function buildTrayMenu() {
       checked: settings.enabled,
       click: (menuItem) => toggleMonitoring(menuItem.checked)
     },
+    ...snoozeItems,
     { label: tr('tray.openManual').replace('{shortcut}', formatAccelerator(configured.manual)), click: triggerManualPopup },
     { label: tr('tray.recentActions'), submenu: buildRecentActionsSubmenu() },
     { label: tr('tray.history').replace('{shortcut}', `${formatAccelerator(configured.history)} / ${formatAccelerator(configured.historyFallback)}`), click: openHistoryWindow },
@@ -1022,6 +1225,8 @@ ipcMain.handle('popup:get-init-data', () => {
     sendDedupeMinutes: settings.sendDedupeMinutes,
     leadSettings: store.getLeadSettings(),
     leadHistory: store.getLeadHistory(),
+    type: 'phone',
+    burstNotice: popupBurstNotice,
     settings
   };
 });
@@ -1055,26 +1260,30 @@ ipcMain.on('popup:send', (_event, { phone, message, name, templateLabel }) => {
 ipcMain.on('popup:dismiss', () => closePopup());
 ipcMain.on('popup:open-settings', () => openSettingsWindow());
 ipcMain.on('popup:open-lead-settings', () => openSettingsWindow());
-ipcMain.on('popup:activity', () => resetAutoCloseTimer());
+ipcMain.on('popup:activity', () => notePopupActivity());
 // The popup measures its own content and asks the window to shrink-wrap it, so
-// there is never an empty band at the bottom. If the window sits above the
-// cursor, keep its bottom edge fixed so it stays next to what was copied.
-ipcMain.on('popup:fit', (_event, contentHeight) => {
-  if (!popupWindow || popupWindow.isDestroyed() || !Number.isFinite(contentHeight)) return;
-  const b = popupWindow.getBounds();
-  const cursor = screen.getCursorScreenPoint();
-  const wa = screen.getDisplayNearestPoint(cursor).workArea;
-  const h = Math.max(120, Math.min(Math.round(contentHeight), wa.height - 16));
-  let y = b.y + b.height <= cursor.y + 2 ? b.y + b.height - h : b.y;
-  y = Math.max(wa.y, Math.min(y, wa.y + wa.height - h));
-  popupWindow.setBounds({ x: b.x, y, width: b.width, height: h });
-});
-// Mouse over the popup = the rep is reading/about to click, so the countdown
-// must not run; it restarts only once the cursor leaves.
-ipcMain.on('popup:hover', (_event, hovering) => {
-  if (hovering) clearAutoCloseTimer();
-  else resetAutoCloseTimer();
-});
+// there is never an empty band at the bottom. Re-anchored to the copy point so
+// it stays next to what was copied (and clear of the cursor) after resizing.
+function fitActivePopup(contentHeight) {
+  const win = activePopupWindow();
+  if (!win || !Number.isFinite(contentHeight)) return;
+  const b = win.getBounds();
+  const a = popupAnchor || { point: screen.getCursorScreenPoint(), rtl: false };
+  const wa = screen.getDisplayNearestPoint(a.point).workArea;
+  placePopupWindow(win, computeFitBounds({ point: a.point, width: a.width || b.width, newHeight: contentHeight, workArea: wa, rtl: a.rtl }));
+}
+ipcMain.on('popup:fit', (_event, contentHeight) => fitActivePopup(contentHeight));
+ipcMain.on('action-popup:fit', (_event, contentHeight) => fitActivePopup(contentHeight));
+// Hover, a focused field, "more options" open and the snooze menu each hold the
+// auto-close countdown; it restarts from the start once the last hold is released.
+ipcMain.on('popup:hold', (_event, reason, on) => setPopupHold(reason, on === true));
+ipcMain.on('action-popup:hold', (_event, reason, on) => setPopupHold(reason, on === true));
+ipcMain.on('popup:snooze', (_event, kind) => handlePopupSnooze(kind));
+ipcMain.on('action-popup:snooze', (_event, kind) => handlePopupSnooze(kind));
+ipcMain.handle('popup:get-countdown', () => countdownState);
+ipcMain.handle('action-popup:get-countdown', () => countdownState);
+// Settings: status line "snoozed until ..." with a resume button.
+ipcMain.handle('settings:resume-popups', () => { clearSnooze(); return { snoozeUntil: 0 }; });
 
 // --- IPC: lead capture multi-channel delivery ---
 
@@ -1102,7 +1311,7 @@ ipcMain.handle('lead:send-channel', async (_event, { channel, lead }) => {
     }
     if (channel === 'copy') {
       const text = buildShareText(lead, ls.messageTemplate);
-      clipboard.writeText(text);
+      await writeClipboardFromApp(text);
       store.addLeadHistoryEntry({ ...lead, channel: 'copy' });
       return { ok: true };
     }
@@ -1153,7 +1362,7 @@ ipcMain.on('settings:clear-lead-history', () => store.clearLeadHistory());
 
 // --- IPC: generic action popup (tracking / address / url detectors) ---
 
-ipcMain.handle('action-popup:get-init-data', () => ({ action: currentGenericAction, settings: store.getSettings() }));
+ipcMain.handle('action-popup:get-init-data', () => ({ action: currentGenericAction, type: currentGenericAction ? currentGenericAction.type : null, burstNotice: popupBurstNotice, settings: store.getSettings() }));
 
 ipcMain.on('action-popup:run', (_event, index) => {
   const action = currentGenericAction;
@@ -1164,11 +1373,7 @@ ipcMain.on('action-popup:run', (_event, index) => {
 
 ipcMain.on('action-popup:dismiss', () => closePopup());
 ipcMain.on('action-popup:open-settings', () => openSettingsWindow());
-ipcMain.on('action-popup:activity', () => { resetAutoCloseTimer(); resetAutoRunTimer(); });
-ipcMain.on('action-popup:hover', (_event, hovering) => {
-  if (hovering) { clearAutoCloseTimer(); clearAutoRunTimer(); }
-  else { resetAutoCloseTimer(); resetAutoRunTimer(); }
-});
+ipcMain.on('action-popup:activity', () => notePopupActivity());
 
 // --- IPC: clipboard-history panel (Win+V-style) ---
 
@@ -1187,8 +1392,7 @@ ipcMain.handle('history-panel:get-data', (_event, { offset = 0, limit } = {}) =>
 ipcMain.on('history-panel:copy-item', async (_event, id) => {
   const item = store.getClipboardHistory().find((i) => i.id === id);
   if (item) {
-    lastClipboardText = item.text; // re-copying a history item shouldn't re-trigger its own detector popup
-    await clipboard.writeText(item.text);
+    await writeClipboardFromApp(item.text); // re-copying a history item must not re-trigger its own popup
   }
   if (historyWindow && !historyWindow.isDestroyed()) historyWindow.close();
 });
@@ -1214,8 +1418,7 @@ ipcMain.on('history-panel:copy-merged', async (_event, ids) => {
   const byId = new Map(all.map((i) => [i.id, i]));
   const merged = ids.map((id) => byId.get(id)).filter(Boolean).map((i) => i.text).join('\n\n');
   if (merged) {
-    lastClipboardText = merged; // don't let the merged block re-trigger its own detector popup
-    await clipboard.writeText(merged);
+    await writeClipboardFromApp(merged); // the merged block must not re-trigger a popup
   }
   if (historyWindow && !historyWindow.isDestroyed()) historyWindow.close();
 });
@@ -1699,9 +1902,11 @@ function initAutoUpdater() {
   });
 
   try {
-    autoUpdater.checkForUpdatesAndNotify();
+    // Not checkForUpdatesAndNotify(): that adds its own Windows toast on top of
+    // the restart dialog and the Settings status TapAct already shows.
+    autoUpdater.checkForUpdates();
   } catch (err) {
-    log(LOG_LEVELS.ERROR, 'autoUpdater checkForUpdatesAndNotify threw', { message: err?.message });
+    log(LOG_LEVELS.ERROR, 'autoUpdater checkForUpdates threw', { message: err?.message });
   }
 }
 
@@ -1739,13 +1944,12 @@ if (!gotSingleInstanceLock) {
     // user turns monitoring back on themselves - that's the point of
     // "start paused" for a machine other people also use.
     const startupSettings = store.getSettings();
-    // One-time: the Windows balloon on detection duplicated the popup, and the
-    // date popup fired on every date a rep copied. Existing installs saved `true`
-    // for both from the old defaults, so flip them off once; turning either back
-    // on in Settings afterwards sticks (the marker prevents a re-flip).
-    if (!startupSettings.trayBalloonOffApplied) {
-      store.saveSettings({ showTrayNotification: false, detectors: { datetime: false }, trayBalloonOffApplied: true });
+    // One-time (older installs): the date popup fired on every date a rep copied,
+    // so it is switched off once. The marker means turning it back on sticks.
+    if (!startupSettings.dateDetectorOffApplied) {
+      store.saveSettings({ detectors: { datetime: false }, dateDetectorOffApplied: true });
     }
+    scheduleSnoozeExpiry();
     if (startupSettings.startPaused && startupSettings.enabled) {
       store.saveSettings({ enabled: false });
     }
@@ -1766,10 +1970,8 @@ if (!gotSingleInstanceLock) {
     startClipboardWatcher();
     applyAutoLaunch();
     registerAllShortcuts();
-    const { startMinimized } = store.getSettings();
-    if (!startMinimized) {
-      maybeShowWelcome();
-    }
+    // TapAct always starts in the tray; the first-run welcome guide shows once.
+    maybeShowWelcome();
     // Non-blocking; give the tray/clipboard-watcher startup a few seconds
     // to settle before hitting the network.
     setTimeout(initAutoUpdater, 5000);

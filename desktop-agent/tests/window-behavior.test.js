@@ -7,7 +7,6 @@ const {
   shouldShowTrayHideHint,
   autoLaunchNeedsReconcile,
   resolveTrayClickTarget,
-  computeAnchoredPopupPosition,
   shouldPrimeClipboardOnResume,
   resolveDedupeMs
 } = require('../src/lib/window-behavior');
@@ -41,15 +40,16 @@ describe('shouldHideToTray', () => {
 
 describe('shouldShowTrayHideHint', () => {
   test('shows the hint the first time (hideHintSeen unset)', () => {
-    expect(shouldShowTrayHideHint({ hideHintSeen: false, showTrayNotification: true })).toBe(true);
+    expect(shouldShowTrayHideHint({ hideHintSeen: false })).toBe(true);
+    expect(shouldShowTrayHideHint({})).toBe(true);
   });
 
   test('never shows again once seen', () => {
-    expect(shouldShowTrayHideHint({ hideHintSeen: true, showTrayNotification: true })).toBe(false);
+    expect(shouldShowTrayHideHint({ hideHintSeen: true })).toBe(false);
   });
 
-  test('respects the existing tray-notification opt-out', () => {
-    expect(shouldShowTrayHideHint({ hideHintSeen: false, showTrayNotification: false })).toBe(false);
+  test('is independent of the removed tray-notification toggle', () => {
+    expect(shouldShowTrayHideHint({ hideHintSeen: false, showTrayNotification: false })).toBe(true);
   });
 });
 
@@ -78,50 +78,6 @@ describe('resolveTrayClickTarget', () => {
   test('falls back to history for unset/unknown values', () => {
     expect(resolveTrayClickTarget(undefined)).toBe('history');
     expect(resolveTrayClickTarget('bogus')).toBe('history');
-  });
-});
-
-describe('computeAnchoredPopupPosition', () => {
-  const workArea = { x: 0, y: 0, width: 1920, height: 1080 };
-
-  test('anchors above the point, horizontally centered on it', () => {
-    const pos = computeAnchoredPopupPosition({ point: { x: 500, y: 500 }, width: 300, height: 120, workArea });
-    expect(pos).toEqual({ x: 500 - 150, y: 500 - 120 - 10 });
-  });
-
-  test('defaults the gap to 10px when not provided', () => {
-    const pos = computeAnchoredPopupPosition({ point: { x: 500, y: 500 }, width: 300, height: 120, workArea });
-    expect(pos.y).toBe(500 - 120 - 10);
-  });
-
-  test('honors a custom gap', () => {
-    const pos = computeAnchoredPopupPosition({ point: { x: 500, y: 500 }, width: 300, height: 120, workArea, gap: 20 });
-    expect(pos.y).toBe(500 - 120 - 20);
-  });
-
-  test('falls back to below the point when there is not enough room above it', () => {
-    const pos = computeAnchoredPopupPosition({ point: { x: 500, y: 20 }, width: 300, height: 120, workArea, gap: 10 });
-    expect(pos.y).toBe(20 + 10);
-  });
-
-  test('clamps the x axis so the popup never renders off the left/right edge', () => {
-    const left = computeAnchoredPopupPosition({ point: { x: 5, y: 500 }, width: 300, height: 120, workArea });
-    expect(left.x).toBe(0);
-    const right = computeAnchoredPopupPosition({ point: { x: 1915, y: 500 }, width: 300, height: 120, workArea });
-    expect(right.x).toBe(1920 - 300);
-  });
-
-  test('clamps the y axis so an oversized popup never renders off the top/bottom edge', () => {
-    // Taller than the whole work area: neither "above" nor "below" fully
-    // fits, so the clamp is what keeps it from drifting further off-screen.
-    const pos = computeAnchoredPopupPosition({ point: { x: 500, y: 50 }, width: 300, height: 1100, workArea });
-    expect(pos.y).toBe(1080 - 1100);
-  });
-
-  test('accounts for a non-zero work area origin (e.g. a second monitor)', () => {
-    const wa = { x: 1920, y: 0, width: 1920, height: 1080 };
-    const pos = computeAnchoredPopupPosition({ point: { x: 1930, y: 500 }, width: 300, height: 120, workArea: wa });
-    expect(pos.x).toBe(wa.x);
   });
 });
 

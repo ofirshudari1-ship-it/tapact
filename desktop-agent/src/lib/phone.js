@@ -73,6 +73,8 @@ function formatInternationalDisplay(normalized) {
   return `+${cc} ${groups.join('-')}`;
 }
 
+const { replaceNamePlaceholders } = require('./template-fill');
+
 function findPhone(text) {
   const candidates = extractCandidates(text);
   for (const c of candidates) {
@@ -91,8 +93,7 @@ function findPhone(text) {
 }
 
 function fillTemplate(text, name) {
-  const trimmed = (name || '').trim();
-  return text.split('{שם}').join(trimmed || '').replace(/\s{2,}/g, ' ').trim();
+  return replaceNamePlaceholders(text, name).replace(/\s{2,}/g, ' ').trim();
 }
 
 function buildWhatsAppUrl(normalizedPhone, message) {

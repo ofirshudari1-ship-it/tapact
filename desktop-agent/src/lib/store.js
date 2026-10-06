@@ -100,9 +100,9 @@ const LEAD_HISTORY_LIMIT = 50;
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  pollMs: 800,
+  pollMs: 400,          // fast enough that the popup shows up while the cursor is still at the copy
   dedupeSeconds: 10, // suppresses re-popping the SAME clipboard text too often
-  autoCloseSeconds: 10,
+  autoCloseSeconds: 7,
   sendDedupeMinutes: 30, // "you already messaged this lead" warning window
   autoLaunch: false,
   // Which clipboard detectors are active. Phone is handled separately (it
@@ -179,14 +179,17 @@ const DEFAULT_SETTINGS = {
   language: resolveDefaultLanguage(),       // 'he' | 'en'
   theme: 'dark',        // 'dark' | 'light'
   // Startup & window behavior
-  startMinimized: false,  // launch straight to tray, skip popup window
   closeToTray: true,      // X button hides instead of quitting
-  showTrayNotification: false,  // Windows balloon on phone detection - redundant with the popup, so off by default
   // Shown once, the first time a window is ever hidden (not closed) to the
   // tray — a short balloon explaining that TapAct is still running and
   // how to actually quit it. Flips true after it's shown once; never shown
   // again after that regardless of how many more times a window is hidden.
   trayHideHintSeen: false,
+  // Main-process only (never in the renderer allowlist): popups are snoozed
+  // until this timestamp (ms). 0 = not snoozed. Expired values auto-clear.
+  snoozeUntil: 0,
+  // One-time migrations already applied to this profile (see migrateSettings).
+  migrationsApplied: [],
   // What a single left-click on the tray icon does. Right-click always opens
   // the full context menu (with the separate, unambiguous "יציאה"/Exit item)
   // regardless of this setting. 'history' | 'settings' | 'none'.
@@ -211,6 +214,59 @@ const DEFAULT_SETTINGS = {
   autoInstallUpdates: true
 };
 
+const DEFAULT_TEMPLATES_EN = [
+  { id: 'new-lead', label: 'New lead', text: 'Hi {name}, this is the service desk calling.\nI saw you left your details with us and wanted to follow up on your request.\nIs now a good time to talk for a minute?' },
+  { id: 'follow-up', label: 'Follow-up', text: 'Hi {name}, it is me again.\nI wanted to check in since our last conversation and see if there are any questions I can help with.' },
+  { id: 'reminder', label: 'Reminder (appointment/documents)', text: 'Hi {name}, a quick reminder from our service desk.\nWe are still missing a few documents or details to move your request forward. Could you send them over when you get a chance?' },
+  { id: 'existing-customer', label: 'Existing customer - status update', text: 'Hi {name}, an update on the status of your request with us. There is progress and I would be glad to walk you through it.' },
+  { id: 'general', label: 'General (empty)', text: 'Hi {name},' }
+];
+
+function sameDefaultTemplates(templates, defaults) {
+  if (!Array.isArray(templates) || templates.length !== defaults.length) return false;
+  return defaults.every((d, i) => {
+    const t = templates[i];
+    return t && t.id === d.id && t.label === d.label && t.text === d.text && t.favorite !== true;
+  });
+}
+
+// When the saved templates are still exactly the untouched stock set of the
+// OTHER language, return the stock set of `lang`; otherwise null. A template
+// the user edited, renamed, added, removed or starred is never touched.
+function localizeDefaultTemplates(templates, lang) {
+  if (lang === 'en' && sameDefaultTemplates(templates, DEFAULT_TEMPLATES)) return DEFAULT_TEMPLATES_EN.map((t) => ({ ...t }));
+  if (lang === 'he' && sameDefaultTemplates(templates, DEFAULT_TEMPLATES_EN)) return DEFAULT_TEMPLATES.map((t) => ({ ...t }));
+  return null;
+}
+
+// One-time profile migrations, recorded in `migrationsApplied` so a value the
+// user sets later is never overwritten again. Pure: returns { settings, changed }.
+function migrateSettings(saved) {
+  const s = { ...(saved || {}) };
+  const done = new Set(Array.isArray(s.migrationsApplied) ? s.migrationsApplied : []);
+  let changed = false;
+  const mark = (id) => { if (!done.has(id)) { done.add(id); changed = true; } };
+
+  // Old defaults (20 / 10 / 5 / 4 seconds) -> the current 7 second default.
+  if (!done.has('autoClose7')) {
+    if ([4, 5, 10, 20].includes(s.autoCloseSeconds)) { s.autoCloseSeconds = 7; changed = true; }
+    mark('autoClose7');
+  }
+  // Old default poll interval 800ms -> 400ms (popup appears while the cursor is still at the copy).
+  if (!done.has('poll400')) {
+    if (s.pollMs === 800) { s.pollMs = 400; changed = true; }
+    mark('poll400');
+  }
+  // Removed settings: the Windows balloon toggle, the start-minimized toggle and the old balloon-off marker.
+  // The old balloon-off marker also recorded that the date detector was switched off once.
+  if (s.trayBalloonOffApplied && !s.dateDetectorOffApplied) { s.dateDetectorOffApplied = true; changed = true; }
+  for (const key of ['showTrayNotification', 'startMinimized', 'trayBalloonOffApplied']) {
+    if (Object.prototype.hasOwnProperty.call(s, key)) { delete s[key]; changed = true; }
+  }
+  if (changed) s.migrationsApplied = Array.from(done);
+  return { settings: s, changed };
+}
+
 const store = new Store({
   name: 'tapact',
   defaults: {
@@ -229,7 +285,10 @@ const store = new Store({
 const HISTORY_LIMIT = 25;
 
 function getTemplates() {
-  return store.get('templates', DEFAULT_TEMPLATES);
+  const saved = store.get('templates', DEFAULT_TEMPLATES);
+  const localized = localizeDefaultTemplates(saved, getSettings().language);
+  if (localized) { store.set('templates', localized); return localized; }
+  return saved;
 }
 
 function getDefaultTemplateId() {
@@ -247,7 +306,9 @@ function resetTemplates() {
 }
 
 function getSettings() {
-  const saved = store.get('settings', DEFAULT_SETTINGS);
+  const raw = store.get('settings', DEFAULT_SETTINGS);
+  const { settings: saved, changed } = migrateSettings(raw);
+  if (changed) store.set('settings', saved);
   const merged = {
     ...DEFAULT_SETTINGS,
     ...saved,
@@ -256,12 +317,9 @@ function getSettings() {
     actionPreferences: { ...DEFAULT_SETTINGS.actionPreferences, ...(saved.actionPreferences || {}) },
     quietHours: { ...DEFAULT_SETTINGS.quietHours, ...(saved.quietHours || {}) }
   };
-  // Migrate: earlier defaults were 20s, then 5s; clamp down to the current
-  // 4s default for anyone who still has either old value saved.
   // 60s was far too long: copy number, copy a name, copy the number again
   // within a minute and the second copy silently did nothing.
   if (merged.dedupeSeconds === 60) merged.dedupeSeconds = 10;
-  if (merged.autoCloseSeconds === 20 || merged.autoCloseSeconds === 5 || merged.autoCloseSeconds === 4) merged.autoCloseSeconds = 10;
   return merged;
 }
 
@@ -561,6 +619,9 @@ function findRecentLeadSend(lead, windowHours) {
 
 module.exports = {
   DEFAULT_TEMPLATES,
+  DEFAULT_TEMPLATES_EN,
+  localizeDefaultTemplates,
+  migrateSettings,
   DEFAULT_SETTINGS,
   getTemplates,
   getDefaultTemplateId,

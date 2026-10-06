@@ -43,12 +43,19 @@ describe('sanitizeSettingsPatch', () => {
   });
 
   test('allowlist covers every key the Settings UI and welcome window send', () => {
-    for (const key of ['enabled', 'autoLaunch', 'startMinimized', 'closeToTray', 'showTrayNotification',
+    for (const key of ['enabled', 'autoLaunch', 'closeToTray',
       'soundOnDetect', 'startPaused', 'trayClickAction', 'pollMs', 'dedupeSeconds',
       'autoCloseSeconds', 'sendDedupeMinutes', 'quietHours', 'detectors', 'historyEnabled',
       'historyStorageLimit', 'historyPreviewLimit', 'actionPreferences', 'autoRunAction',
       'autoRunDelaySeconds', 'language', 'theme', 'autoInstallUpdates']) {
       expect(SETTINGS_ALLOWLIST.has(key)).toBe(true);
     }
+  });
+
+  test('removed settings and main-process-only keys are not writable from a renderer', () => {
+    for (const key of ['startMinimized', 'showTrayNotification', 'snoozeUntil', 'migrationsApplied', 'trayHideHintSeen']) {
+      expect(SETTINGS_ALLOWLIST.has(key)).toBe(false);
+    }
+    expect(sanitizeSettingsPatch({ snoozeUntil: 9999999999999, showTrayNotification: true })).toEqual({});
   });
 });

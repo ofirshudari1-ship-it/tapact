@@ -24,11 +24,11 @@ function shouldHideToTray({ closeToTray, isQuitting, hasTray }) {
 // One-time explainer: the first time a window is hidden (not closed) to the
 // tray, show a tray balloon so the user isn't left wondering where the app
 // went — this directly targets the "confusing scenario" this app's two
-// meanings of 'close' can create. Never nags again once seen, and is itself
-// gated by the existing showTrayNotification toggle (Settings already lets
-// the user opt out of all tray balloons).
-function shouldShowTrayHideHint({ hideHintSeen, showTrayNotification }) {
-  return hideHintSeen !== true && showTrayNotification !== false;
+// meanings of 'close' can create. Never nags again once seen (internal
+// trayHideHintSeen flag; it is not tied to any user setting and is never
+// triggered by copying).
+function shouldShowTrayHideHint({ hideHintSeen }) {
+  return hideHintSeen !== true;
 }
 
 // True when the OS's actual login-item state doesn't match what the user
@@ -47,24 +47,6 @@ function resolveTrayClickTarget(action) {
   if (action === 'settings') return 'settings';
   if (action === 'none') return 'none';
   return 'history';
-}
-
-// Anchors a popup ABOVE a screen point (the cursor / copy location) instead
-// of overlapping it - the popup used to open at cursor+gap,+gap (down-right
-// of the point), which meant it visually sat right on top of the text that
-// was just copied/selected. `gap` is the vertical clearance kept between the
-// point and the popup's bottom edge. Falls back to below the point when
-// there isn't enough room above it (e.g. the copy happened near the top of
-// the screen), and is always clamped to stay fully inside `workArea` on
-// every axis so it never renders off-screen on a small/scaled display.
-function computeAnchoredPopupPosition({ point, width, height, workArea, gap = 10 }) {
-  const bounds = workArea || { x: 0, y: 0, width: 0, height: 0 };
-  let x = point.x - Math.round(width / 2);
-  let y = point.y - height - gap;
-  if (y < bounds.y) y = point.y + gap; // not enough room above - open below instead
-  x = Math.min(Math.max(x, bounds.x), bounds.x + bounds.width - width);
-  y = Math.min(Math.max(y, bounds.y), bounds.y + bounds.height - height);
-  return { x, y };
 }
 
 // Resuming monitoring must not retroactively capture whatever was copied
@@ -93,6 +75,5 @@ module.exports = {
   shouldShowTrayHideHint,
   autoLaunchNeedsReconcile,
   resolveTrayClickTarget,
-  computeAnchoredPopupPosition,
   shouldPrimeClipboardOnResume
 };
