@@ -1,0 +1,64 @@
+{
+  "favBefore": [
+    {
+      "label": "ברכה כללית",
+      "fav": true
+    },
+    {
+      "label": "תזכורת תשלום",
+      "fav": true
+    },
+    {
+      "label": "מעקב הזמנה",
+      "fav": false
+    },
+    {
+      "label": "פולו אפ מכירה",
+      "fav": false
+    }
+  ],
+  "favAfterClick": [
+    {
+      "label": "ברכה כללית",
+      "fav": true
+    },
+    {
+      "label": "מעקב הזמנה",
+      "fav": true
+    },
+    {
+      "label": "תזכורת תשלום",
+      "fav": true
+    },
+    {
+      "label": "פולו אפ מכירה",
+      "fav": false
+    }
+  ],
+  "persistedFromStore": [
+    {
+      "id": "t1",
+      "label": "ברכה כללית",
+      "text": "שלום {שם}, תודה שפנית אלינו!",
+      "favorite": true
+    },
+    {
+      "id": "t2",
+      "label": "מעקב הזמנה",
+      "text": "היי {שם}, ההזמנה שלך בדרך.",
+      "favorite": true
+    },
+    {
+      "id": "t3",
+      "label": "תזכורת תשלום",
+      "text": "שלום {שם}, תזכורת ידידותית לתשלום.",
+      "favorite": true
+    },
+    {
+      "id": "t4",
+      "label": "פולו אפ מכירה",
+      "text": "היי {שם}, רציתי לבדוק אם יש שאלות.",
+      "favorite": false
+    }
+  ]
+}

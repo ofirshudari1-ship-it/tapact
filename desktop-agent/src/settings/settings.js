@@ -5,6 +5,10 @@ let shortcuts = {};
 let defaultShortcuts = { manual: 'CommandOrControl+Alt+P', history: 'Super+V', historyFallback: 'CommandOrControl+Alt+V' };
 let tagRules = [];
 let customRules = [];
+let customRuleProblems = {}; // rule index -> error code from the last failed save
+let uiReady = false; // set once the first full load finished (language switches then re-render JS-built text)
+let lastShortcutStatus = {};
+let lastUpdateStatus = null;
 
 const s = {};
 
@@ -119,6 +123,7 @@ function renderShortcutHints() {
 }
 
 function renderShortcuts(status) {
+  lastShortcutStatus = status || {};
   for (const field of Object.keys(SHORTCUT_KEYS)) {
     s[SHORTCUT_KEYS[field]].value = displayShortcut(shortcuts[field] || defaultShortcuts[field]);
     const statusEl = s[SHORTCUT_STATUS_KEYS[field]];
@@ -350,12 +355,45 @@ function buildCustomRuleCard(rule, index) {
   card.appendChild(patternInput);
   card.appendChild(urlInput);
   card.appendChild(actionLabelInput);
+  const problem = customRuleProblems[index];
+  if (problem) {
+    const err = document.createElement('p');
+    err.className = 'saved-msg error';
+    err.setAttribute('role', 'alert');
+    err.textContent = clipT(CUSTOM_RULE_ERROR_KEYS[problem] || 'customRules.err.invalid');
+    card.appendChild(err);
+  }
   return card;
 }
 
+const CUSTOM_RULE_ERROR_KEYS = {
+  invalid: 'customRules.err.invalid',
+  nested: 'customRules.err.nested',
+  slow: 'customRules.err.slow',
+  'too-long': 'customRules.err.tooLong',
+  empty: 'customRules.err.empty',
+  'bad-url': 'customRules.err.badUrl'
+};
+
 async function onSaveCustomRules() {
   const result = await window.tapactSettings.saveCustomRules(customRules);
-  if (Array.isArray(result)) customRules = result;
+  customRuleProblems = {};
+  if (result && result.ok === false && Array.isArray(result.problems)) {
+    // Nothing was saved: mark each bad rule with what is wrong and keep the user's text.
+    for (const p of result.problems) customRuleProblems[p.index] = p.code;
+    renderCustomRules();
+    s.savedCustomRulesMsg.textContent = clipT('customRules.err.summary');
+    s.savedCustomRulesMsg.classList.add('error');
+    s.savedCustomRulesMsg.classList.remove('hidden');
+    setTimeout(() => {
+      s.savedCustomRulesMsg.classList.add('hidden');
+      s.savedCustomRulesMsg.classList.remove('error');
+      s.savedCustomRulesMsg.textContent = clipT('settings.saved');
+    }, 5000);
+    return;
+  }
+  if (result && Array.isArray(result.rules)) customRules = result.rules;
+  else if (Array.isArray(result)) customRules = result;
   renderCustomRules();
   s.savedCustomRulesMsg.classList.remove('hidden');
   setTimeout(() => s.savedCustomRulesMsg.classList.add('hidden'), 1800);
@@ -453,6 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   s.shortcutHint = document.getElementById('shortcutHint');
 
   setupTabs();
+  applyNumericAttributes();
   initClipHistoryPanel();
 
   const data = await window.tapactSettings.getData();
@@ -682,6 +721,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await renderLeadHistory();
+  uiReady = true;
 });
 
 function setupTabs() {
@@ -731,6 +771,7 @@ function clipT(key) {
 // is also the live push handler, so a check started from another window
 // (or from the silent startup check) still updates this one if it's open.
 function renderUpdateStatus(status) {
+  lastUpdateStatus = status || null;
   if (!s.updateStatusText) return;
   const st = status || { state: 'idle' };
   let text;
@@ -1113,7 +1154,50 @@ async function onReset() {
 // One Save for the whole General tab (monitoring, windows, timing, quiet hours,
 // auto-run). Fields keep their values when you switch tabs; the dirty note and
 // the dot on the nav item stay until this is pressed.
+const NUMERIC_LABEL_KEYS = {
+  pollMs: 'settings.poll', dedupeSeconds: 'settings.dedupe', autoCloseSeconds: 'settings.autoClose',
+  sendDedupeMinutes: 'settings.sendDedupe', autoRunDelaySeconds: 'settings.autoRunDelay',
+  historyStorageLimit: 'clip.storageLimit', historyPreviewLimit: 'clip.previewLimit'
+};
+const NUMERIC_INPUT_IDS = {
+  pollMs: 'pollInput', dedupeSeconds: 'dedupeInput', autoCloseSeconds: 'autoCloseInput', sendDedupeMinutes: 'sendDedupeInput',
+  autoRunDelaySeconds: 'autoRunDelayInput', historyStorageLimit: 'clipHistoryStorageInput', historyPreviewLimit: 'clipHistoryPreviewInput'
+};
+
+// Gives the HTML inputs the same min/max/step the validator uses (one source of truth).
+function applyNumericAttributes() {
+  const rules = window.tapactNumeric && window.tapactNumeric.RULES;
+  if (!rules) return;
+  for (const key of Object.keys(NUMERIC_INPUT_IDS)) {
+    const el = document.getElementById(NUMERIC_INPUT_IDS[key]);
+    if (!el || !rules[key]) continue;
+    el.min = String(rules[key].min); el.max = String(rules[key].max); el.step = String(rules[key].step);
+  }
+}
+
+// Resolves the numeric inputs: an empty/invalid field keeps the previous value, an out-of-range one is
+// clamped, and every such case is reported to the user in a status line (he+en) - never silently.
+function readNumericFields(keys, noticeEl) {
+  const raw = {};
+  for (const key of keys) raw[key] = document.getElementById(NUMERIC_INPUT_IDS[key]).value;
+  const { values, notices } = window.tapactNumeric.resolveFields(raw, settings);
+  for (const key of keys) document.getElementById(NUMERIC_INPUT_IDS[key]).value = values[key]; // show what is really saved
+  if (noticeEl) {
+    noticeEl.replaceChildren();
+    for (const n of notices) {
+      const line = document.createElement('div');
+      line.textContent = clipT('settings.num.' + n.status)
+        .replace('{field}', clipT(NUMERIC_LABEL_KEYS[n.key]).replace(/\s*\(.*\)\s*$/, ''))
+        .replace('{value}', n.value).replace('{min}', n.min).replace('{max}', n.max);
+      noticeEl.appendChild(line);
+    }
+    noticeEl.classList.toggle('hidden', notices.length === 0);
+  }
+  return values;
+}
+
 function onSaveSettings() {
+  const num = readNumericFields(['pollMs', 'dedupeSeconds', 'autoCloseSeconds', 'sendDedupeMinutes', 'autoRunDelaySeconds'], document.getElementById('numNotice'));
   window.tapactSettings.saveSettings({
     enabled: s.enabledCheck.checked,
     autoLaunch: s.autoLaunchCheck.checked,
@@ -1122,18 +1206,19 @@ function onSaveSettings() {
     startPaused: s.startPausedCheck ? s.startPausedCheck.checked : false,
     trayClickAction: s.trayClickSelect ? s.trayClickSelect.value : 'history',
     whatsappTarget: s.whatsappTargetSelect ? s.whatsappTargetSelect.value : 'web',
-    pollMs: Math.max(200, Number(s.pollInput.value) || 400),
-    dedupeSeconds: Math.max(0, Number(s.dedupeInput.value) || 0),
-    autoCloseSeconds: Math.max(0, Number(s.autoCloseInput.value) || 0),
-    sendDedupeMinutes: Math.max(0, Number(s.sendDedupeInput.value) || 0),
+    pollMs: num.pollMs,
+    dedupeSeconds: num.dedupeSeconds,
+    autoCloseSeconds: num.autoCloseSeconds,
+    sendDedupeMinutes: num.sendDedupeMinutes,
     quietHours: {
       enabled: s.quietHoursEnabledCheck ? s.quietHoursEnabledCheck.checked : false,
       start: (s.quietHoursStartInput && s.quietHoursStartInput.value) || '18:00',
       end: (s.quietHoursEndInput && s.quietHoursEndInput.value) || '08:00'
     },
     autoRunAction: s.autoRunCheck.checked,
-    autoRunDelaySeconds: Math.max(1, Math.min(30, Number(s.autoRunDelayInput.value) || 4))
+    autoRunDelaySeconds: num.autoRunDelaySeconds
   });
+  settings = { ...settings, ...num }; // the local copy is the "previous value" for the next save
   setGeneralDirty(false);
   flashMsg(s.savedSettingsMsg);
 }
@@ -1185,6 +1270,10 @@ function applyDetectorSwitches(detectors) {
 
 function applyAppLanguage(lang) {
   if (typeof window.i18n === 'undefined') return;
+  // clipT() reads settings.language: without this every JS-built string (delete buttons, history rows,
+  // status lines) stayed in the language the window was opened in.
+  settings = settings || {};
+  settings.language = lang;
   window.i18n.applyI18n(lang);
   renderShortcutHints();
   // The window's title bar/taskbar text: main.js's openSettingsWindow() sets
@@ -1207,6 +1296,15 @@ function applyAppLanguage(lang) {
   // reader hears the new language too (list state lives in the arrays, not the DOM).
   if (s.list) render();
   if (s.customRulesList) renderCustomRules();
+  if (uiReady) {
+    renderShortcuts(lastShortcutStatus);
+    renderUpdateStatus(lastUpdateStatus);
+    if (s.tagRulesList) renderTagRules();
+    renderHistory();
+    renderLeadHistory();
+    const notice = document.getElementById('numNotice');
+    if (notice) notice.classList.add('hidden'); // a notice in the old language would be stale
+  }
 }
 
 function applyAppTheme(theme) {
@@ -1268,11 +1366,13 @@ function onSaveDetectors() {
 }
 
 function onSaveClipHistorySettings() {
+  const num = readNumericFields(['historyStorageLimit', 'historyPreviewLimit'], document.getElementById('clipNumNotice'));
   window.tapactSettings.saveSettings({
     historyEnabled: s.clipHistoryEnabledCheck.checked,
-    historyStorageLimit: Math.max(50, Math.min(5000, Number(s.clipHistoryStorageInput.value) || 1000)),
-    historyPreviewLimit: Math.max(10, Math.min(200, Number(s.clipHistoryPreviewInput.value) || 50))
+    historyStorageLimit: num.historyStorageLimit,
+    historyPreviewLimit: num.historyPreviewLimit
   });
+  settings = { ...settings, ...num };
   s.savedClipHistoryMsg.classList.remove('hidden');
   setTimeout(() => s.savedClipHistoryMsg.classList.add('hidden'), 1800);
 }

@@ -1,0 +1,30 @@
+{
+  "orderBefore": [
+    "מספר הזמנה פנימי",
+    "ORD-(\\d+)",
+    "https://example.com/orders/{value}",
+    "",
+    "קוד לקוח",
+    "CUST-(\\d+)",
+    "https://example.com/customers/{value}",
+    "",
+    "קוד קופון",
+    "COUPON-(\\w+)",
+    "https://example.com/coupons/{value}",
+    ""
+  ],
+  "orderAfter": [
+    "קוד לקוח",
+    "CUST-(\\d+)",
+    "https://example.com/customers/{value}",
+    "",
+    "מספר הזמנה פנימי",
+    "ORD-(\\d+)",
+    "https://example.com/orders/{value}",
+    "",
+    "קוד קופון",
+    "COUPON-(\\w+)",
+    "https://example.com/coupons/{value}",
+    ""
+  ]
+}

@@ -49,6 +49,9 @@ function log(level, msg, extra) {
 
 const { findPhone, fillTemplate, buildWhatsAppUrl, normalizeWhatsAppTarget } = require('./lib/phone');
 const { findGenericAction } = require('./lib/detectors');
+const { classifyCopy } = require('./lib/detect-order');
+const { isAllowedExternalUrl } = require('./lib/safe-url');
+const { validateRule } = require('./lib/detectors/custom');
 const store = require('./lib/store');
 const { postJson, cleanupLeadWithAi, buildShareText, buildMailtoUrl } = require('./lib/lead-delivery');
 const { resolveDedupeMs, shouldHideToTray, shouldShowTrayHideHint, autoLaunchNeedsReconcile, resolveTrayClickTarget, shouldPrimeClipboardOnResume } = require('./lib/window-behavior');
@@ -188,6 +191,17 @@ function resolveWhatsAppUrl(normalizedPhone, message) {
   return buildWhatsAppUrl(normalizedPhone, message, target);
 }
 
+// The only way data-driven URLs (history actions, custom rules, detector output) reach the OS:
+// anything outside the scheme allowlist (file:, ms-msdt:, javascript:, ...) is refused and logged.
+function openExternalSafe(url) {
+  if (!isAllowedExternalUrl(url)) {
+    log(LOG_LEVELS.WARN, 'openExternal refused: scheme not allowed', { scheme: String(url).slice(0, 12).replace(/[^a-z0-9:+.\-]/gi, '?') });
+    return false;
+  }
+  shell.openExternal(url);
+  return true;
+}
+
 // A stored history action: WhatsApp ones keep the phone (`wa`) so the link is built
 // when clicked, using whatever target is selected THEN - not the one at copy time.
 function actionUrl(action) {
@@ -196,12 +210,12 @@ function actionUrl(action) {
 }
 
 function categorizeForHistory(text) {
-  const action = findGenericAction(text, { tracking: true, address: true, url: true, email: true }, store.getCustomActionRules(), store.getSettings().language);
-  if (action) {
-    const preferred = applyActionPreference(action, store.getSettings());
+  const picked = classifyCopy(text, { tracking: true, address: true, url: true, email: true }, store.getCustomActionRules(), store.getSettings().language);
+  if (picked && picked.kind === 'action') {
+    const preferred = applyActionPreference(picked.action, store.getSettings());
     return { category: preferred.type, actions: preferred.actions };
   }
-  const phone = findPhone(text);
+  const phone = picked && picked.kind === 'phone' ? picked.phone : null;
   if (phone) {
     return { category: 'phone', actions: [{ label: `WhatsApp: ${phone.display}`, url: buildWhatsAppUrl(phone.normalized, '', 'web'), wa: phone.normalized }] };
   }
@@ -346,7 +360,8 @@ async function checkClipboard(tickAt = Date.now()) {
     if (text.length > MAX_ACTION_DETECT_LENGTH) return; // large copy - see MAX_ACTION_DETECT_LENGTH
 
     const detectors = settings.detectors || {};
-    const action = findGenericAction(text, detectors, store.getCustomActionRules(), settings.language);
+    const picked = classifyCopy(text, detectors, store.getCustomActionRules(), settings.language);
+    const action = picked && picked.kind === 'action' ? picked.action : null;
     if (action) {
       const dedupeKey = `${action.type}:${action.raw}`;
       const lastSeen = lastGenericNotifiedAt.get(dedupeKey) || 0;
@@ -363,9 +378,9 @@ async function checkClipboard(tickAt = Date.now()) {
       return;
     }
 
-    if (detectors.phone !== false) {
-      const found = findPhone(text);
-      if (found) {
+    if (picked && picked.kind === 'phone') {
+      const found = picked.phone;
+      {
         const lastSeen = lastNotifiedAt.get(found.normalized) || 0;
         if (now - lastSeen < dedupeMs) return;
         const decision = decideAutoPopup({ ...policyBase, type: 'phone', phone: found, detectorEnabled: true });
@@ -407,7 +422,8 @@ async function triggerManualPopup() {
   const settings = store.getSettings();
 
   const detectorsCfg = settings.detectors || {};
-  const action = findGenericAction(text, detectorsCfg, store.getCustomActionRules(), settings.language); // see checkClipboard for why this runs first
+  const picked = classifyCopy(text, detectorsCfg, store.getCustomActionRules(), settings.language); // see lib/detect-order.js for the order rules
+  const action = picked && picked.kind === 'action' ? picked.action : null;
   if (action) {
     currentGenericAction = applyActionPreference(action, settings);
     popupBurstNotice = false;
@@ -415,7 +431,7 @@ async function triggerManualPopup() {
     return;
   }
 
-  const phone = detectorsCfg.phone !== false ? findPhone(text) : null;
+  const phone = picked && picked.kind === 'phone' ? picked.phone : null;
   if (phone) {
     popupBurstNotice = false;
     handlePhoneDetected(phone, store.getSettings(), true);
@@ -431,11 +447,11 @@ function handlePhoneDetected(phone, settings, takeFocus = false, anchorPoint = n
   const action = (settings.actionPreferences || {}).phone || 'popup';
   if (action === 'none') return;
   if (action === 'call') {
-    shell.openExternal('tel:' + phone.normalized);
+    openExternalSafe('tel:+' + phone.normalized);
     return;
   }
   if (action === 'whatsapp') {
-    shell.openExternal(resolveWhatsAppUrl(phone.normalized, ''));
+    openExternalSafe(resolveWhatsAppUrl(phone.normalized, ''));
     return;
   }
   // default: 'popup'
@@ -446,6 +462,7 @@ function handlePhoneDetected(phone, settings, takeFocus = false, anchorPoint = n
 // takeFocus: only for popups the user asked for (shortcut/tray). Automatic ones
 // appear without stealing keyboard focus, so a rep mid-sentence isn't interrupted.
 function openPopupWindow(takeFocus = false, anchorPoint = null) {
+  clearAutoRunTimer(); // a replaced action popup's pending auto-run must not fire into this popup
   if (popupWindow && !popupWindow.isDestroyed()) {
     popupWindow.close();
   }
@@ -787,7 +804,7 @@ function resetAutoRunTimer() {
   autoRunTimer = setTimeout(() => {
     const action = currentGenericAction;
     const chosen = action && action.actions && action.actions[0];
-    if (chosen && chosen.url) shell.openExternal(chosen.url);
+    if (chosen && chosen.url) openExternalSafe(chosen.url);
     closePopup();
   }, delay * 1000);
 }
@@ -1115,7 +1132,7 @@ function buildRecentActionsSubmenu() {
     sublabel: item.actions[0].label,
     click: () => {
       const chosen = item.actions[0];
-      if (chosen && actionUrl(chosen)) shell.openExternal(actionUrl(chosen));
+      if (chosen && actionUrl(chosen)) openExternalSafe(actionUrl(chosen));
     }
   }));
 }
@@ -1259,8 +1276,8 @@ ipcMain.on('popup:send', (_event, { phone, message, name, templateLabel }) => {
   // fallback than whatever (if anything) was auto-detected on open.
   // NOTE: popup is NOT closed here so multi-channel sends can complete;
   // the renderer calls popup:dismiss after all channels finish.
-  if (phone && phone.normalized) {
-    shell.openExternal(resolveWhatsAppUrl(phone.normalized, message));
+  if (phone && typeof phone.normalized === 'string' && /^[0-9]{8,15}$/.test(phone.normalized)) {
+    openExternalSafe(resolveWhatsAppUrl(phone.normalized, typeof message === 'string' ? message : ''));
     store.addHistoryEntry({
       normalized: phone.normalized,
       display: phone.display,
@@ -1325,7 +1342,7 @@ ipcMain.handle('lead:send-channel', async (_event, { channel, lead }) => {
     }
     if (channel === 'email') {
       const url = buildMailtoUrl(lead, ls.emailAddress, ls.messageTemplate);
-      shell.openExternal(url);
+      openExternalSafe(url);
       store.addLeadHistoryEntry({ ...lead, channel: 'email' });
       return { ok: true };
     }
@@ -1375,7 +1392,7 @@ ipcMain.on('settings:open-external', (_event, target) => {
     site: 'https://tapact.app'
   };
   const url = urls[target];
-  if (url) shell.openExternal(url);
+  if (url) openExternalSafe(url);
 });
 ipcMain.handle('settings:get-lead-history', () => store.getLeadHistory());
 ipcMain.on('settings:clear-lead-history', () => store.clearLeadHistory());
@@ -1387,7 +1404,7 @@ ipcMain.handle('action-popup:get-init-data', () => ({ action: currentGenericActi
 ipcMain.on('action-popup:run', (_event, index) => {
   const action = currentGenericAction;
   const chosen = action && action.actions && action.actions[index];
-  if (chosen && chosen.url) shell.openExternal(chosen.url);
+  if (chosen && chosen.url) openExternalSafe(chosen.url);
   closePopup();
 });
 
@@ -1420,7 +1437,7 @@ ipcMain.on('history-panel:copy-item', async (_event, id) => {
 ipcMain.on('history-panel:run-action', (_event, { id, index }) => {
   const item = store.getClipboardHistory().find((i) => i.id === id);
   const chosen = item && item.actions && item.actions[index];
-  if (chosen && actionUrl(chosen)) shell.openExternal(actionUrl(chosen));
+  if (chosen && actionUrl(chosen)) openExternalSafe(actionUrl(chosen));
   if (historyWindow && !historyWindow.isDestroyed()) historyWindow.close();
 });
 
@@ -1559,6 +1576,9 @@ ipcMain.handle('settings:save-one', (_e, payload) => {
   if (Object.prototype.hasOwnProperty.call(safe, 'autoInstallUpdates')) {
     autoUpdater.autoInstallOnAppQuit = safe.autoInstallUpdates;
   }
+  // Language switched in the Welcome window: the tray menu and tooltip are built in the UI
+  // language, so rebuild them now instead of at the next Settings save or restart.
+  if (Object.prototype.hasOwnProperty.call(safe, 'language')) refreshTray();
   return true;
 });
 
@@ -1620,7 +1640,19 @@ ipcMain.handle('settings:save-tag-rules', (_event, rules) => store.saveTagRules(
 // --- IPC: custom action rules (user-defined pattern -> URL detectors) ---
 
 ipcMain.handle('settings:get-custom-rules', () => store.getCustomActionRules());
-ipcMain.handle('settings:save-custom-rules', (_event, rules) => store.saveCustomActionRules(rules));
+// Validates every rule first (invalid regex, catastrophic backtracking, bad URL template). On any problem
+// nothing is saved and the problems come back as { index, code } so the UI can say what to fix.
+ipcMain.handle('settings:save-custom-rules', (_event, rules) => {
+  const list = Array.isArray(rules) ? rules : [];
+  const problems = [];
+  list.forEach((r, index) => {
+    if (!r || !(r.label || r.pattern || r.urlTemplate)) return;
+    const res = validateRule({ pattern: String(r.pattern || '').trim(), urlTemplate: r.urlTemplate });
+    if (!res.ok) problems.push({ index, code: res.code });
+  });
+  if (problems.length) return { ok: false, problems };
+  return { ok: true, rules: store.saveCustomActionRules(list) };
+});
 
 ipcMain.handle('settings:get-history', () => store.getHistory());
 ipcMain.on('settings:clear-history', () => store.clearHistory());

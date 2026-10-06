@@ -1,9 +1,52 @@
 // Israeli phone-number detection & normalization.
 // Mirrors chrome-extension/common.js so both surfaces behave identically.
 
+// Unicode clean-up applied before any matching: unusual dashes (hyphen, non-breaking
+// hyphen, figure/en/em dash, minus sign) become '-', the many space variants become ' ',
+// bidi / zero-width marks (LRM, RLM, embeddings, isolates, BOM) are dropped and Arabic-Indic /
+// full-width digits become ASCII, so numbers copied from Word, web pages and RTL text parse.
+function normalizeText(text) {
+  if (typeof text !== 'string') return '';
+  return text
+    .replace(/[‐-―−﹘﹣－]/g, '-')
+    .replace(/[   -   　]/g, ' ')
+    .replace(/[​-‏‪-‮⁠-⁩؜﻿]/g, '')
+    .replace(/[٠-٩]/g, (c) => String(c.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (c) => String(c.charCodeAt(0) - 0x06F0))
+    .replace(/[０-９]/g, (c) => String(c.charCodeAt(0) - 0xFF10));
+}
+
+// Structured shipment numbers (Israel Post / UPU S10, UPS 1Z, DHL JD) contain digit runs that
+// look like phones (RR523456789IL -> 523456789). They are removed before looking for a phone,
+// whatever the tracking detector's on/off state - a postal code is never a phone number.
+const STRUCTURED_TRACKING_RE = /\b(?:[A-Za-z]{2}\d{9}[A-Za-z]{2}|1Z[0-9A-Za-z]{16}|JJ?D\d{16,18})\b/g;
+
+function stripStructuredTracking(text) {
+  return text.replace(STRUCTURED_TRACKING_RE, ' ');
+}
+
+// Turns one "blob" of digits/separators into candidate numbers. A blob like
+// "0501234567 0521234567" or "12 050-1234567" is several things glued together by
+// whitespace; every contiguous run of whitespace-separated tokens is offered, earliest start
+// first and longest first (so "050 123 4567" still comes out whole).
+function spansOfBlob(blob) {
+  const tokens = blob.trim().split(/\s+/);
+  if (tokens.length <= 1) return [blob.trim()];
+  const capped = tokens.slice(0, 12);
+  const out = [];
+  for (let i = 0; i < capped.length; i++) {
+    for (let j = capped.length; j > i; j--) out.push(capped.slice(i, j).join(' '));
+  }
+  return out;
+}
+
 function extractCandidates(text) {
   if (typeof text !== 'string' || !text) return [];
-  return text.match(/(\+?\d[\d\-.\s()]{6,}\d)/g) || [];
+  const clean = stripStructuredTracking(normalizeText(text));
+  const blobs = clean.match(/(\+?\d[\d\-.\s()]{6,}\d)/g) || [];
+  const out = [];
+  for (const blob of blobs) out.push(...spansOfBlob(blob));
+  return out;
 }
 
 // Returns E.164 digits without '+' (e.g. "972501234567" for mobile,
@@ -32,18 +75,27 @@ function isIsraeliId(nineDigits) {
   return sum % 10 === 0;
 }
 
+// "+972 (0)50-123-4567": the "(0)" is the trunk zero people keep in brackets - drop it.
+function dropBracketedTrunkZero(raw) {
+  return raw.replace(/^(\s*\+?\s*(?:00)?\s*972[\s\-.]*)\(\s*0\s*\)/, '$1');
+}
+
 function normalizeIsraeliPhone(raw) {
+  if (typeof raw !== 'string') return null;
+  raw = dropBracketedTrunkZero(normalizeText(raw));
   if (/^\s*0\d{8}\s*$/.test(raw) && isIsraeliId(raw.trim())) return null;
   let digits = raw.replace(/\D/g, '');
   if (digits.startsWith('00972')) digits = digits.slice(2);
   let national;
   if (digits.startsWith('972')) {
     national = digits.slice(3);
+    if (national.startsWith('0')) national = national.slice(1); // "+972-050-..." keeps the trunk zero
   } else if (digits.startsWith('0')) {
     national = digits.slice(1);
-  } else if (digits.length === 9 && digits.startsWith('5')) {
-    // Bare mobile with the leading 0 dropped (e.g. by Excel). Bare 8-digit
-    // landlines are no longer guessed - too many ordinary numbers look like one.
+  } else if (digits.length === 9 && /^5[02-689]/.test(digits)) {
+    // Bare mobile with the leading 0 dropped (e.g. by Excel). The second digit must be a real
+    // mobile prefix (50,52-56,58,59): 51x are company/partnership numbers. Bare 8-digit
+    // landlines are not guessed - too many ordinary numbers look like one.
     national = digits;
   } else {
     return null;
@@ -68,9 +120,16 @@ function formatDisplay(normalized) {
 // it only ever matches text the Israeli-only detector already rejected.
 function normalizeInternationalPhone(raw) {
   if (typeof raw !== 'string') return null;
-  const trimmed = raw.trim();
-  if (!trimmed.startsWith('+')) return null;
-  const digits = trimmed.replace(/\D/g, '');
+  const trimmed = normalizeText(raw).trim();
+  let digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) {
+    // explicit +countrycode
+  } else if (/^00[1-9]/.test(trimmed) && !trimmed.startsWith('00972')) {
+    digits = digits.slice(2); // 0044..., 00351...: the international call prefix
+    if (digits.length < 9) return null;
+  } else {
+    return null;
+  }
   if (digits.startsWith('972')) return null; // Israeli — normalizeIsraeliPhone already owns this
   // E.164 allows up to 15 digits total; a real number needs at least a
   // couple digits of country code plus a subscriber number.
@@ -134,6 +193,8 @@ function buildWhatsAppUrl(normalizedPhone, message, target) {
 }
 
 module.exports = {
+  normalizeText,
+  stripStructuredTracking,
   isIsraeliId,
   findPhone,
   fillTemplate,

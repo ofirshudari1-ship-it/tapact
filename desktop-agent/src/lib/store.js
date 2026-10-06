@@ -2,6 +2,7 @@ const Store = require('electron-store');
 const fs = require('fs');
 const path = require('path');
 const { app } = require('electron');
+const { sanitizeStoredActions } = require('./safe-url');
 
 // The installer's language selector (package.json's
 // `build.nsis.displayLanguageSelector`) writes the language the user picked
@@ -269,6 +270,13 @@ function migrateSettings(saved) {
   for (const key of ['showTrayNotification', 'startMinimized', 'trayBalloonOffApplied']) {
     if (Object.prototype.hasOwnProperty.call(s, key)) { delete s[key]; changed = true; }
   }
+  // 60 s was far too long for "ignore the same copy again" (copy a number, a name, the number again
+  // within a minute and the second copy did nothing). Old profiles with exactly 60 get the new 10 s
+  // default ONCE; after that a user who picks 60 on purpose keeps it.
+  if (!done.has('dedupe10')) {
+    if (s.dedupeSeconds === 60) { s.dedupeSeconds = 10; changed = true; }
+    mark('dedupe10');
+  }
   if (changed) s.migrationsApplied = Array.from(done);
   return { settings: s, changed };
 }
@@ -323,9 +331,6 @@ function getSettings() {
     actionPreferences: { ...DEFAULT_SETTINGS.actionPreferences, ...(saved.actionPreferences || {}) },
     quietHours: { ...DEFAULT_SETTINGS.quietHours, ...(saved.quietHours || {}) }
   };
-  // 60s was far too long: copy number, copy a name, copy the number again
-  // within a minute and the second copy silently did nothing.
-  if (merged.dedupeSeconds === 60) merged.dedupeSeconds = 10;
   return merged;
 }
 
@@ -450,18 +455,32 @@ function exportClipboardHistoryData() {
 // then re-applies the same pinned-aware rotation cap as a normal new copy so
 // importing a huge history from another machine can't blow past
 // historyStorageLimit. Returns how many items were actually added.
+const MAX_IMPORT_ITEMS = 5000;
+const MAX_IMPORT_TEXT = 20000;
+const IMPORT_CATEGORIES = ['phone', 'tracking', 'address', 'url', 'email', 'datetime', 'custom', 'text'];
+
 function importClipboardHistoryData(data) {
   if (!data || !Array.isArray(data.items)) return { imported: 0 };
   const existingIds = new Set(getClipboardHistory().map((i) => i.id));
-  const incoming = data.items.filter((i) => i && typeof i.text === 'string' && i.id && !existingIds.has(i.id));
+  const seenInFile = new Set();
+  const incoming = [];
+  for (const i of data.items.slice(0, MAX_IMPORT_ITEMS)) {
+    if (!i || typeof i.text !== 'string' || !i.text) continue;
+    if (!(typeof i.id === 'string' || typeof i.id === 'number') || i.id === '') continue;
+    if (existingIds.has(i.id) || seenInFile.has(i.id)) continue;
+    seenInFile.add(i.id);
+    incoming.push(i);
+  }
   if (!incoming.length) return { imported: 0 };
 
+  // Imported files are untrusted: text is capped, categories limited to the known set and actions
+  // reduced to allowlisted URL schemes (never file:, ms-msdt:, javascript: ... reaching the OS).
   const sanitized = incoming.map((i) => ({
     id: i.id,
-    text: i.text,
-    category: i.category || 'text',
-    actions: i.actions || null,
-    tags: Array.isArray(i.tags) ? i.tags : [],
+    text: i.text.slice(0, MAX_IMPORT_TEXT),
+    category: IMPORT_CATEGORIES.includes(i.category) ? i.category : 'text',
+    actions: sanitizeStoredActions(i.actions),
+    tags: Array.isArray(i.tags) ? i.tags.filter((t) => typeof t === 'string').slice(0, 20).map((t) => t.slice(0, 60)) : [],
     pinned: i.pinned === true,
     copiedAt: typeof i.copiedAt === 'number' ? i.copiedAt : Date.now()
   }));

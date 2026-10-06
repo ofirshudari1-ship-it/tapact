@@ -162,8 +162,11 @@ async function doSendChannel(channel) {
   const ls = state.leadSettings;
 
   if (channel === 'whatsapp') {
+    // Nothing to open without a number - say so instead of reporting success.
+    if (!state.phone) return { ok: false, error: popT('popup.phoneMissing').replace(/:\s*$/, '') };
     const template = state.templates.find((t) => t.id === state.selectedTemplateId) || state.templates[0];
-    const message = template ? fillWhatsappTemplate(template.text, lead.name) : '';
+    // Send what is in the message box (the rep may have edited it), not the raw template.
+    const message = fillWhatsappTemplate(els.messageArea.value, lead.name);
     window.tapact.sendWhatsapp({ phone: state.phone, message, name: lead.name, templateLabel: template?.label || '' });
     return { ok: true };
   }

@@ -10,6 +10,7 @@
 //    next to the number: "מספר מעקב", "AWB", "tracking", "משלוח").
 
 const { t } = require('../i18n-renderer');
+const { normalizeIsraeliPhone, normalizeText } = require('../phone');
 
 const KEYWORD_RE = /(מעקב|משלוח|חבילה|שליח|tracking|track|shipment|parcel|awb|consignment|courier|דואר)/i;
 
@@ -59,6 +60,7 @@ const CARRIERS = [
 
 function findTrackingNumber(text, lang) {
   if (typeof text !== 'string' || !text) return null;
+  text = normalizeText(text);
   const hasKeyword = KEYWORD_RE.test(text);
 
   for (const carrier of CARRIERS) {
@@ -66,6 +68,9 @@ function findTrackingNumber(text, lang) {
     const m = text.match(carrier.re);
     if (!m) continue;
     const code = m[1];
+    // A bare digit run that is a valid Israeli phone number (050..., 972...) is a phone, not a
+    // FedEx/DHL number, even when the text says "משלוח" or "שליח" next to it.
+    if (!carrier.confident && normalizeIsraeliPhone(code)) continue;
     const carrierLabel = carrier.labelKey ? t(lang, carrier.labelKey) : carrier.label;
     return {
       type: 'tracking',

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="settings.css">
 <script src="../lib/window-boot.js"></script>
 <script src="../lib/i18n-renderer.js"></script>
+<script src="../lib/numeric-fields.js"></script>
 <script src="../lib/accelerator-format.js"></script>
 </head>
 <body>
@@ -311,7 +312,7 @@
               <label class="field-label" for="pollInput" data-i18n="settings.poll">תדירות בדיקת הלוח (אלפיות שנייה)</label>
               <span class="field-hint" data-i18n="settings.poll.hint">כל כמה זמן TapAct בודק מה הועתק. ערך נמוך תופס העתקות מהר יותר וצורך קצת יותר משאבים. ברירת מחדל: 800.</span>
             </div>
-            <input type="number" id="pollInput" min="200" max="5000" step="100">
+            <input type="number" id="pollInput" min="200" max="5000" step="50">
           </div>
           <div class="field-row">
             <div class="field-label-col">
@@ -426,6 +427,7 @@
           <span id="generalDirty" class="dirty-note hidden" role="status" data-i18n="settings.unsaved">יש שינויים שלא נשמרו</span>
           <span id="savedSettingsMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
         </div>
+        <div id="numNotice" class="hint-box warn hidden" role="status"></div>
 
       </section>
 
@@ -545,6 +547,7 @@
             <button id="clearClipHistoryBtn" class="btn danger small" data-i18n="clip.clear">נקה היסטוריית לוח</button>
             <span id="savedClipHistoryMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
           </div>
+          <div id="clipNumNotice" class="hint-box warn hidden" role="status"></div>
         </div>
         <div class="hint-box" data-i18n="clip.hint">העתקות שמסומנות כרגישות (למשל סיסמה מ-1Password או מ-Bitwarden) לא נשמרות. זה אותו סימון ש-Windows עצמו מכבד.</div>
         <div class="panel">

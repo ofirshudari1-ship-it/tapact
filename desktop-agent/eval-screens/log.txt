@@ -1,0 +1,5 @@
+ELECTRON_RUN_AS_NODE= undefined versions.electron= 44.2.0 type= browser
+typeof electron: object ["nativeImage","shell","app","autoUpdater","BaseWindow","BrowserView","BrowserWindow","clipboard","ClipboardItem","contentTracing","crashReporter","desktopCapturer","dialog","globalShortcut","ipcMain","ImageView","inAppPurchase","Menu","MenuItem","MessageChannelMain","nativeTheme","net","netLog","Notification","powerMonitor","powerSaveBlocker","pushNotifications","protocol","safeStorage","screen","ServiceWorkerMain","session","sharedTexture","ShareMenu","systemPreferences","TouchBar","Tray","utilityProcess","View","webContents","WebContentsView","webFrameMain"]
+app required, waiting for ready...
+app ready
+DONE C:\Users\ofirs\Downloads\CLAUDE BOTS\PC-Software\TapAct\desktop-agent\eval-screens

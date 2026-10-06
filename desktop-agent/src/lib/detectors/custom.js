@@ -11,38 +11,37 @@
 // are rejected rather than ever reaching shell.openExternal. Malformed
 // regex (bad syntax, or one so pathological it could hang the clipboard-
 // poll timer) is caught defensively; a broken rule is skipped, not thrown.
+// Matching runs through lib/safe-regex.js: a hard time budget (vm timeout), a
+// text-length cap, and patterns are validated when saved (validateRule below).
 
 const { t } = require('../i18n-renderer');
-
-const MAX_PATTERN_LENGTH = 200; // keeps user-authored regexes cheap to compile/run on every poll tick
+const { safeMatch, validatePattern, MAX_PATTERN_LENGTH } = require('../safe-regex');
 
 function isSafeUrlTemplate(urlTemplate) {
   return typeof urlTemplate === 'string' && /^https?:\/\//i.test(urlTemplate.trim());
 }
 
-function compileRule(rule) {
-  if (!rule || rule.enabled === false) return null;
-  if (typeof rule.pattern !== 'string' || !rule.pattern || rule.pattern.length > MAX_PATTERN_LENGTH) return null;
-  if (!isSafeUrlTemplate(rule.urlTemplate)) return null;
-  try {
-    return new RegExp(rule.pattern);
-  } catch (err) {
-    return null; // invalid regex syntax — skip this rule rather than crash the poll loop
-  }
+function ruleIsUsable(rule) {
+  if (!rule || rule.enabled === false) return false;
+  if (typeof rule.pattern !== 'string' || !rule.pattern || rule.pattern.length > MAX_PATTERN_LENGTH) return false;
+  return isSafeUrlTemplate(rule.urlTemplate);
+}
+
+// Used when saving from Settings: -> { ok: true } or { ok: false, code } with code
+// 'empty' | 'too-long' | 'invalid' | 'nested' | 'slow' | 'bad-url'.
+function validateRule(rule) {
+  const p = validatePattern(rule && rule.pattern);
+  if (!p.ok) return p;
+  if (!isSafeUrlTemplate(rule.urlTemplate)) return { ok: false, code: 'bad-url' };
+  return { ok: true };
 }
 
 function findCustomAction(text, rules, lang) {
   if (typeof text !== 'string' || !text || !Array.isArray(rules) || !rules.length) return null;
 
   for (const rule of rules) {
-    const re = compileRule(rule);
-    if (!re) continue;
-    let match;
-    try {
-      match = text.match(re);
-    } catch (err) {
-      continue;
-    }
+    if (!ruleIsUsable(rule)) continue;
+    const match = safeMatch(rule.pattern, text);
     if (!match) continue;
 
     const value = match[1] !== undefined ? match[1] : match[0];
@@ -66,4 +65,4 @@ function findCustomAction(text, rules, lang) {
   return null;
 }
 
-module.exports = { findCustomAction, isSafeUrlTemplate };
+module.exports = { findCustomAction, isSafeUrlTemplate, validateRule };
