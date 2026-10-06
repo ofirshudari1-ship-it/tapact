@@ -1,6 +1,6 @@
 # TapAct - User Guide / מדריך משתמש
 
-Current version: 3.10.1. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
+Current version: 3.10.2. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
 
 ## English
 
@@ -19,7 +19,7 @@ A Windows background agent that watches what you copy and offers the right next 
 
 | You do | TapAct does |
 |---|---|
-| Copy a phone number | A small window opens next to the cursor with WhatsApp and a ready message. It closes by itself after 7 seconds, and stays open while the mouse is on it or you are typing in it |
+| Copy a phone number | A small window opens next to the cursor with WhatsApp and a ready message. It closes by itself after 7 seconds, and stays open while the mouse is on it or you are typing in it. After you click WhatsApp it closes by itself |
 | Copy a tracking number, address or link | A small action window opens the same way |
 | Copy a long text that happens to contain a number | No window (it is only saved to history) |
 | `Ctrl+Alt+P` | Opens the window for whatever is on the clipboard, any time |
@@ -69,7 +69,7 @@ Right-click the tray icon > Settings. Main tabs: Message templates (use `{name}`
 
 | מה עושים | מה TapAct עושה |
 |---|---|
-| מעתיקים מספר טלפון | נפתח חלון קטן ליד הסמן עם וואטסאפ והודעה מוכנה. הוא נסגר לבד אחרי 7 שניות, ונשאר פתוח כשהעכבר עליו או כשמקלידים בו |
+| מעתיקים מספר טלפון | נפתח חלון קטן ליד הסמן עם וואטסאפ והודעה מוכנה. הוא נסגר לבד אחרי 7 שניות, ונשאר פתוח כשהעכבר עליו או כשמקלידים בו. אחרי הלחיצה על וואטסאפ הוא נסגר לבד |
 | מעתיקים מספר מעקב, כתובת או קישור | נפתח חלון פעולה קטן באותה צורה |
 | מעתיקים טקסט ארוך שבמקרה מכיל מספר | לא נפתח חלון (הוא רק נשמר בהיסטוריה) |
 | `Ctrl+Alt+P` | פותח את החלון על מה שבלוח, בכל רגע |
