@@ -457,38 +457,53 @@ function exportClipboardHistoryData() {
 // historyStorageLimit. Returns how many items were actually added.
 const MAX_IMPORT_ITEMS = 5000;
 const MAX_IMPORT_TEXT = 20000;
+const IMPORT_LIMITS = { maxItems: MAX_IMPORT_ITEMS, maxText: MAX_IMPORT_TEXT };
 const IMPORT_CATEGORIES = ['phone', 'tracking', 'address', 'url', 'email', 'datetime', 'custom', 'text'];
 
 function importClipboardHistoryData(data) {
-  if (!data || !Array.isArray(data.items)) return { imported: 0 };
+  // `unreadable`: the file parsed but is not a TapAct history export (no items list).
+  const stats = { imported: 0, total: 0, duplicates: 0, invalid: 0, droppedByCap: 0, linksRemoved: 0, textTrimmed: 0, unreadable: false };
+  if (!data || !Array.isArray(data.items)) return { ...stats, unreadable: true };
+  stats.total = data.items.length;
+  stats.droppedByCap = Math.max(0, data.items.length - MAX_IMPORT_ITEMS);
   const existingIds = new Set(getClipboardHistory().map((i) => i.id));
   const seenInFile = new Set();
   const incoming = [];
   for (const i of data.items.slice(0, MAX_IMPORT_ITEMS)) {
-    if (!i || typeof i.text !== 'string' || !i.text) continue;
-    if (!(typeof i.id === 'string' || typeof i.id === 'number') || i.id === '') continue;
-    if (existingIds.has(i.id) || seenInFile.has(i.id)) continue;
+    if (!i || typeof i.text !== 'string' || !i.text) { stats.invalid++; continue; }
+    if (!(typeof i.id === 'string' || typeof i.id === 'number') || i.id === '') { stats.invalid++; continue; }
+    if (existingIds.has(i.id) || seenInFile.has(i.id)) { stats.duplicates++; continue; }
     seenInFile.add(i.id);
     incoming.push(i);
   }
-  if (!incoming.length) return { imported: 0 };
+  if (!incoming.length) return stats;
 
   // Imported files are untrusted: text is capped, categories limited to the known set and actions
   // reduced to allowlisted URL schemes (never file:, ms-msdt:, javascript: ... reaching the OS).
-  const sanitized = incoming.map((i) => ({
-    id: i.id,
-    text: i.text.slice(0, MAX_IMPORT_TEXT),
-    category: IMPORT_CATEGORIES.includes(i.category) ? i.category : 'text',
-    actions: sanitizeStoredActions(i.actions),
-    tags: Array.isArray(i.tags) ? i.tags.filter((t) => typeof t === 'string').slice(0, 20).map((t) => t.slice(0, 60)) : [],
-    pinned: i.pinned === true,
-    copiedAt: typeof i.copiedAt === 'number' ? i.copiedAt : Date.now()
-  }));
+  const sanitized = incoming.map((i) => {
+    const actions = sanitizeStoredActions(i.actions);
+    const before = Array.isArray(i.actions) ? i.actions.length : 0;
+    if (before > (actions ? actions.length : 0)) stats.linksRemoved++;
+    if (i.text.length > MAX_IMPORT_TEXT) stats.textTrimmed++;
+    return {
+      id: i.id,
+      text: i.text.slice(0, MAX_IMPORT_TEXT),
+      category: IMPORT_CATEGORIES.includes(i.category) ? i.category : 'text',
+      actions,
+      tags: Array.isArray(i.tags) ? i.tags.filter((t) => typeof t === 'string').slice(0, 20).map((t) => t.slice(0, 60)) : [],
+      pinned: i.pinned === true,
+      copiedAt: typeof i.copiedAt === 'number' ? i.copiedAt : Date.now()
+    };
+  });
 
   const merged = [...sanitized, ...getClipboardHistory()].sort((a, b) => b.copiedAt - a.copiedAt);
   const limit = getSettings().historyStorageLimit || 1000;
-  store.set('clipboardHistory', trimToLimit(merged, limit));
-  return { imported: sanitized.length };
+  const kept = trimToLimit(merged, limit);
+  store.set('clipboardHistory', kept);
+  // Count what actually stayed (the history cap may drop the oldest of the imported items).
+  const keptIds = new Set(kept.map((h) => h.id));
+  stats.imported = sanitized.filter((h) => keptIds.has(h.id)).length;
+  return stats;
 }
 
 // --- Auto-tag rules (keyword -> tag label, for finding copies by context
@@ -666,6 +681,7 @@ module.exports = {
   clearClipboardHistory,
   exportClipboardHistoryData,
   importClipboardHistoryData,
+  IMPORT_LIMITS,
   getTagRules,
   saveTagRules,
   computeTags,

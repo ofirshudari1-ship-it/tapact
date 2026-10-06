@@ -129,7 +129,7 @@ function applyChannelVisibility() {
   els.noChannelsNotice.classList.toggle('hidden', hasAny);
 
   // AI button
-  els.aiImproveBtn.classList.toggle('hidden', !(ls.aiEnabled && ls.aiApiKey));
+  els.aiImproveBtn.classList.toggle('hidden', !ls.aiAvailable);
 }
 
 // ─── Phone apply ─────────────────────────────────────────────────────────────
@@ -159,7 +159,6 @@ function showStatus(msg, kind) {
 
 async function doSendChannel(channel) {
   const lead = currentLead();
-  const ls = state.leadSettings;
 
   if (channel === 'whatsapp') {
     // Nothing to open without a number - say so instead of reporting success.
@@ -171,7 +170,8 @@ async function doSendChannel(channel) {
     return { ok: true };
   }
 
-  return window.tapact.sendLeadChannel({ channel, lead, leadSettings: ls });
+  // Main reads the channel settings (URLs, keys) from its own store; the popup never holds them.
+  return window.tapact.sendLeadChannel({ channel, lead });
 }
 
 async function onSendChannel(channel) {

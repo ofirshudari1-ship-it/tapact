@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="clipboard-history.css">
 <script src="../lib/window-boot.js"></script>
 <script src="../lib/i18n-renderer.js"></script>
+<script src="../lib/import-summary.js"></script>
 </head>
 <body>
   <main class="app">
@@ -47,6 +48,8 @@
         <button id="cancelSelectBtn" data-i18n="clip.panel.selectModeExit">ביטול</button>
       </span>
     </div>
+
+    <div id="importMsg" class="import-msg hidden" role="status" aria-live="polite"></div>
 
     <footer class="footer">
       <span class="status">

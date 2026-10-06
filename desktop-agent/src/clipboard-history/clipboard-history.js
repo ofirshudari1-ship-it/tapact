@@ -24,6 +24,17 @@ let selectedIds = [];
 
 const els = {};
 
+let importMsgTimer = null;
+function showImportMessage(result) {
+  const box = document.getElementById('importMsg');
+  const msg = window.importSummary && window.importSummary.buildImportMessage(result, (key) => (window.i18n ? window.i18n.t(lang, key) : key));
+  if (!box || !msg) return;
+  box.textContent = msg.text;
+  box.className = 'import-msg ' + msg.kind;
+  clearTimeout(importMsgTimer);
+  importMsgTimer = setTimeout(() => box.classList.add('hidden'), 12000);
+}
+
 // True when this page is loaded as the BrowserView embedded inside Settings
 // ▸ היסטוריית לוח (see main.js's getHistoryEmbedView) rather than as the
 // standalone quick-access popup (openHistoryWindow). The two share this
@@ -110,6 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (result && !result.canceled) {
       await load();
       render();
+      showImportMessage(result);
     }
   });
 

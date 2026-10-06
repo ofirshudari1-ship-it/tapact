@@ -311,9 +311,9 @@ describe('clipboard history export / import', () => {
 
   test('importClipboardHistoryData ignores malformed input', () => {
     const store = freshStore();
-    expect(store.importClipboardHistoryData(null)).toEqual({ imported: 0 });
-    expect(store.importClipboardHistoryData({})).toEqual({ imported: 0 });
-    expect(store.importClipboardHistoryData({ items: [{ id: 'x' }] })).toEqual({ imported: 0 }); // no text
+    expect(store.importClipboardHistoryData(null)).toMatchObject({ imported: 0, unreadable: true });
+    expect(store.importClipboardHistoryData({})).toMatchObject({ imported: 0, unreadable: true });
+    expect(store.importClipboardHistoryData({ items: [{ id: 'x' }] })).toMatchObject({ imported: 0, invalid: 1, unreadable: false }); // no text
   });
 });
 

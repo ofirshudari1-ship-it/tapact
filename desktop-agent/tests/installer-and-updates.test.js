@@ -35,7 +35,7 @@ describe('request timeouts (lead delivery)', () => {
     withTimeout(req, resolve);
     jest.advanceTimersByTime(REQUEST_TIMEOUT_MS + 1);
     expect(req.abort).toHaveBeenCalled();
-    expect(resolve).toHaveBeenCalledWith({ ok: false, error: 'timeout' });
+    expect(resolve).toHaveBeenCalledWith({ ok: false, error: 'timeout', errorKey: 'lead.error.timeout' });
   });
   test('an answer before the deadline wins and the timer is cleared', () => {
     const req = { abort: jest.fn() };
@@ -49,8 +49,8 @@ describe('request timeouts (lead delivery)', () => {
   });
   test('postJson refuses non-http(s) URLs without sending anything', async () => {
     jest.useRealTimers();
-    await expect(postJson('file:///C:/x', {})).resolves.toEqual({ ok: false, error: 'invalid-url' });
-    await expect(postJson('javascript:alert(1)', {})).resolves.toEqual({ ok: false, error: 'invalid-url' });
+    await expect(postJson('file:///C:/x', {})).resolves.toEqual({ ok: false, error: 'invalid-url', errorKey: 'lead.error.invalidUrl' });
+    await expect(postJson('javascript:alert(1)', {})).resolves.toEqual({ ok: false, error: 'invalid-url', errorKey: 'lead.error.invalidUrl' });
   });
 });
 

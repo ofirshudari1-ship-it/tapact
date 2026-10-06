@@ -54,7 +54,8 @@ const { UPDATE_CHECK_INTERVAL_MS, shouldRunPeriodicCheck, shouldPromptForVersion
 const { isAllowedExternalUrl } = require('./lib/safe-url');
 const { validateRule } = require('./lib/detectors/custom');
 const store = require('./lib/store');
-const { postJson, cleanupLeadWithAi, buildShareText, buildMailtoUrl } = require('./lib/lead-delivery');
+const { postJson, cleanupLeadWithAi, buildShareText, buildMailtoUrl, localizeLeadResult } = require('./lib/lead-delivery');
+const { buildPopupLeadView, isFromWindow } = require('./lib/lead-privacy');
 const { resolveDedupeMs, shouldHideToTray, shouldShowTrayHideHint, autoLaunchNeedsReconcile, resolveTrayClickTarget, shouldPrimeClipboardOnResume } = require('./lib/window-behavior');
 const { createCursorTrail, computeAnchoredPopupPosition, computeFitBounds, boundsCorrection, nudgeInside } = require('./lib/popup-placement');
 const { decideAutoPopup, isQuietHours, computeSnoozeUntil, normalizeSnooze, createBurstGuard } = require('./lib/popup-policy');
@@ -1262,7 +1263,9 @@ ipcMain.handle('popup:get-init-data', () => {
     defaultTemplateId,
     history: store.getHistory(),
     sendDedupeMinutes: settings.sendDedupeMinutes,
-    leadSettings: store.getLeadSettings(),
+    // Only what the popup needs (enabled channels, custom sources, duplicate window, AI usable):
+    // never the keys, webhook URLs/headers, Slack URL or e-mail address (see lib/lead-privacy.js).
+    leadSettings: buildPopupLeadView(store.getLeadSettings()),
     leadHistory: store.getLeadHistory(),
     type: 'phone',
     burstNotice: popupBurstNotice,
@@ -1334,13 +1337,13 @@ ipcMain.handle('lead:send-channel', async (_event, { channel, lead }) => {
     if (channel === 'webhook') {
       const result = await postJson(ls.webhookUrl, { ...lead, sentAt: new Date().toISOString() }, ls.webhookHeaderName, ls.webhookHeaderValue);
       if (result.ok) store.addLeadHistoryEntry({ ...lead, channel: 'webhook' });
-      return result;
+      return localizeLeadResult(result, tr);
     }
     if (channel === 'slack') {
       const text = buildShareText(lead, ls.messageTemplate);
       const result = await postJson(ls.slackWebhookUrl, { text });
       if (result.ok) store.addLeadHistoryEntry({ ...lead, channel: 'slack' });
-      return result;
+      return localizeLeadResult(result, tr);
     }
     if (channel === 'email') {
       const url = buildMailtoUrl(lead, ls.emailAddress, ls.messageTemplate);
@@ -1356,16 +1359,17 @@ ipcMain.handle('lead:send-channel', async (_event, { channel, lead }) => {
     }
     return { ok: false, error: `${tr('lead.error.unknownChannel')}: ${channel}` };
   } catch (err) {
-    return { ok: false, error: err.message };
+    return localizeLeadResult({ ok: false, error: err.message }, tr);
   }
 });
 
 ipcMain.handle('lead:ai-cleanup', async (_event, lead) => {
   const { aiApiKey } = store.getLeadSettings();
-  return cleanupLeadWithAi(lead, aiApiKey);
+  return localizeLeadResult(await cleanupLeadWithAi(lead, aiApiKey), tr);
 });
 
-ipcMain.handle('lead:test-channel', async (_event, { channel }) => {
+ipcMain.handle('lead:test-channel', async (event, { channel }) => {
+  if (!isFromWindow(event, settingsWindow)) return { ok: false, error: tr('lead.error.connection') };
   // Read URL and auth headers from the trusted store — never from renderer input.
   const ls = store.getLeadSettings();
   let url = '';
@@ -1377,7 +1381,7 @@ ipcMain.handle('lead:test-channel', async (_event, { channel }) => {
   try {
     const testPayload = { test: true, source: 'TapAct', timestamp: new Date().toISOString() };
     const result = await postJson(url, testPayload, headerName, headerValue);
-    return result;
+    return localizeLeadResult(result, tr);
   } catch (e) {
     return { ok: false, error: e.message || tr('lead.error.connection') };
   }
@@ -1385,8 +1389,14 @@ ipcMain.handle('lead:test-channel', async (_event, { channel }) => {
 
 // --- IPC: lead settings (from settings window) ---
 
-ipcMain.handle('settings:get-lead-settings', () => store.getLeadSettings());
-ipcMain.on('settings:save-lead-settings', (_event, settings) => store.saveLeadSettings(settings));
+// Only the Settings window may read or change the full lead settings (secrets): popups, the
+// history window and the welcome window have no business with them, whatever their preload exposes.
+const fromSettingsWindow = (event) => isFromWindow(event, settingsWindow);
+ipcMain.handle('settings:get-lead-settings', (event) => (fromSettingsWindow(event) ? store.getLeadSettings() : null));
+ipcMain.on('settings:save-lead-settings', (event, settings) => {
+  if (!fromSettingsWindow(event)) return;
+  store.saveLeadSettings(settings);
+});
 
 ipcMain.on('settings:open-external', (_event, target) => {
   const urls = {
@@ -1500,9 +1510,10 @@ ipcMain.handle('history-panel:import', async () => {
     const result = store.importClipboardHistoryData(data);
     broadcastHistoryItemsChanged();
     refreshHistorySummaries();
-    return { canceled: false, ...result };
+    return { canceled: false, ...result, limits: store.IMPORT_LIMITS };
   } catch (err) {
-    return { canceled: false, imported: 0, error: err?.message || String(err) };
+    // Not JSON (or unreadable): the panel shows "could not read this file".
+    return { canceled: false, imported: 0, unreadable: true, error: err?.message || String(err) };
   }
 });
 
@@ -1950,14 +1961,9 @@ function initAutoUpdater() {
         type: 'info',
         title: tr('update.dialog.title'),
         message: tr('update.dialog.message').replace('{version}', info.version),
-        // Honest about the installer possibly needing a Windows permission
-        // prompt: TapAct's own .exe is already set to run elevated
-        // (requireAdministrator - see package.json's build.win config), so
-        // in the normal case the update installer inherits that elevation
-        // and installs without asking again - but electron-updater falls
-        // back to an explicit elevation request (its own UAC prompt) if the
-        // direct install attempt hits a permissions error, so this doesn't
-        // promise zero prompts.
+        // TapAct itself runs as a normal user (asInvoker), but the per-machine
+        // installer is requireAdministrator, so Node's spawn fails with EACCES and
+        // electron-updater re-runs it through elevate.exe: one UAC prompt per update.
         detail: tr('update.dialog.detail'),
         buttons: [tr('update.dialog.btn.restart'), tr('update.dialog.btn.later')],
         defaultId: 0,

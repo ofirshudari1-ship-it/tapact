@@ -49,7 +49,7 @@ function withTimeout(req, resolve, ms = REQUEST_TIMEOUT_MS) {
     if (done) return;
     done = true;
     try { req.abort(); } catch (e) { /* already finished */ }
-    resolve({ ok: false, error: 'timeout' });
+    resolve({ ok: false, error: 'timeout', errorKey: 'lead.error.timeout' });
   }, ms);
   if (timer.unref) timer.unref();
   return (value) => {
@@ -63,14 +63,15 @@ function withTimeout(req, resolve, ms = REQUEST_TIMEOUT_MS) {
 // POST JSON to a webhook URL using Electron's net module (works regardless
 // of the renderer's Content Security Policy). Only http(s) URLs are contacted.
 async function postJson(url, body, headerName, headerValue) {
-  if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) return { ok: false, error: 'invalid-url' };
+  if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) return { ok: false, error: 'invalid-url', errorKey: 'lead.error.invalidUrl' };
   return new Promise((resolveRaw) => {
     const req = net.request({ method: 'POST', url });
     const resolve = withTimeout(req, resolveRaw);
     req.setHeader('Content-Type', 'application/json');
     if (headerName && headerValue) req.setHeader(headerName, headerValue);
     req.on('response', (res) => {
-      resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode });
+      const ok = res.statusCode >= 200 && res.statusCode < 300;
+      resolve(ok ? { ok, status: res.statusCode } : { ok, status: res.statusCode, errorKey: 'lead.error.http' });
     });
     req.on('error', (err) => resolve({ ok: false, error: err.message }));
     req.write(JSON.stringify(body));
@@ -81,7 +82,7 @@ async function postJson(url, body, headerName, headerValue) {
 // Cleans up captured lead data with Claude API (user's own API key).
 // Returns { ok, lead } on success or { ok: false, error } on failure.
 async function cleanupLeadWithAi(lead, apiKey) {
-  if (!apiKey) return { ok: false, error: 'אין מפתח API' };
+  if (!apiKey) return { ok: false, error: 'no-api-key', errorKey: 'lead.error.aiNoKey' };
 
   const systemPrompt =
     'You clean up lead-capture data for a CRM tool. ' +
@@ -105,7 +106,7 @@ async function cleanupLeadWithAi(lead, apiKey) {
       res.on('data', (chunk) => { body += chunk.toString(); });
       res.on('end', () => {
         if (res.statusCode !== 200) {
-          return resolve({ ok: false, error: `שגיאת AI (${res.statusCode})` });
+          return resolve({ ok: false, error: `ai-${res.statusCode}`, status: res.statusCode, errorKey: 'lead.error.ai' });
         }
         try {
           const data = JSON.parse(body);
@@ -121,7 +122,7 @@ async function cleanupLeadWithAi(lead, apiKey) {
             }
           });
         } catch (e) {
-          resolve({ ok: false, error: 'תשובת AI לא תקינה' });
+          resolve({ ok: false, error: 'ai-bad-response', errorKey: 'lead.error.aiBadResponse' });
         }
       });
     });
@@ -142,4 +143,23 @@ async function cleanupLeadWithAi(lead, apiKey) {
   });
 }
 
-module.exports = { REQUEST_TIMEOUT_MS, withTimeout, buildShareText, buildWhatsappUrl, buildMailtoUrl, postJson, cleanupLeadWithAi };
+// Turns a delivery result into what the user sees: results carry a stable errorKey (the
+// code in `error` stays for logs and tests) and the main process translates it with tr()
+// in the user's language. A raw network message (ECONNREFUSED ...) is kept as-is after
+// the translated "connection error".
+function localizeLeadResult(result, tr) {
+  if (!result || result.ok || typeof tr !== 'function') return result;
+  const out = { ...result };
+  if (result.errorKey) {
+    let msg = tr(result.errorKey);
+    if (result.status) msg += ` (${result.status})`;
+    out.error = msg;
+  } else if (result.error) {
+    out.error = `${tr('lead.error.connection')}: ${result.error}`;
+  } else {
+    out.error = tr('lead.error.connection');
+  }
+  return out;
+}
+
+module.exports = { localizeLeadResult, REQUEST_TIMEOUT_MS, withTimeout, buildShareText, buildWhatsappUrl, buildMailtoUrl, postJson, cleanupLeadWithAi };

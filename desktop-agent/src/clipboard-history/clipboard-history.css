@@ -220,6 +220,11 @@ body.embedded .app {
 }
 .empty .empty-icon { font-size: 26px; opacity: 0.6; }
 
+.import-msg { margin: 0 10px 6px; padding: 6px 10px; border-radius: 8px; font-size: 11.5px; line-height: 1.4; border: 1px solid var(--border); color: var(--fg); background: rgba(127,127,127,0.1); }
+.import-msg.ok { border-color: #1f9d55; }
+.import-msg.error { border-color: #d64545; }
+.import-msg.hidden { display: none; }
+
 .footer {
   display: flex;
   align-items: center;
