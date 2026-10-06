@@ -50,6 +50,7 @@ function log(level, msg, extra) {
 const { findPhone, fillTemplate, buildWhatsAppUrl, normalizeWhatsAppTarget } = require('./lib/phone');
 const { findGenericAction } = require('./lib/detectors');
 const { classifyCopy } = require('./lib/detect-order');
+const { UPDATE_CHECK_INTERVAL_MS, shouldRunPeriodicCheck, shouldPromptForVersion } = require('./lib/update-schedule');
 const { isAllowedExternalUrl } = require('./lib/safe-url');
 const { validateRule } = require('./lib/detectors/custom');
 const store = require('./lib/store');
@@ -444,7 +445,8 @@ async function triggerManualPopup() {
 }
 
 function handlePhoneDetected(phone, settings, takeFocus = false, anchorPoint = null) {
-  const action = (settings.actionPreferences || {}).phone || 'popup';
+  // The manual shortcut / tray item always opens the popup, whatever the automatic action is set to.
+  const action = takeFocus ? 'popup' : ((settings.actionPreferences || {}).phone || 'popup');
   if (action === 'none') return;
   if (action === 'call') {
     openExternalSafe('tel:+' + phone.normalized);
@@ -1552,7 +1554,7 @@ ipcMain.handle('update:get-status', () => store.getUpdateCheckStatus());
 ipcMain.handle('update:check-now', () => {
   if (!app.isPackaged) return { started: false, reason: 'dev-build' };
   try {
-    autoUpdater.checkForUpdates();
+    Promise.resolve(autoUpdater.checkForUpdates()).catch((err) => log(LOG_LEVELS.WARN, 'autoUpdater manual check rejected', { message: err?.message }));
     return { started: true };
   } catch (err) {
     pushUpdateStatus({ state: 'error', error: err?.message || String(err), lastCheckedAt: Date.now() });
@@ -1899,6 +1901,17 @@ function pushUpdateStatus(status) {
   }
 }
 
+let promptedUpdateVersion = null;
+let periodicUpdateTimer = null;
+
+function runUpdateCheck(reason) {
+  try {
+    Promise.resolve(autoUpdater.checkForUpdates()).catch((err) => log(LOG_LEVELS.WARN, `autoUpdater ${reason} check rejected`, { message: err?.message }));
+  } catch (err) {
+    log(LOG_LEVELS.ERROR, `autoUpdater ${reason} check threw`, { message: err?.message });
+  }
+}
+
 function initAutoUpdater() {
   if (!app.isPackaged) return; // no packaged app.asar / no update feed in dev
 
@@ -1929,6 +1942,9 @@ function initAutoUpdater() {
 
   autoUpdater.on('update-downloaded', (info) => {
     log(LOG_LEVELS.INFO, 'autoUpdater update downloaded', { version: info?.version });
+    // The periodic check can report the same downloaded version again: ask once per version.
+    if (!shouldPromptForVersion(promptedUpdateVersion, info && info.version)) return;
+    promptedUpdateVersion = info.version;
     dialog
       .showMessageBox({
         type: 'info',
@@ -1948,18 +1964,21 @@ function initAutoUpdater() {
         cancelId: 1,
       })
       .then(({ response }) => {
-        if (response === 0) autoUpdater.quitAndInstall();
+        // Restart now: silent install, and TapAct starts again by itself (no wizard to click through).
+        if (response === 0) autoUpdater.quitAndInstall(true, true);
       })
       .catch((err) => log(LOG_LEVELS.ERROR, 'autoUpdater dialog failed', { message: err?.message }));
   });
 
-  try {
-    // Not checkForUpdatesAndNotify(): that adds its own Windows toast on top of
-    // the restart dialog and the Settings status TapAct already shows.
-    autoUpdater.checkForUpdates();
-  } catch (err) {
-    log(LOG_LEVELS.ERROR, 'autoUpdater checkForUpdates threw', { message: err?.message });
-  }
+  // Not checkForUpdatesAndNotify(): that adds its own Windows toast on top of
+  // the restart dialog and the Settings status TapAct already shows.
+  runUpdateCheck('startup');
+  // The app stays up for days: check again every few hours (never forces a restart, no toast).
+  if (periodicUpdateTimer) clearInterval(periodicUpdateTimer);
+  periodicUpdateTimer = setInterval(() => {
+    if (shouldRunPeriodicCheck(store.getUpdateCheckStatus().state)) runUpdateCheck('periodic');
+  }, UPDATE_CHECK_INTERVAL_MS);
+  if (periodicUpdateTimer.unref) periodicUpdateTimer.unref();
 }
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();

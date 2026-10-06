@@ -39,6 +39,11 @@
   LangString UninstallComment 1033 "Smart clipboard agent — phone, address, tracking, links"
   LangString UninstallComment 1037 "סוכן לוח ההעתקה החכם — טלפון, כתובת, מעקב, קישורים"
 
+  ; ActionClip 2.x (the previous name of this app) is still installed. Both apps watch the clipboard,
+  ; so running both shows two popups for every copy and one of them loses the Win+V shortcut.
+  LangString ActionClipFoundText 1033 "The older app ActionClip is installed on this PC. ActionClip and TapAct both watch the clipboard, so running both shows two popups for every copy.$\r$\n$\r$\nUninstall ActionClip now? Your ActionClip data is not deleted.$\r$\n$\r$\nChoose No to keep both and uninstall ActionClip yourself later."
+  LangString ActionClipFoundText 1037 "האפליקציה הישנה ActionClip מותקנת במחשב הזה. ActionClip ו-TapAct עוקבים שניהם אחרי הלוח, ולכן כששניהם רצים כל העתקה פותחת שתי חלוניות.$\r$\n$\r$\nלהסיר את ActionClip עכשיו? הנתונים של ActionClip לא נמחקים.$\r$\n$\r$\nבחרו לא כדי להשאיר את שניהם ולהסיר את ActionClip בעצמכם בהמשך."
+
   ; NOTE: electron-builder's base template already calls CHECK_APP_RUNNING
   ; automatically for every NSIS installer, which detects a running
   ; TapAct.exe, offers to close it, and retries. No custom check needed.
@@ -50,6 +55,51 @@
     Var AddDesktopShortcut
     Var AddStartupLaunch
   !macroend
+
+  ; ── Find an installed ActionClip (the app's name up to 2.x) ──
+  ; Scans the Uninstall keys of HKLM and HKCU for DisplayName "ActionClip" and leaves its quiet
+  ; uninstall command in $ActionClipUninstall ("" when not installed).
+  Var ActionClipUninstall
+  Function TapActFindActionClip
+    Push $R0
+    Push $R1
+    Push $R2
+    Push $R3
+    StrCpy $ActionClipUninstall ""
+    StrCpy $R0 0
+    tapactScanLM:
+      EnumRegKey $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall" $R0
+      StrCmp $R1 "" tapactScanLMDone
+      IntOp $R0 $R0 + 1
+      ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$R1" "DisplayName"
+      StrCmp $R2 "ActionClip" 0 tapactScanLM
+      ReadRegStr $R3 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$R1" "QuietUninstallString"
+      StrCmp $R3 "" 0 tapactFound
+      ReadRegStr $R3 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$R1" "UninstallString"
+      StrCmp $R3 "" tapactScanLM
+      StrCpy $R3 "$R3 /S"
+      Goto tapactFound
+    tapactScanLMDone:
+    StrCpy $R0 0
+    tapactScanCU:
+      EnumRegKey $R1 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall" $R0
+      StrCmp $R1 "" tapactNone
+      IntOp $R0 $R0 + 1
+      ReadRegStr $R2 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\$R1" "DisplayName"
+      StrCmp $R2 "ActionClip" 0 tapactScanCU
+      ReadRegStr $R3 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\$R1" "QuietUninstallString"
+      StrCmp $R3 "" 0 tapactFound
+      ReadRegStr $R3 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\$R1" "UninstallString"
+      StrCmp $R3 "" tapactScanCU
+      StrCpy $R3 "$R3 /S"
+    tapactFound:
+      StrCpy $ActionClipUninstall $R3
+    tapactNone:
+    Pop $R3
+    Pop $R2
+    Pop $R1
+    Pop $R0
+  FunctionEnd
 
   ; ── Detect existing installation ────────────────────────────
   !macro customInit
@@ -92,6 +142,12 @@
     ; this marker anyway - but we skip writing it at all so an update/
     ; reinstall never even risks it, and so a Repair/re-run of the same
     ; installer doesn't stomp a language the user later picked in Settings.
+    ;
+    ; PER-MACHINE INSTALL: electron-builder runs SetShellVarContext all before customInit, and in that
+    ; context $APPDATA is C:\ProgramData - but the app reads the signed-in user's own
+    ; %APPDATA%\TapAct (Electron always uses per-user app data). So the marker is written with the
+    ; "current" shell context and the previous context is restored afterwards.
+    SetShellVarContext current
     ${IfNot} ${FileExists} "$APPDATA\TapAct\tapact.json"
       CreateDirectory "$APPDATA\TapAct"
       ${If} $LANGUAGE == 1037
@@ -102,6 +158,27 @@
         FileOpen $9 "$APPDATA\TapAct\first-run-language.txt" w
         FileWrite $9 "en"
         FileClose $9
+      ${EndIf}
+    ${EndIf}
+    ${If} $installMode == "all"
+      SetShellVarContext all
+    ${EndIf}
+
+    ; ── ActionClip 2.x coexistence ──────────────────────────────
+    ; Only on a fresh install (an existing TapAct means the user already decided), never in a silent
+    ; install/auto-update, default answer No, and never blocks the install whatever happens.
+    ${If} $UpdateMode == "0"
+    ${AndIfNot} ${Silent}
+      Call TapActFindActionClip
+      ${If} $ActionClipUninstall != ""
+        MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "$(ActionClipFoundText)" IDYES tapactRemoveActionClip IDNO tapactKeepActionClip
+        tapactRemoveActionClip:
+          nsExec::Exec 'taskkill /F /IM ActionClip.exe'
+          Pop $0
+          ClearErrors
+          ExecWait '$ActionClipUninstall' $0
+          ClearErrors
+        tapactKeepActionClip:
       ${EndIf}
     ${EndIf}
   !macroend
@@ -174,16 +251,10 @@
     WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" \
       "Comments" "$(UninstallComment)"
 
-    ; Add Windows Firewall inbound rule so Windows doesn't show a "blocked
-    ; features" dialog on first launch (§11.8). Silent — no error if netsh
-    ; fails (non-fatal for clipboard agent; only affects network channels).
-    ; Delete-then-add: "add rule" never de-duplicates, so every update used to
-    ; stack one more identical "TapAct" rule. The program path must be the
-    ; real exe - the old rule used ${APP_FILENAME} (the install directory
-    ; name), pointed at a non-existent file and never matched the app.
+    ; Inbound firewall rule: TapAct opens no listening socket (it only makes outbound requests), so no
+    ; rule is needed and none is added any more. Versions up to 3.11 added one; remove it so updating
+    ; cleans it up.
     nsExec::ExecToStack 'netsh advfirewall firewall delete rule name="TapAct"'
-    Pop $0
-    nsExec::ExecToStack 'netsh advfirewall firewall add rule name="TapAct" dir=in action=allow program="$INSTDIR\${APP_EXECUTABLE_FILENAME}" enable=yes profile=any description="TapAct clipboard agent"'
     Pop $0
 
     ${If} $UpdateMode == "1"
@@ -217,22 +288,39 @@ LangString UninstalledDataDeletedMsg 1033 "TapAct removed. Settings and history 
 LangString UninstalledDataDeletedMsg 1037 "הוסר TapAct. ההגדרות וההיסטוריה נמחקו."
 
 !macro customUnInstall
-  DeleteRegKey SHCTX "Software\TapAct"
-  ; Legacy uninstall-metadata key written by versions up to 2.7.4.
-  DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}_is1"
-  ; Remove firewall rule(s) added during install
-  nsExec::ExecToStack 'netsh advfirewall firewall delete rule name="TapAct"'
-  Pop $0
+  ; An upgrade (and every silent auto-update) runs the OLD uninstaller with --updated (and /S): it must
+  ; not ask anything and must not delete anything - the new version is installed straight afterwards.
+  ${ifNot} ${isUpdated}
+    DeleteRegKey SHCTX "Software\TapAct"
+    ; Legacy uninstall-metadata key written by versions up to 2.7.4.
+    DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}_is1"
+    ; Remove firewall rule(s) added by versions up to 3.11
+    nsExec::ExecToStack 'netsh advfirewall firewall delete rule name="TapAct"'
+    Pop $0
+    ; The "Start with Windows" entry Electron writes for the user running the uninstaller.
+    DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "TapAct"
 
-  ; Ask whether to also delete user data (settings/templates/history), kept
-  ; in %APPDATA%\TapAct via electron-store. Default answer is No.
-  MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "$(UninstallConfirmText)" IDYES deleteUserData IDNO keepUserData
-  deleteUserData:
-    RMDir /r "$APPDATA\TapAct"
-    DetailPrint "$(UninstalledDataDeletedMsg)"
-    Goto uninstallDataDone
-  keepUserData:
-    ; AppData settings preserved so user keeps config on reinstall
-    DetailPrint "$(UninstalledMsg)"
-  uninstallDataDone:
+    ; Ask whether to also delete user data (settings/templates/history), kept in the signed-in
+    ; user's %APPDATA%\TapAct via electron-store. Default answer is No, and a silent uninstall
+    ; (/S) never deletes data.
+    ${IfNot} ${Silent}
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "$(UninstallConfirmText)" IDYES deleteUserData IDNO keepUserData
+      deleteUserData:
+        ; Per-machine uninstall runs with SetShellVarContext all ($APPDATA = C:\ProgramData): the data
+        ; lives in the real user's roaming profile, so switch to "current" for the delete.
+        SetShellVarContext current
+        RMDir /r "$APPDATA\TapAct"
+        ${If} $installMode == "all"
+          SetShellVarContext all
+        ${EndIf}
+        DetailPrint "$(UninstalledDataDeletedMsg)"
+        Goto uninstallDataDone
+      keepUserData:
+        ; AppData settings preserved so user keeps config on reinstall
+        DetailPrint "$(UninstalledMsg)"
+      uninstallDataDone:
+    ${Else}
+      DetailPrint "$(UninstalledMsg)"
+    ${EndIf}
+  ${endIf}
 !macroend

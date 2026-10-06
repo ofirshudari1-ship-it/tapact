@@ -39,11 +39,34 @@ function buildMailtoUrl(lead, address, template) {
   return `mailto:${to}?subject=${subject}&body=${body}`;
 }
 
+const REQUEST_TIMEOUT_MS = 15000;
+
+// Settles a request promise exactly once and aborts a request that never answers, so a hung
+// endpoint can never leave a channel button on "Sending..." until the popup closes.
+function withTimeout(req, resolve, ms = REQUEST_TIMEOUT_MS) {
+  let done = false;
+  const timer = setTimeout(() => {
+    if (done) return;
+    done = true;
+    try { req.abort(); } catch (e) { /* already finished */ }
+    resolve({ ok: false, error: 'timeout' });
+  }, ms);
+  if (timer.unref) timer.unref();
+  return (value) => {
+    if (done) return;
+    done = true;
+    clearTimeout(timer);
+    resolve(value);
+  };
+}
+
 // POST JSON to a webhook URL using Electron's net module (works regardless
-// of the renderer's Content Security Policy).
+// of the renderer's Content Security Policy). Only http(s) URLs are contacted.
 async function postJson(url, body, headerName, headerValue) {
-  return new Promise((resolve) => {
+  if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) return { ok: false, error: 'invalid-url' };
+  return new Promise((resolveRaw) => {
     const req = net.request({ method: 'POST', url });
+    const resolve = withTimeout(req, resolveRaw);
     req.setHeader('Content-Type', 'application/json');
     if (headerName && headerValue) req.setHeader(headerName, headerValue);
     req.on('response', (res) => {
@@ -67,11 +90,12 @@ async function cleanupLeadWithAi(lead, apiKey) {
     'Fix obvious formatting/capitalization. Fill role only when clearly implied. ' +
     'Never invent a phone number or fabricate details not in the input.';
 
-  return new Promise((resolve) => {
+  return new Promise((resolveRaw) => {
     const req = net.request({
       method: 'POST',
       url: 'https://api.anthropic.com/v1/messages'
     });
+    const resolve = withTimeout(req, resolveRaw);
     req.setHeader('Content-Type', 'application/json');
     req.setHeader('x-api-key', apiKey);
     req.setHeader('anthropic-version', '2023-06-01');
@@ -118,4 +142,4 @@ async function cleanupLeadWithAi(lead, apiKey) {
   });
 }
 
-module.exports = { buildShareText, buildWhatsappUrl, buildMailtoUrl, postJson, cleanupLeadWithAi };
+module.exports = { REQUEST_TIMEOUT_MS, withTimeout, buildShareText, buildWhatsappUrl, buildMailtoUrl, postJson, cleanupLeadWithAi };
