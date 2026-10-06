@@ -344,7 +344,7 @@
         <svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="5" width="11" height="15" rx="2.2" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="9.5" y="3.5" width="5" height="2.6" rx="1" fill="#fff"/><path d="M13.2 8.5 L8.8 14.5 L11.3 14.5 L10 19.5 L15.2 12.7 L12.6 12.7 Z" fill="#fde68a"/></svg>
       </span>
       <span class="brand-word">TapAct</span>
-      <span class="ver-badge" data-gh-version="tapact">v3.6.0</span>
+      <span class="ver-badge" data-gh-version="tapact">v3.10.1</span>
     </div>
     <nav class="links">
       <a href="#how">How it works</a>
@@ -612,6 +612,57 @@
     <div class="timeline">
       <div class="tl-item current">
         <div class="tl-head">
+          <span class="tl-ver">v3.10.1</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">Follow-ups from an independent review</p>
+        <ul class="tl-list">
+          <li>A bare 9-digit number starting with 0 that passes the Israeli ID check digit is no longer treated as a landline phone. Formatted numbers like 03-456-7891 still are.</li>
+          <li>The phone popup header showed the clip icon twice - fixed.</li>
+          <li>The clipboard is now checked every 250ms instead of 400ms, so quick successive copies are less likely to be missed in history.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-ver">v3.10.0</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">A popup that interrupts only when it should</p>
+        <ul class="tl-list">
+          <li><b>No Windows notification</b> alongside the popup - the popup is enough.</li>
+          <li><b>Smart triggering:</b> it opens when the copy is mainly a phone number, link, address or tracking number. A long text that happens to contain a number is only saved to history. Copies TapAct makes itself, or made inside a TapAct window, never pop. After several popups within 20 seconds it pauses for a minute.</li>
+          <li><b>Snooze:</b> 15 minutes, 1 hour, until tomorrow 08:00, or stop showing that type. Visible in the tray and in Settings.</li>
+          <li><b>Closes by itself</b> after 7 seconds with a thin countdown bar; stays open while the mouse is on it or you are typing.</li>
+          <li><b>Opens next to the cursor</b>, where you copied, inside the right screen.</li>
+          <li>History and the action popup follow the light theme; one Save button in General settings; English default templates for English installs; <span class="mono">{name}</span> works like <span class="mono">{שם}</span>; fixed a crash when a popup opened while another was open.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-ver">v3.9.0</span>
+          <span class="tl-date">2026-10-05</span>
+        </div>
+        <p class="tl-title">Full RTL, truthful Settings, new welcome guide</p>
+        <ul class="tl-list">
+          <li>Hebrew is right-to-left in every window, including message templates and the values inside Settings.</li>
+          <li>A fresh install opens in the language of your Windows, with a rebuilt 5-step welcome guide.</li>
+          <li>Every Settings explanation was checked against what the code really does and corrected where it was wrong. 3.9.1 fixed contrast and history-row accessibility.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-ver">v3.8.3 - v3.8.5</span>
+          <span class="tl-date">2026-09-30 - 2026-10-05</span>
+        </div>
+        <p class="tl-title">Reliability</p>
+        <ul class="tl-list">
+          <li><b>Fixed:</b> clipboard detection could stop silently after a single error until you restarted the app (3.8.3).</li>
+          <li>The popup stays open while the mouse is on it, and shows just the number and the message by default (3.8.4).</li>
+          <li>Phone numbers must look Israeli, so ID or invoice numbers no longer open WhatsApp; automatic popups no longer steal keyboard focus (3.8.5).</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
           <span class="tl-ver">v3.6.0</span>
           <span class="tl-date">2026-09-26</span>
         </div>
@@ -861,7 +912,7 @@
       </div>
       <div class="install-card">
         <h3>🖥️ Desktop agent</h3>
-        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.6.0.exe</span>
+        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.10.1.exe</span>
         <a class="btn primary" data-gh-download="tapact" href="https://github.com/ofirshudari1-ship-it/tapact/releases/latest" style="margin-top:6px;width:100%;justify-content:center;">⬇ Download the installer</a>
         <ol class="install-steps">
           <li>Run the Setup file (admin rights required — the agent installs per-machine)</li>
@@ -950,7 +1001,7 @@
         <svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="5" width="11" height="15" rx="2.2" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="9.5" y="3.5" width="5" height="2.6" rx="1" fill="#fff"/><path d="M13.2 8.5 L8.8 14.5 L11.3 14.5 L10 19.5 L15.2 12.7 L12.6 12.7 Z" fill="#fde68a"/></svg>
       </span>
       <span class="brand-word">TapAct</span>
-      <span class="ver-badge" data-gh-version="tapact">v3.6.0</span>
+      <span class="ver-badge" data-gh-version="tapact">v3.10.1</span>
     </div>
     <nav class="links">
       <a href="#how-he">איך זה עובד</a>
@@ -1216,6 +1267,57 @@
     <div class="timeline">
       <div class="tl-item current">
         <div class="tl-head">
+          <span class="tl-ver">v3.10.1</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">תיקוני המשך אחרי בדיקה עצמאית</p>
+        <ul class="tl-list">
+          <li>מספר גולמי של 9 ספרות שמתחיל ב-0 ועובר את ספרת הביקורת של ת.ז. כבר לא נחשב לטלפון קווי. מספרים עם מקף, כמו 03-456-7891, עדיין מזוהים.</li>
+          <li>בכותרת חלון הטלפון הופיע סמל הנעץ פעמיים - תוקן.</li>
+          <li>הלוח נבדק עכשיו כל 250 מילישניות במקום 400, כדי שפחות העתקות מהירות יתפספסו בהיסטוריה.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-ver">v3.10.0</span>
+          <span class="tl-date">2026-10-06</span>
+        </div>
+        <p class="tl-title">חלון שמפריע רק כשצריך</p>
+        <ul class="tl-list">
+          <li><b>בלי התראת Windows</b> בנוסף לחלון - החלון מספיק.</li>
+          <li><b>הצגה חכמה:</b> החלון נפתח כשההעתקה היא בעיקר מספר טלפון, קישור, כתובת או מספר מעקב. טקסט ארוך שבמקרה מכיל מספר נשמר רק בהיסטוריה. העתקות ש-TapAct עושה בעצמו, או בתוך חלון של TapAct, לא פותחות חלון. אחרי כמה חלונות ב-20 שניות הוא נעצר לדקה.</li>
+          <li><b>השהיה:</b> 15 דקות, שעה, עד מחר ב-08:00, או "אל תציג יותר את הסוג הזה". מופיע במגש ובהגדרות.</li>
+          <li><b>נסגר לבד</b> אחרי 7 שניות עם פס ספירה דק, ונשאר פתוח כשהעכבר עליו או כשמקלידים בו.</li>
+          <li><b>נפתח ליד הסמן</b>, איפה שהעתקתם, בתוך המסך הנכון.</li>
+          <li>ההיסטוריה וחלון הפעולות תומכים בערכת נושא בהירה; כפתור שמירה אחד בהגדרות כלליות; תבניות ברירת מחדל באנגלית להתקנות באנגלית; <span class="mono">{name}</span> עובד כמו <span class="mono">{שם}</span>; תוקנה קריסה כשחלון נפתח בזמן שחלון אחר פתוח.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-ver">v3.9.0</span>
+          <span class="tl-date">2026-10-05</span>
+        </div>
+        <p class="tl-title">RTL מלא, הגדרות מדויקות, מדריך פתיחה חדש</p>
+        <ul class="tl-list">
+          <li>העברית מימין לשמאל בכל החלונות, כולל תבניות הודעה והערכים בתוך ההגדרות.</li>
+          <li>התקנה חדשה נפתחת בשפת ה-Windows שלכם, עם מדריך פתיחה חדש בחמישה שלבים.</li>
+          <li>כל הסבר בהגדרות נבדק מול מה שהקוד עושה באמת ותוקן איפה שהיה שגוי. גרסה 3.9.1 תיקנה ניגודיות ונגישות של שורות ההיסטוריה.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-ver">v3.8.3 - v3.8.5</span>
+          <span class="tl-date">2026-09-30 - 2026-10-05</span>
+        </div>
+        <p class="tl-title">אמינות</p>
+        <ul class="tl-list">
+          <li><b>תוקן:</b> זיהוי ההעתקות יכול היה להפסיק בשקט אחרי שגיאה אחת, עד הפעלה מחדש של האפליקציה (3.8.3).</li>
+          <li>החלון נשאר פתוח כשהעכבר עליו, ומציג כברירת מחדל רק את המספר ואת ההודעה (3.8.4).</li>
+          <li>מספר טלפון חייב להיראות ישראלי, כך שת.ז. או מספר חשבונית לא פותחים וואטסאפ; חלונות אוטומטיים לא גוזלים את המקלדת (3.8.5).</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-head">
           <span class="tl-ver">v3.6.0</span>
           <span class="tl-date">2026-09-26</span>
         </div>
@@ -1465,7 +1567,7 @@
       </div>
       <div class="install-card">
         <h3>🖥️ סוכן שולחן עבודה</h3>
-        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.6.0.exe</span>
+        <span class="path" data-gh-filename="tapact">TapAct-Setup-3.10.1.exe</span>
         <a class="btn primary" data-gh-download="tapact" href="https://github.com/ofirshudari1-ship-it/tapact/releases/latest" style="margin-top:6px;width:100%;justify-content:center;">⬇ הורדת קובץ ההתקנה</a>
         <ol class="install-steps">
           <li>מריצים את קובץ ה-Setup (נדרשות הרשאות מנהל - ההתקנה היא ברמת המחשב)</li>

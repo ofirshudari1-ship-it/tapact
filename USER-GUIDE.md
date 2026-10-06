@@ -1,74 +1,54 @@
-# TapAct — User Guide / מדריך משתמש
+# TapAct - User Guide / מדריך משתמש
+
+Current version: 3.10.1. Download: https://github.com/ofirshudari1-ship-it/tapact/releases/latest
 
 ## English
 
 ### What is TapAct?
 
-TapAct is a Windows background agent that watches your clipboard and suggests the right next action automatically. Copy a phone number → get a WhatsApp message ready. Copy a tracking number → open the shipper's tracking page. Copy an address → open navigation. Everything you copy is also saved in a searchable local history.
+A Windows background agent that watches what you copy and offers the right next action. Copy a phone number and a small window opens with WhatsApp ready. Copy a tracking number and it opens the courier's page. Copy an address and it opens navigation. Everything you copy is also kept in a searchable local clipboard history. Nothing leaves your computer except the link it opens in your browser.
 
-### Installation
+### Install
 
-1. Download **TapAct-Setup-2.4.0.exe** from the project root.
-2. Run the installer — select your preferred language (English or Hebrew).
-3. The installer requires administrator rights to register the autostart entry.
-4. After installation, TapAct starts automatically and appears in the system tray (bottom-right corner of the taskbar).
+1. Download `TapAct-Setup-<version>.exe` from the [latest release](https://github.com/ofirshudari1-ship-it/tapact/releases/latest).
+2. Run it. The installer asks for administrator permission and lets you choose the language (English or Hebrew).
+3. TapAct starts in the system tray. On the first run a short welcome guide opens in the language of your Windows.
+4. Updates arrive by themselves; Settings > About > Updates shows the status and has "Check for updates now".
 
-### First Launch
+### Daily use
 
-On first launch the system tray icon (📎) appears. Double-click it or left-click to open the main popup. A welcome wizard guides you through:
+| You do | TapAct does |
+|---|---|
+| Copy a phone number | A small window opens next to the cursor with WhatsApp and a ready message. It closes by itself after 7 seconds, and stays open while the mouse is on it or you are typing in it |
+| Copy a tracking number, address or link | A small action window opens the same way |
+| Copy a long text that happens to contain a number | No window (it is only saved to history) |
+| `Ctrl+Alt+P` | Opens the window for whatever is on the clipboard, any time |
+| `Win+V` or `Ctrl+Alt+V` | Opens the clipboard history (`Win+V` only works if Windows' own clipboard history is turned off) |
 
-1. **Language** — English / Hebrew (affects the app interface; the installer language is chosen separately during setup).
-2. **Channels** — enable WhatsApp, Webhook, Slack, Email, or Copy-to-clipboard.
-3. **Keyboard shortcut** — the default shortcut to open the popup is `Ctrl+Shift+V` (configurable in Settings).
+### When the window does not open (on purpose)
 
-### Daily Use
+- The copy is long text, not mainly a phone number (up to about 40 characters for a phone), or an ordinary number such as an ID or invoice number.
+- TapAct itself put it on the clipboard (for example pasting from history), or you copied inside a TapAct window.
+- You copied the same thing less than 10 seconds ago.
+- Quiet hours are on, monitoring is paused, or you snoozed the popup.
+- Several windows opened within 20 seconds (for example copying a column of numbers): popups pause for a minute, everything is still saved to history.
 
-| Action | Result |
-|--------|--------|
-| Copy any text on screen | TapAct analyses it silently in the background |
-| Recognised phone number | Popup appears with WhatsApp / channel buttons |
-| Copy again while popup is open | Popup refreshes with the new content |
-| `Ctrl+Shift+V` | Opens popup regardless of clipboard content |
-| `Ctrl+Shift+H` | Opens clipboard history panel |
+### Snooze and close
 
-### Clipboard History
-
-Press `Ctrl+Shift+H` (or click the History icon in the tray menu) to open the history panel. You can:
-
-- Search across all past clipboard entries
-- Click any entry to copy it again
-- Run saved actions on historical phone numbers
-- Clear the entire history from the Settings page
+Next to the X on every popup there is a snooze button: 15 minutes, 1 hour, until tomorrow 08:00, or "stop showing this type". While snoozed, history keeps recording and the manual shortcut still works. The tray menu shows the snooze and lets you resume. A type you turned off can be turned on again in Settings > Detection types.
 
 ### Settings
 
-Right-click the tray icon → **Settings** or press `Ctrl+Shift+S`:
-
-| Section | What you can configure |
-|---------|------------------------|
-| **Tool** | WhatsApp API URL, webhook endpoint, Slack token/channel, email server |
-| **History** | Maximum entries stored, auto-clear on exit |
-| **System** | Startup with Windows, global shortcuts, language, theme |
-| **About** | Version, licences |
-
-### Sending Leads
-
-When a phone number is detected:
-
-1. Optionally fill in **Name**, **Role**, **Source** fields.
-2. Select or compose a **message template** (WhatsApp section).
-3. Click the channel button (WhatsApp / Webhook / Slack / Email) or **Send to all**.
-
-Duplicate detection warns you if the same number was sent recently.
+Right-click the tray icon > Settings. Main tabs: Message templates (use `{name}` or `{שם}` for the customer's name), Detection types, Custom rules, General settings (one Save button), Keyboard shortcuts, Auto tags, Lead settings, Clipboard history, Send history, About.
 
 ### Troubleshooting
 
 | Symptom | Fix |
-|---------|-----|
-| Tray icon doesn't appear after install | Restart the PC; check `Task Manager → Startup` that TapAct is enabled |
-| Popup doesn't open on copy | Right-click tray → Enable; verify global shortcut is not conflicting |
-| WhatsApp messages not sending | Verify WhatsApp Web is open and logged in on this PC |
-| Log file location | `%APPDATA%\TapAct\logs\tapact.log` |
+|---|---|
+| Nothing pops up | Check the tray menu: monitoring may be paused or snoozed. Then check Settings > Detection types and quiet hours |
+| It worked and then stopped | Exit from the tray (Exit) and open TapAct again, then update to the latest version |
+| `Win+V` does nothing | Windows' own clipboard history owns it. Use `Ctrl+Alt+V` instead |
+| Log file | `%APPDATA%\TapAct\logs\tapact.log` |
 
 ---
 
@@ -76,39 +56,46 @@ Duplicate detection warns you if the same number was sent recently.
 
 ### מה זה TapAct?
 
-TapAct הוא סוכן רקע ל-Windows שעוקב אחרי הלוח ומציע את הפעולה הנכונה הבאה אוטומטית. מעתיקים מספר טלפון ← מקבלים הודעת WhatsApp מוכנה. מספר מעקב ← פותח דף מעקב אצל החברה המשלחת. כתובת ← פותח ניווט. כל מה שמעתיקים נשמר גם בהיסטוריה מקומית עם חיפוש.
+סוכן רקע ל-Windows שעוקב אחרי מה שאתם מעתיקים ומציע את הפעולה הבאה. מעתיקים מספר טלפון ונפתח חלון קטן עם וואטסאפ מוכן. מעתיקים מספר מעקב ונפתח דף המעקב של חברת המשלוחים. מעתיקים כתובת ונפתח ניווט. כל מה שהעתקתם נשמר גם בהיסטוריה מקומית עם חיפוש. שום דבר לא יוצא מהמחשב, חוץ מהקישור שנפתח בדפדפן.
 
 ### התקנה
 
-1. הורד את **TapAct-Setup-2.4.0.exe** משורש הפרויקט.
-2. הרץ את תוכנית ההתקנה — בחר שפה (אנגלית / עברית).
-3. ההתקנה דורשת הרשאות מנהל לצורך רישום הפעלה אוטומטית עם Windows.
-4. לאחר ההתקנה TapAct מופעל אוטומטית ומופיע ב-System Tray (פינה ימנית-תחתונה של שורת המשימות).
+1. מורידים `TapAct-Setup-<גרסה>.exe` מ[הגרסה האחרונה](https://github.com/ofirshudari1-ship-it/tapact/releases/latest).
+2. מריצים. ההתקנה מבקשת הרשאת מנהל ומאפשרת לבחור שפה (עברית או אנגלית).
+3. TapAct עולה במגש המערכת. בהפעלה הראשונה נפתח מדריך קצר בשפת ה-Windows שלכם.
+4. עדכונים מגיעים לבד. בהגדרות ▸ אודות ▸ עדכונים רואים את המצב ואפשר ללחוץ "בדוק עדכונים עכשיו".
 
 ### שימוש יומיומי
 
-| פעולה | תוצאה |
-|-------|-------|
-| העתק כל טקסט | TapAct מנתח אותו ברקע בשקט |
-| מספר טלפון זוהה | פופ-אפ נפתח עם כפתורי WhatsApp / ערוצים |
-| העתקה נוספת כשהפופ-אפ פתוח | הפופ-אפ מתרענן עם התוכן החדש |
-| `Ctrl+Shift+V` | פותח פופ-אפ ללא תלות בתוכן הלוח |
-| `Ctrl+Shift+H` | פותח חלון היסטוריית העתקות |
+| מה עושים | מה TapAct עושה |
+|---|---|
+| מעתיקים מספר טלפון | נפתח חלון קטן ליד הסמן עם וואטסאפ והודעה מוכנה. הוא נסגר לבד אחרי 7 שניות, ונשאר פתוח כשהעכבר עליו או כשמקלידים בו |
+| מעתיקים מספר מעקב, כתובת או קישור | נפתח חלון פעולה קטן באותה צורה |
+| מעתיקים טקסט ארוך שבמקרה מכיל מספר | לא נפתח חלון (הוא רק נשמר בהיסטוריה) |
+| `Ctrl+Alt+P` | פותח את החלון על מה שבלוח, בכל רגע |
+| `Win+V` או `Ctrl+Alt+V` | פותח את היסטוריית הלוח (`Win+V` עובד רק אם היסטוריית הלוח של Windows כבויה) |
 
-### היסטוריית לוח
+### מתי החלון לא נפתח (בכוונה)
 
-לחץ `Ctrl+Shift+H` (או לחץ על History בתפריט ה-Tray) לפתיחת לוח ההיסטוריה:
+- ההעתקה היא טקסט ארוך ולא בעיקר מספר טלפון (עד כ-40 תווים לטלפון), או מספר רגיל כמו ת.ז. או מספר חשבונית.
+- TapAct עצמו הניח את הטקסט בלוח (למשל הדבקה מההיסטוריה), או שהעתקתם בתוך חלון של TapAct.
+- העתקתם את אותו דבר לפני פחות מ-10 שניות.
+- שעות שקט פעילות, הניטור מושהה, או שהשהיתם את החלון.
+- נפתחו כמה חלונות ב-20 שניות (למשל העתקת עמודה של מספרים): החלונות נעצרים לדקה, והכול ממשיך להישמר בהיסטוריה.
 
-- חיפוש בין כל הרשומות
-- לחיצה על רשומה מעתיקה אותה מחדש
-- הפעלת פעולות שמורות על מספרי טלפון מהעבר
-- ניקוי כל ההיסטוריה מדף ההגדרות
+### השהיה וסגירה
+
+ליד ה-X בכל חלון יש כפתור השהיה: 15 דקות, שעה, עד מחר ב-08:00, או "אל תציג יותר את הסוג הזה". בזמן ההשהיה ההיסטוריה ממשיכה להירשם והקיצור הידני ממשיך לעבוד. תפריט המגש מציג את ההשהיה ומאפשר לחזור. סוג שכיביתם אפשר להדליק שוב בהגדרות ▸ סוגי זיהוי.
+
+### הגדרות
+
+לחיצה ימנית על סמל המגש ▸ הגדרות. הלשוניות: תבניות הודעה (אפשר להשתמש ב-`{שם}` או `{name}` לשם הלקוח), סוגי זיהוי, כללים מותאמים אישית, הגדרות כלליות (כפתור שמירה אחד), קיצורי מקלדת, תגיות אוטומטיות, הגדרות לידים, היסטוריית לוח, היסטוריית שליחות, אודות.
 
 ### פתרון תקלות
 
 | תסמין | פתרון |
-|-------|-------|
-| האייקון לא מופיע לאחר התקנה | הפעל מחדש את המחשב; בדוק ב-Task Manager → Startup שTapAct מופעל |
-| הפופ-אפ לא נפתח בהעתקה | לחץ ימני על Tray → Enable; ודא שהקיצור לא מתנגש עם תוכנה אחרת |
-| הודעות WhatsApp לא נשלחות | ודא ש-WhatsApp Web פתוח ומחובר במחשב זה |
-| מיקום קובץ לוג | `%APPDATA%\TapAct\logs\tapact.log` |
+|---|---|
+| שום דבר לא קופץ | בדקו בתפריט המגש אם הניטור מושהה. אחר כך בדקו בהגדרות ▸ סוגי זיהוי ושעות שקט |
+| עבד ואז הפסיק | צאו מהמגש (יציאה), פתחו את TapAct מחדש ועדכנו לגרסה האחרונה |
+| `Win+V` לא עושה כלום | היסטוריית הלוח של Windows תופסת אותו. השתמשו ב-`Ctrl+Alt+V` |
+| קובץ לוג | `%APPDATA%\TapAct\logs\tapact.log` |

@@ -19,7 +19,7 @@ Two independent components, install either or both:
 
 For the Chrome extension: load `chrome-extension/` unpacked via `chrome://extensions` (Developer mode), or check the [Chrome Web Store listing](chrome-extension/) if published.
 
-**Current version:** 3.8.0 (desktop agent) / 1.2.1 (Chrome extension) - versioned separately on purpose: the desktop agent ships bug fixes faster, while the extension has a slower release cycle since every change needs review against Chrome's store policy.
+**Current version:** 3.10.1 (desktop agent) / 1.2.1 (Chrome extension) - versioned separately on purpose: the desktop agent ships bug fixes faster, while the extension has a slower release cycle since every change needs review against Chrome's store policy.
 
 ## Where to find things
 
