@@ -39,7 +39,7 @@
       </button>
 
       <span class="nav-group-label" data-i18n="nav.group.system">מערכת</span>
-      <button class="nav-btn" data-tab="settings">
+      <button class="nav-btn" data-tab="settings" id="navSettingsBtn">
         <span class="nav-icon">⚙️</span> <span data-i18n="nav.settings">הגדרות כלליות</span>
       </button>
       <button class="nav-btn" data-tab="shortcuts">
@@ -240,6 +240,11 @@
           </div>
         </div>
 
+        <div id="snoozeStatus" class="hint-box warn hidden" role="status">
+          <span id="snoozeStatusText"></span>
+          <button id="snoozeResumeBtn" class="btn secondary xs" type="button" data-i18n="settings.snooze.resume">חזור עכשיו</button>
+        </div>
+
         <div class="panel">
           <div class="panel-title" data-i18n="settings.monitor.title">ניטור לוח</div>
           <label class="switch-row">
@@ -258,24 +263,10 @@
           </label>
           <label class="switch-row">
             <div class="label-text">
-              <span data-i18n="settings.startMinimized">הפעלה ישירה למגש</span>
-              <span class="label-sub" data-i18n="settings.startMinimized.sub">TapAct תמיד נפתח במגש. ההגדרה הזו רק מדלגת על מדריך הפתיחה בהפעלה הראשונה.</span>
-            </div>
-            <span class="switch"><input type="checkbox" id="startMinimizedCheck"><span class="slider"></span></span>
-          </label>
-          <label class="switch-row">
-            <div class="label-text">
               <span data-i18n="settings.closeToTray">X מסתיר את חלון ההגדרות</span>
               <span class="label-sub" data-i18n="settings.closeToTray.sub">החלון מוסתר במקום להיסגר, ולכן נפתח שוב מהר יותר. TapAct ממשיך לרוץ במגש בכל מקרה. ליציאה: לחיצה ימנית על הסמל במגש ← יציאה.</span>
             </div>
             <span class="switch"><input type="checkbox" id="closeToTrayCheck"><span class="slider"></span></span>
-          </label>
-          <label class="switch-row">
-            <div class="label-text">
-              <span data-i18n="settings.notifications">התראת Windows עם חלונית הטלפון</span>
-              <span class="label-sub" data-i18n="settings.notifications.sub">הודעה ליד השעון בכל פעם שנפתחת חלונית הטלפון, גם בזיהוי אוטומטי וגם בפתיחה ידנית. כשהמתג מופעל, מוצג גם הסבר חד-פעמי כשחלון ההגדרות מוסתר למגש.</span>
-            </div>
-            <span class="switch"><input type="checkbox" id="showTrayNotificationCheck"><span class="slider"></span></span>
           </label>
           <label class="switch-row">
             <div class="label-text">
@@ -331,10 +322,6 @@
             </div>
             <input type="number" id="sendDedupeInput" min="0" max="1440" step="5">
           </div>
-          <div class="actions">
-            <button id="saveSettingsBtn" class="btn primary small" data-i18n="settings.save">שמור הגדרות</button>
-            <span id="savedSettingsMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
-          </div>
         </div>
 
         <div class="panel">
@@ -384,10 +371,6 @@
               <input type="time" id="quietHoursEndInput">
             </div>
           </div>
-          <div class="actions">
-            <button id="saveQuietHoursBtn" class="btn primary small" data-i18n="settings.save">שמור הגדרות</button>
-            <span id="savedQuietHoursMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
-          </div>
         </div>
 
         <div class="panel">
@@ -410,13 +393,28 @@
             <label class="field-label" for="autoRunDelayInput" data-i18n="settings.autoRunDelay">השהיה לפני ההרצה (שניות)</label>
             <input type="number" id="autoRunDelayInput" min="1" max="30" step="1">
           </div>
-          <div class="actions">
-            <button id="saveActionPrefsBtn" class="btn primary small" data-i18n="settings.save.actions">שמור</button>
-            <span id="savedActionPrefsMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
-          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title" data-i18n="settings.rules.title">מתי נפתחת חלונית</div>
+          <p class="muted" data-i18n="settings.rules.intro">חלונית אוטומטית נפתחת ליד הסמן, במקום שבו העתקתם, ונסגרת לבד. הכללים:</p>
+          <ul class="rules-list">
+            <li data-i18n="settings.rules.phone"></li>
+            <li data-i18n="settings.rules.other"></li>
+            <li data-i18n="settings.rules.own"></li>
+            <li data-i18n="settings.rules.burst"></li>
+            <li data-i18n="settings.rules.blocks"></li>
+            <li data-i18n="settings.rules.manual"></li>
+          </ul>
         </div>
 
         <div class="hint-box" data-i18n-shortcut="settings.manual.hint" data-shortcut="manual">פתיחה ידנית: Ctrl+Alt+P פותח את החלונית עם מה שיש עכשיו בלוח, מכל מקום. אפשר גם מתפריט המגש.</div>
+        <div class="save-bar">
+          <button id="saveSettingsBtn" class="btn primary small" type="button" data-i18n="settings.save">שמור הגדרות</button>
+          <span id="generalDirty" class="dirty-note hidden" role="status" data-i18n="settings.unsaved">יש שינויים שלא נשמרו</span>
+          <span id="savedSettingsMsg" class="saved-msg hidden" role="status" data-i18n="settings.saved">נשמר ✓</span>
+        </div>
+
       </section>
 
       <!-- Shortcuts -->

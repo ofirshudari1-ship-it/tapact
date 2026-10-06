@@ -1,0 +1,87 @@
+/* popup-shared.css - snooze button/menu, countdown bar and burst hint shared by
+   the phone popup and the action popup. Uses each page's own theme variables
+   (--fg, --muted, --surface, --border, --brand-start/--accent). */
+
+.app { position: relative; }
+.hidden { display: none !important; }
+
+.snooze-btn {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  height: 24px;
+  padding-inline: 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+.snooze-btn:hover { background: rgba(255, 255, 255, 0.26); }
+.snooze-btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.snooze-btn[aria-expanded="true"] { background: rgba(255, 255, 255, 0.3); }
+
+/* The menu takes the place of the popup body, so it can never be clipped by
+   the small popup window. */
+.app.snooze-open > .body { display: none; }
+.snooze-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bg);
+  -webkit-app-region: no-drag;
+}
+.snooze-title { font-size: 11px; color: var(--muted); padding: 2px 2px 4px; }
+.snooze-panel button {
+  text-align: start;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.snooze-panel button:hover { border-color: var(--brand-start, var(--accent)); }
+.snooze-panel button:focus-visible { outline: 2px solid var(--brand-start, var(--accent)); outline-offset: 1px; }
+.snooze-panel button.snooze-back { background: transparent; border-color: transparent; color: var(--muted); }
+.snooze-undo { font-size: 10.5px; color: var(--muted); padding: 2px 2px 0; }
+
+/* Thin countdown bar along the bottom edge. Shrinks toward the start side.
+   Invisible while the countdown is paused (hover, typing, menu open). */
+.countdown {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 3px;
+  background: transparent;
+  pointer-events: none;
+}
+.countdown > span {
+  display: block;
+  height: 100%;
+  background: var(--brand-start, var(--accent));
+  transform-origin: left center;
+}
+[dir="rtl"] .countdown > span { transform-origin: right center; }
+.countdown.idle { visibility: hidden; }
+
+.burst-hint {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+@media (forced-colors: active) {
+  .snooze-btn, .snooze-panel button { border: 1px solid ButtonText; }
+  .countdown > span { forced-color-adjust: none; background: Highlight; }
+}

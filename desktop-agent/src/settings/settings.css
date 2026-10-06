@@ -1143,3 +1143,30 @@ kbd {
   font-weight: 600;
   white-space: nowrap;
 }
+
+
+/* ─── General tab: single Save bar, unsaved note, rules list, snooze status ─── */
+.save-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  bottom: 0;
+  padding: 10px 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.dirty-note { font-size: 12px; font-weight: 600; color: var(--warning, #b45309); }
+.dirty-note.hidden { display: none; }
+.nav-btn.has-unsaved::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warning, #f59e0b);
+  margin-inline-start: auto;
+}
+.rules-list { margin: 6px 0 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.5; color: var(--text-muted, var(--muted)); }
+#snoozeStatus { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#snoozeStatus.hidden { display: none; }

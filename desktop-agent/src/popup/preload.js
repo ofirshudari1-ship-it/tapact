@@ -9,7 +9,10 @@ contextBridge.exposeInMainWorld('tapact', {
   openLeadSettings: () => ipcRenderer.send('popup:open-lead-settings'),
   notifyActivity: () => ipcRenderer.send('popup:activity'),
   fitHeight: (h) => ipcRenderer.send('popup:fit', h),
-  setHover: (hovering) => ipcRenderer.send('popup:hover', !!hovering),
+  hold: (reason, on) => ipcRenderer.send('popup:hold', reason, !!on),
+  snooze: (kind) => ipcRenderer.send('popup:snooze', kind),
+  getCountdown: () => ipcRenderer.invoke('popup:get-countdown'),
+  onCountdown: (cb) => ipcRenderer.on('popup:countdown', (_e, state) => cb(state)),
   sendWhatsapp: (payload) => ipcRenderer.send('popup:send', payload),
   sendLeadChannel: (payload) => ipcRenderer.invoke('lead:send-channel', payload),
   aiCleanupLead: (lead) => ipcRenderer.invoke('lead:ai-cleanup', lead)

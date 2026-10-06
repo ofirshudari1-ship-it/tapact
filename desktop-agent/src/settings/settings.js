@@ -379,17 +379,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   s.favCapMsg = document.getElementById('favCapMsg');
   s.enabledCheck = document.getElementById('enabledCheck');
   s.autoLaunchCheck = document.getElementById('autoLaunchCheck');
-  s.startMinimizedCheck = document.getElementById('startMinimizedCheck');
   s.closeToTrayCheck = document.getElementById('closeToTrayCheck');
-  s.showTrayNotificationCheck = document.getElementById('showTrayNotificationCheck');
   s.soundOnDetectCheck = document.getElementById('soundOnDetectCheck');
   s.startPausedCheck = document.getElementById('startPausedCheck');
   s.trayClickSelect = document.getElementById('trayClickSelect');
   s.quietHoursEnabledCheck = document.getElementById('quietHoursEnabledCheck');
   s.quietHoursStartInput = document.getElementById('quietHoursStartInput');
   s.quietHoursEndInput = document.getElementById('quietHoursEndInput');
-  s.saveQuietHoursBtn = document.getElementById('saveQuietHoursBtn');
-  s.savedQuietHoursMsg = document.getElementById('savedQuietHoursMsg');
   s.languageSeg = document.getElementById('languageSeg');
   s.themeSeg = document.getElementById('themeSeg');
   s.langToggleBtn = document.getElementById('langToggleBtn');
@@ -452,8 +448,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   s.prefEmailSelect = document.getElementById('prefEmailSelect');
   s.autoRunCheck = document.getElementById('autoRunCheck');
   s.autoRunDelayInput = document.getElementById('autoRunDelayInput');
-  s.saveActionPrefsBtn = document.getElementById('saveActionPrefsBtn');
-  s.savedActionPrefsMsg = document.getElementById('savedActionPrefsMsg');
   s.savedSettingsMsg = document.getElementById('savedSettingsMsg');
   s.shortcutHint = document.getElementById('shortcutHint');
 
@@ -483,6 +477,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       s.enabledCheck.checked = enabled;
     });
   }
+  setupGeneralDirtyTracking();
+  renderSnoozeStatus(settings.snoozeUntil);
+  document.getElementById('snoozeResumeBtn').addEventListener('click', async () => {
+    await window.tapactSettings.resumePopups();
+    renderSnoozeStatus(0);
+  });
+  if (window.tapactSettings.onStateChanged) {
+    window.tapactSettings.onStateChanged((st) => {
+      renderSnoozeStatus(st.snoozeUntil);
+      if (st.detectors) applyDetectorSwitches(st.detectors);
+    });
+  }
   s.autoLaunchCheck.checked = settings.autoLaunch;
   s.pollInput.value = settings.pollMs;
   s.dedupeInput.value = settings.dedupeSeconds;
@@ -510,9 +516,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   s.autoRunDelayInput.value = settings.autoRunDelaySeconds || 4;
 
   // New settings
-  if (s.startMinimizedCheck) s.startMinimizedCheck.checked = settings.startMinimized === true;
   if (s.closeToTrayCheck) s.closeToTrayCheck.checked = settings.closeToTray !== false;
-  if (s.showTrayNotificationCheck) s.showTrayNotificationCheck.checked = settings.showTrayNotification !== false;
   if (s.soundOnDetectCheck) s.soundOnDetectCheck.checked = settings.soundOnDetect === true;
   if (s.startPausedCheck) s.startPausedCheck.checked = settings.startPaused === true;
   if (s.trayClickSelect) s.trayClickSelect.value = settings.trayClickAction || 'history';
@@ -553,7 +557,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   s.saveTemplatesBtn.addEventListener('click', onSaveTemplates);
   s.resetBtn.addEventListener('click', onReset);
   s.saveSettingsBtn.addEventListener('click', onSaveSettings);
-  if (s.saveQuietHoursBtn) s.saveQuietHoursBtn.addEventListener('click', onSaveQuietHours);
   s.saveDetectorsBtn.addEventListener('click', onSaveDetectors);
   s.saveClipHistorySettingsBtn.addEventListener('click', onSaveClipHistorySettings);
   s.clearClipHistoryBtn.addEventListener('click', onClearClipHistory);
@@ -572,7 +575,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderCustomRules();
   });
   s.saveCustomRulesBtn.addEventListener('click', onSaveCustomRules);
-  s.saveActionPrefsBtn.addEventListener('click', onSaveActionPrefs);
   s.clearHistoryBtn.addEventListener('click', onClearHistory);
   s.exportCsvBtn.addEventListener('click', onExportCsv);
 
@@ -1106,33 +1108,76 @@ async function onReset() {
   flashSaved();
 }
 
+// One Save for the whole General tab (monitoring, windows, timing, quiet hours,
+// auto-run). Fields keep their values when you switch tabs; the dirty note and
+// the dot on the nav item stay until this is pressed.
 function onSaveSettings() {
   window.tapactSettings.saveSettings({
     enabled: s.enabledCheck.checked,
     autoLaunch: s.autoLaunchCheck.checked,
-    startMinimized: s.startMinimizedCheck ? s.startMinimizedCheck.checked : false,
     closeToTray: s.closeToTrayCheck ? s.closeToTrayCheck.checked : true,
-    showTrayNotification: s.showTrayNotificationCheck ? s.showTrayNotificationCheck.checked : true,
     soundOnDetect: s.soundOnDetectCheck ? s.soundOnDetectCheck.checked : false,
     startPaused: s.startPausedCheck ? s.startPausedCheck.checked : false,
     trayClickAction: s.trayClickSelect ? s.trayClickSelect.value : 'history',
-    pollMs: Math.max(200, Number(s.pollInput.value) || 800),
+    pollMs: Math.max(200, Number(s.pollInput.value) || 400),
     dedupeSeconds: Math.max(0, Number(s.dedupeInput.value) || 0),
     autoCloseSeconds: Math.max(0, Number(s.autoCloseInput.value) || 0),
-    sendDedupeMinutes: Math.max(0, Number(s.sendDedupeInput.value) || 0)
-  });
-  flashMsg(s.savedSettingsMsg);
-}
-
-function onSaveQuietHours() {
-  window.tapactSettings.saveSettings({
+    sendDedupeMinutes: Math.max(0, Number(s.sendDedupeInput.value) || 0),
     quietHours: {
       enabled: s.quietHoursEnabledCheck ? s.quietHoursEnabledCheck.checked : false,
       start: (s.quietHoursStartInput && s.quietHoursStartInput.value) || '18:00',
       end: (s.quietHoursEndInput && s.quietHoursEndInput.value) || '08:00'
-    }
+    },
+    autoRunAction: s.autoRunCheck.checked,
+    autoRunDelaySeconds: Math.max(1, Math.min(30, Number(s.autoRunDelayInput.value) || 4))
   });
-  flashMsg(s.savedQuietHoursMsg);
+  setGeneralDirty(false);
+  flashMsg(s.savedSettingsMsg);
+}
+
+let generalDirty = false;
+function setGeneralDirty(on) {
+  generalDirty = on;
+  const note = document.getElementById('generalDirty');
+  if (note) note.classList.toggle('hidden', !on);
+  const nav = document.getElementById('navSettingsBtn');
+  if (nav) nav.classList.toggle('has-unsaved', on);
+  if (on && s.savedSettingsMsg) s.savedSettingsMsg.classList.add('hidden');
+}
+
+function setupGeneralDirtyTracking() {
+  const panel = document.getElementById('tab-settings');
+  if (!panel) return;
+  const mark = (e) => {
+    // Appearance/language buttons and the snooze resume button save by themselves.
+    if (e.target.closest && e.target.closest('.seg-control, #snoozeStatus')) return;
+    setGeneralDirty(true);
+  };
+  panel.addEventListener('input', mark);
+  panel.addEventListener('change', mark);
+}
+
+// "Snoozed until HH:MM" status line + resume button (the snooze itself is
+// set from a popup or the tray; Settings only shows and cancels it).
+function renderSnoozeStatus(until) {
+  const box = document.getElementById('snoozeStatus');
+  if (!box) return;
+  const on = Number(until) > Date.now();
+  box.classList.toggle('hidden', !on);
+  if (!on) return;
+  const d = new Date(Number(until));
+  const hhmm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  document.getElementById('snoozeStatusText').textContent = clipT('settings.snooze.status').replace('{time}', hhmm);
+}
+
+function applyDetectorSwitches(detectors) {
+  const d = detectors || {};
+  s.detectPhoneCheck.checked = d.phone !== false;
+  s.detectTrackingCheck.checked = d.tracking !== false;
+  s.detectAddressCheck.checked = d.address !== false;
+  s.detectUrlCheck.checked = d.url !== false;
+  s.detectEmailCheck.checked = d.email !== false;
+  s.detectDatetimeCheck.checked = d.datetime !== false;
 }
 
 function applyAppLanguage(lang) {
@@ -1237,21 +1282,6 @@ function onClearClipHistory() {
     s.savedClipHistoryMsg.classList.add('hidden');
     s.savedClipHistoryMsg.textContent = clipT('settings.saved');
   }, 1800);
-}
-
-function onSaveActionPrefs() {
-  window.tapactSettings.saveSettings({
-    actionPreferences: {
-      phone: s.prefPhoneSelect.value,
-      address: s.prefAddressSelect.value,
-      tracking: s.prefTrackingSelect.value,
-      email: s.prefEmailSelect.value
-    },
-    autoRunAction: s.autoRunCheck.checked,
-    autoRunDelaySeconds: Math.max(1, Math.min(30, Number(s.autoRunDelayInput.value) || 4))
-  });
-  s.savedActionPrefsMsg.classList.remove('hidden');
-  setTimeout(() => s.savedActionPrefsMsg.classList.add('hidden'), 1800);
 }
 
 async function renderHistory() {

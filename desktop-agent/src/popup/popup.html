@@ -5,8 +5,11 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none';">
 <title>TapAct</title>
 <link rel="stylesheet" href="popup.css">
+<link rel="stylesheet" href="../lib/popup-shared.css">
 <script src="../lib/window-boot.js"></script>
 <script src="../lib/i18n-renderer.js"></script>
+<script src="../lib/template-fill.js"></script>
+<script src="../lib/popup-shared.js"></script>
 </head>
 <body>
   <main class="app">
@@ -16,6 +19,7 @@
         <span class="title" data-i18n="popup.title">📎 TapAct</span>
       </div>
       <div class="header-actions">
+        <button id="snoozeBtn" class="snooze-btn" type="button" aria-expanded="false" aria-controls="snoozePanel" data-i18n="snooze.btn" data-i18n-title="snooze.btn.title" title="השהיית חלוניות">השהה</button>
         <button id="settingsBtn" class="icon-btn" data-i18n-title="popup.settings" title="הגדרות">⚙</button>
         <button id="closeBtn" class="icon-btn" data-i18n-title="popup.close" title="סגור">✕</button>
       </div>
@@ -116,7 +120,19 @@
       <!-- Status -->
       <div id="sendStatus" class="send-status hidden"></div>
 
+      <div id="burstHint" class="burst-hint hidden" role="status" data-i18n="burst.hint">הועתקו כמה פריטים ברצף, אז חלוניות אוטומטיות מושהות לדקה.</div>
+
     </div>
+    <section id="snoozePanel" class="snooze-panel hidden" role="group" data-i18n-aria="snooze.title" aria-label="השהיית חלוניות אוטומטיות">
+      <div class="snooze-title" data-i18n="snooze.title">השהיית חלוניות אוטומטיות</div>
+      <button type="button" data-kind="m15" data-i18n="snooze.m15">ל-15 דקות</button>
+      <button type="button" data-kind="h1" data-i18n="snooze.h1">לשעה</button>
+      <button type="button" data-kind="tomorrow" data-i18n="snooze.tomorrow">עד מחר ב-08:00</button>
+      <button type="button" id="snoozeTypeBtn" data-kind="type"></button>
+      <div id="snoozeUndoHint" class="snooze-undo" data-i18n="snooze.undoHint">אפשר להחזיר בהגדרות, בלשונית סוגי זיהוי.</div>
+      <button type="button" class="snooze-back" data-kind="back" data-i18n="snooze.back">חזרה</button>
+    </section>
+    <div id="countdown" class="countdown idle" aria-hidden="true"><span></span></div>
   </main>
 
   <script src="popup.js"></script>

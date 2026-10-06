@@ -6,6 +6,12 @@ contextBridge.exposeInMainWorld('tapactSettings', {
     ipcRenderer.send('settings:save-templates', { templates, defaultTemplateId }),
   resetTemplates: () => ipcRenderer.send('settings:reset-templates'),
   saveSettings: (settings) => ipcRenderer.send('settings:save-settings', settings),
+  resumePopups: () => ipcRenderer.invoke('settings:resume-popups'),
+  onStateChanged: (callback) => {
+    const listener = (_e, st) => callback(st);
+    ipcRenderer.on('settings:state-changed', listener);
+    return () => ipcRenderer.removeListener('settings:state-changed', listener);
+  },
   getHistory: () => ipcRenderer.invoke('settings:get-history'),
   clearHistory: () => ipcRenderer.send('settings:clear-history'),
   exportHistoryCsv: () => ipcRenderer.invoke('settings:export-history-csv'),

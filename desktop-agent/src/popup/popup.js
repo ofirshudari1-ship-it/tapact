@@ -34,8 +34,9 @@ function timeAgoLabel(ts) {
   return popT('clip.time.day').replace('{n}', Math.round(hours / 24));
 }
 
+// {שם} and {name} are both filled (lib/template-fill.js).
 function fillWhatsappTemplate(text, name) {
-  return text.split('{שם}').join((name || '').trim()).replace(/[ \t]{2,}/g, ' ').replace(/ +([,.!?:;])/g, '$1').trim();
+  return window.TapActTemplate.fillMessageTemplate(text, name);
 }
 
 function currentLead() {
@@ -91,7 +92,8 @@ function fitWindow() {
   const ta = els.messageArea;
   if (ta) { ta.style.height = 'auto'; ta.style.height = Math.min(Math.max(ta.scrollHeight + 2, 56), 150) + 'px'; }
   const header = document.querySelector('.app-header');
-  const body = document.querySelector('.body');
+  const menuOpen = document.querySelector('.app').classList.contains('snooze-open');
+  const body = menuOpen ? document.getElementById('snoozePanel') : document.querySelector('.body');
   if (!header || !body) return;
   window.tapact.fitHeight(header.offsetHeight + body.scrollHeight + 2);
 }
@@ -333,8 +335,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.tapact.dismiss(); });
 
-  document.documentElement.addEventListener('mouseenter', () => window.tapact.setHover(true));
-  document.documentElement.addEventListener('mouseleave', () => window.tapact.setHover(false));
+  // Snooze menu, countdown bar and the holds that pause the countdown
+  // (hover, focused field, "more options" open, menu open).
+  window.TapActPopup.initSnoozeMenu({ api: window.tapact, type: data.type || 'phone', onLayout: fitWindow });
+  window.TapActPopup.initCountdown({ api: window.tapact });
+  window.TapActPopup.initHolds({ api: window.tapact, moreOptions: document.getElementById('moreOptions') });
+  window.TapActPopup.showBurstHint(!!data.burstNotice);
 
   // Default view is just number + message + send; the name field lives in
   // the collapsed "more options", so only focus it when it's visible.

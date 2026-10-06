@@ -29,14 +29,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  function fitWindow() {
+    const header = document.querySelector('.app-header');
+    const menuOpen = document.querySelector('.app').classList.contains('snooze-open');
+    const body = menuOpen ? document.getElementById('snoozePanel') : document.querySelector('.body');
+    if (!header || !body) return;
+    // +3 for the thin accent strip above the header.
+    window.tapactAction.fitHeight(header.offsetHeight + body.scrollHeight + 6);
+  }
+  window.TapActPopup.initSnoozeMenu({ api: window.tapactAction, type: data.type, onLayout: fitWindow });
+  window.TapActPopup.initCountdown({ api: window.tapactAction });
+  window.TapActPopup.initHolds({ api: window.tapactAction });
+  window.TapActPopup.showBurstHint(!!data.burstNotice);
+  fitWindow();
+
   settingsBtn.addEventListener('click', () => window.tapactAction.openSettings());
   closeBtn.addEventListener('click', () => window.tapactAction.dismiss());
 
   // Esc dismisses the popup, same as every other TapAct window/popup.
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.tapactAction.dismiss(); });
-
-  document.documentElement.addEventListener('mouseenter', () => window.tapactAction.setHover(true));
-  document.documentElement.addEventListener('mouseleave', () => window.tapactAction.setHover(false));
 
   ['keydown', 'click'].forEach((evt) =>
     document.addEventListener(evt, () => window.tapactAction.notifyActivity())

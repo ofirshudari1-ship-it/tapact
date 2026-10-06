@@ -6,5 +6,9 @@ contextBridge.exposeInMainWorld('tapactAction', {
   dismiss: () => ipcRenderer.send('action-popup:dismiss'),
   openSettings: () => ipcRenderer.send('action-popup:open-settings'),
   notifyActivity: () => ipcRenderer.send('action-popup:activity'),
-  setHover: (hovering) => ipcRenderer.send('action-popup:hover', !!hovering)
+  hold: (reason, on) => ipcRenderer.send('action-popup:hold', reason, !!on),
+  snooze: (kind) => ipcRenderer.send('action-popup:snooze', kind),
+  getCountdown: () => ipcRenderer.invoke('action-popup:get-countdown'),
+  onCountdown: (cb) => ipcRenderer.on('popup:countdown', (_e, state) => cb(state)),
+  fitHeight: (h) => ipcRenderer.send('action-popup:fit', h)
 });
