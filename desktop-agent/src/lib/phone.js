@@ -15,7 +15,25 @@ function extractCandidates(text) {
 // popped a WhatsApp popup the rep never wanted.
 const ISRAELI_NATIONAL = /^(?:5\d{8}|[23489]\d{7}|7[2-9]\d{7})$/;
 
+// Israeli ID numbers (teudat zehut) are 9 digits, often start with 0, and so look
+// like a 03-XXXXXXX landline. They carry a check digit (digits x 1,2,1,2..., sum
+// the digits of each product, total divisible by 10), a random landline passes
+// that only ~1 time in 10 - so a BARE 9-digit run starting with 0 that passes it
+// is treated as an ID, not a phone. Formatted numbers (03-456-7891, +972...)
+// are never affected.
+function isIsraeliId(nineDigits) {
+  if (!/^\d{9}$/.test(nineDigits)) return false;
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    let v = Number(nineDigits[i]) * ((i % 2) + 1);
+    if (v > 9) v -= 9;
+    sum += v;
+  }
+  return sum % 10 === 0;
+}
+
 function normalizeIsraeliPhone(raw) {
+  if (/^\s*0\d{8}\s*$/.test(raw) && isIsraeliId(raw.trim())) return null;
   let digits = raw.replace(/\D/g, '');
   if (digits.startsWith('00972')) digits = digits.slice(2);
   let national;
@@ -101,6 +119,7 @@ function buildWhatsAppUrl(normalizedPhone, message) {
 }
 
 module.exports = {
+  isIsraeliId,
   findPhone,
   fillTemplate,
   buildWhatsAppUrl,

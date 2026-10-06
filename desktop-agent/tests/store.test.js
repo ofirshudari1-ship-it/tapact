@@ -18,7 +18,7 @@ describe('getSettings / saveSettings', () => {
     const store = freshStore();
     const s = store.getSettings();
     expect(s.enabled).toBe(true);
-    expect(s.pollMs).toBe(400);
+    expect(s.pollMs).toBe(250);
     expect(s.autoCloseSeconds).toBe(7);
     expect(s.detectors.phone).toBe(true);
     expect(s.detectors.tracking).toBe(true);

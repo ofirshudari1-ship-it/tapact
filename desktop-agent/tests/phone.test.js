@@ -159,3 +159,19 @@ describe('findPhone - ordinary numbers must not look like phones', () => {
     'still detects %s', (text) => { expect(findPhone(text)).not.toBeNull(); }
   );
 });
+
+describe('findPhone - Israeli ID numbers starting with 0', () => {
+  const { isIsraeliId } = require('../src/lib/phone');
+  test('valid ID checksum is recognised', () => {
+    expect(isIsraeliId('034567891')).toBe(true);
+    expect(isIsraeliId('034567892')).toBe(false);
+  });
+  test('a bare valid ID is not a phone', () => { expect(findPhone('034567891')).toBeNull(); });
+  test('the same digits formatted as a landline still are', () => {
+    expect(findPhone('03-4567891')).not.toBeNull();
+    expect(findPhone('+972-3-456-7891')).not.toBeNull();
+  });
+  test('a bare 9-digit landline that fails the ID check is still a phone', () => {
+    expect(findPhone('034567892')).not.toBeNull();
+  });
+});

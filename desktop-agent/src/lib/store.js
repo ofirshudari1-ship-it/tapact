@@ -100,7 +100,7 @@ const LEAD_HISTORY_LIMIT = 50;
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  pollMs: 400,          // fast enough that the popup shows up while the cursor is still at the copy
+  pollMs: 250,          // fast enough that the popup shows up while the cursor is still at the copy
   dedupeSeconds: 10, // suppresses re-popping the SAME clipboard text too often
   autoCloseSeconds: 7,
   sendDedupeMinutes: 30, // "you already messaged this lead" warning window
@@ -256,6 +256,11 @@ function migrateSettings(saved) {
   if (!done.has('poll400')) {
     if (s.pollMs === 800) { s.pollMs = 400; changed = true; }
     mark('poll400');
+  }
+  // 400ms -> 250ms: very quick successive copies were missed between polls (about 0.05% CPU).
+  if (!done.has('poll250')) {
+    if (s.pollMs === 400) { s.pollMs = 250; changed = true; }
+    mark('poll250');
   }
   // Removed settings: the Windows balloon toggle, the start-minimized toggle and the old balloon-off marker.
   // The old balloon-off marker also recorded that the date detector was switched off once.

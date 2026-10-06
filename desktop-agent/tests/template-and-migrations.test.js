@@ -29,8 +29,8 @@ describe('settings migrations', () => {
     const r = store.migrateSettings({ autoCloseSeconds: 10, pollMs: 800 });
     expect(r.changed).toBe(true);
     expect(r.settings.autoCloseSeconds).toBe(7);
-    expect(r.settings.pollMs).toBe(400);
-    expect(r.settings.migrationsApplied).toEqual(expect.arrayContaining(['autoClose7', 'poll400']));
+    expect(r.settings.pollMs).toBe(250);
+    expect(r.settings.migrationsApplied).toEqual(expect.arrayContaining(['autoClose7', 'poll400', 'poll250']));
     const again = store.migrateSettings({ ...r.settings, autoCloseSeconds: 10, pollMs: 800 });
     expect(again.settings.autoCloseSeconds).toBe(10);
     expect(again.settings.pollMs).toBe(800);
@@ -42,7 +42,7 @@ describe('settings migrations', () => {
     expect(r.settings.pollMs).toBe(1000);
   });
   test('removed settings are dropped; balloon-off marker carries over to the date-detector marker', () => {
-    const r = fresh().migrateSettings({ showTrayNotification: true, startMinimized: true, trayBalloonOffApplied: true, migrationsApplied: ['autoClose7', 'poll400'] });
+    const r = fresh().migrateSettings({ showTrayNotification: true, startMinimized: true, trayBalloonOffApplied: true, migrationsApplied: ['autoClose7', 'poll400', 'poll250'] });
     expect(r.settings).not.toHaveProperty('showTrayNotification');
     expect(r.settings).not.toHaveProperty('startMinimized');
     expect(r.settings).not.toHaveProperty('trayBalloonOffApplied');
