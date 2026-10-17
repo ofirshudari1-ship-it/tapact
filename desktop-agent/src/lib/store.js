@@ -179,7 +179,7 @@ const DEFAULT_SETTINGS = {
   // disk this default is never consulted again, so it can't override a
   // language the user picked afterward in Settings.
   language: resolveDefaultLanguage(),       // 'he' | 'en'
-  theme: 'dark',        // 'dark' | 'light'
+  theme: 'dark',        // 'dark' | 'light' | 'auto'
   // Startup & window behavior
   closeToTray: true,      // X button hides instead of quitting
   // Shown once, the first time a window is ever hidden (not closed) to the

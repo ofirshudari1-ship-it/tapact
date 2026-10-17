@@ -529,6 +529,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (st.detectors) applyDetectorSwitches(st.detectors);
     });
   }
+  if (window.tapactSettings.onThemeChanged) {
+    window.tapactSettings.onThemeChanged((theme) => applyAppTheme(theme));
+  }
   s.autoLaunchCheck.checked = settings.autoLaunch;
   s.pollInput.value = settings.pollMs;
   s.dedupeInput.value = settings.dedupeSeconds;
@@ -1308,11 +1311,14 @@ function applyAppLanguage(lang) {
 }
 
 function applyAppTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  // Update segmented controls
+  const resolved = theme === 'auto'
+    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    : (theme === 'light' ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', resolved);
+  // Keep the seg-btn highlight on the *stored* value (auto/dark/light), not the resolved one
   document.querySelectorAll('#themeSeg .seg-btn').forEach((b) => { b.classList.toggle('active', b.dataset.val === theme); b.setAttribute('aria-pressed', String(b.dataset.val === theme)); });
   // Update header pill
-  if (s.themeToggleBtn) s.themeToggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+  if (s.themeToggleBtn) s.themeToggleBtn.textContent = resolved === 'dark' ? '🌙' : '☀️';
 }
 
 function saveSetting(key, value) {

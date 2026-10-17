@@ -73,5 +73,10 @@ contextBridge.exposeInMainWorld('tapactSettings', {
   // immediately - same 'settings:save-one' channel the welcome window uses
   // for its own single-toggle saves (see main.js's handler + lib/
   // settings-guard.js's allowlist), not tied to any tab's bulk Save button.
-  setAutoInstallUpdates: (value) => ipcRenderer.invoke('settings:save-one', { key: 'autoInstallUpdates', value })
+  setAutoInstallUpdates: (value) => ipcRenderer.invoke('settings:save-one', { key: 'autoInstallUpdates', value }),
+  onThemeChanged: (callback) => {
+    const listener = (_e, theme) => callback(theme);
+    ipcRenderer.on('theme:changed', listener);
+    return () => ipcRenderer.removeListener('theme:changed', listener);
+  }
 });

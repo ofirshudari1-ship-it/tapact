@@ -1,4 +1,4 @@
-const { app, Tray, Menu, BrowserWindow, clipboard, shell, screen, ipcMain, globalShortcut, dialog } = require('electron');
+const { app, Tray, Menu, BrowserWindow, clipboard, shell, screen, ipcMain, globalShortcut, dialog, nativeTheme } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -956,9 +956,14 @@ function openWelcomeWindow() {
 // Read by src/lib/window-boot.js in every window's <head>: sets lang/dir/
 // theme before the first paint (the windows otherwise start from their HTML
 // defaults until their own IPC init returns).
+function resolveTheme(themeSetting) {
+  if (themeSetting === 'auto') return nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+  return themeSetting === 'light' ? 'light' : 'dark';
+}
+
 function bootQuery() {
   const settings = store.getSettings();
-  return { lang: settings.language === 'he' ? 'he' : 'en', theme: settings.theme === 'light' ? 'light' : 'dark' };
+  return { lang: settings.language === 'he' ? 'he' : 'en', theme: resolveTheme(settings.theme) };
 }
 
 // Language, theme and the two shortcuts the guide mentions, handed to the
@@ -2047,6 +2052,16 @@ if (!gotSingleInstanceLock) {
     startClipboardWatcher();
     applyAutoLaunch();
     registerAllShortcuts();
+    // When the user has theme:auto, re-broadcast the theme to every open window
+    // whenever Windows switches dark/light mode.
+    nativeTheme.on('updated', () => {
+      const s = store.getSettings();
+      if ((s.theme || 'dark') !== 'auto') return;
+      const resolved = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) win.webContents.send('theme:changed', resolved);
+      }
+    });
     // TapAct always starts in the tray; the first-run welcome guide shows once.
     maybeShowWelcome();
     // Non-blocking; give the tray/clipboard-watcher startup a few seconds

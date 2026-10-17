@@ -23,7 +23,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     (action.actions || []).forEach((a, index) => {
       const btn = document.createElement('button');
       btn.className = index === 0 ? 'btn primary' : 'btn secondary';
-      btn.textContent = a.label;
+      if (index < 5) {
+        const hint = document.createElement('span');
+        hint.className = 'kbd-hint';
+        hint.textContent = String(index + 1);
+        hint.setAttribute('aria-hidden', 'true');
+        const label = document.createElement('span');
+        label.textContent = a.label;
+        btn.appendChild(hint);
+        btn.appendChild(label);
+      } else {
+        btn.textContent = a.label;
+      }
       btn.addEventListener('click', () => window.tapactAction.runAction(index));
       actionsList.appendChild(btn);
     });
@@ -46,8 +57,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   settingsBtn.addEventListener('click', () => window.tapactAction.openSettings());
   closeBtn.addEventListener('click', () => window.tapactAction.dismiss());
 
-  // Esc dismisses the popup, same as every other TapAct window/popup.
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.tapactAction.dismiss(); });
+  // Esc dismisses; 1-5 fire the nth action button without clicking.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { window.tapactAction.dismiss(); return; }
+    if (!e.ctrlKey && !e.altKey && !e.metaKey) {
+      const idx = ['1', '2', '3', '4', '5'].indexOf(e.key);
+      if (idx !== -1) {
+        const btns = actionsList.querySelectorAll('.btn');
+        if (btns[idx]) btns[idx].click();
+      }
+    }
+  });
 
   ['keydown', 'click'].forEach((evt) =>
     document.addEventListener(evt, () => window.tapactAction.notifyActivity())
